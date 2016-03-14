@@ -3,9 +3,13 @@
 
 package screens
 { 	
-	import assets.Assets;
-	
 	import com.greensock.TweenLite;
+	
+	import flash.media.Sound;
+	import flash.media.SoundChannel;
+	import flash.net.URLRequest;
+	
+	import assets.Assets;
 	
 	import starling.display.Button;
 	import starling.display.Image;
@@ -18,9 +22,11 @@ package screens
 		private var logo:Image;
 		private var char:Image;
 		private var border:Image;
-		
+		private var cloud1:Image;
+		private var cloud2:Image;
 		private var playBtn:Button;
 		private var aboutBtn:Button;
+		private var sound:Sound;
 		
 		public function Welcome()
 		{
@@ -29,15 +35,39 @@ package screens
 		
 		private function onAddedToStage(event:Event):void
 		{
+			
+			
 			drawScreen();
-		}
 		
+		
+		}
+	
 		
 		//Drawing welcome screen graphics
 		private function drawScreen():void
 		{
+		
+			var soundFile:URLRequest = new URLRequest("bg_musicwelcome.mp3");        
+			var song:Sound = new Sound();
+			song.load(soundFile);
+			song.play();
+			
 			bg = new Image (Assets.getTexture("BgWelcome"));
 			this.addChild(bg);
+			
+			
+			cloud1 = new Image(Assets.getTexture("Cloud1"));
+			this.addChild(cloud1);
+			cloud1.y = 60;
+			cloud1.x = 50;
+			
+			cloud2 = new Image(Assets.getTexture("Cloud2"));
+			this.addChild(cloud2);
+			cloud2.y = 30;
+			cloud2.x = -700
+			
+			char = new Image (Assets.getTexture("BgChar"));
+			this.addChild(char);
 			
 			border = new Image(Assets.getTexture("Leaves"));
 			this.addChild(border);
@@ -47,9 +77,6 @@ package screens
 			logo.y = 50
 			logo.x = 500
 			
-			char = new Image (Assets.getTexture("BgChar"));
-			//this.addChild(char);
-		
 			playBtn = new Button (Assets.getTexture("BgStart"));
 			this.addChild(playBtn);
 			playBtn.x = 700;
@@ -58,7 +85,15 @@ package screens
 			this.addChild(aboutBtn);
 			aboutBtn.x = 700;
 
+			
+		
 		}
+		
+		private function startTheme():void
+		{
+			
+		}
+		
 		
 		//Welcomescreen initialize
 		public function initialize():void
@@ -67,7 +102,7 @@ package screens
 			char.x = -char.width;
 			char.y = 180;	
 			
-			TweenLite.to(char, 2, {x:140});
+			TweenLite.to(char, 4, {x:140});
 			this.addEventListener(Event.ENTER_FRAME, animation);
 		
 		}
@@ -86,7 +121,19 @@ package screens
 			
 			aboutBtn.y = 430 + (Math.cos(currentDate.getTime() * 0.002) * 9);
 			//aboutBtn.x = 700 + (Math.cos(currentDate.getTime() * 0.002) * 5);
+		
+			cloud1.x += 0.5;
+			cloud2.x += 0.5;
+			
+			if (cloud1.x > 1200)
+			{
+				cloud1.x = -500;
+			}
+			
+			if (cloud2.x > 1200)
+			{
+				cloud2.x = -200;
+			}
 		}
-	
 	}	
 }
