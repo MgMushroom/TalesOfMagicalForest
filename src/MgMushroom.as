@@ -6,6 +6,7 @@
 
 package 
 {
+	
 	import flash.display.Sprite;
 	import screens.InGame;
 	import starling.core.Starling;
@@ -21,7 +22,7 @@ package
 		public function MgMushroom()
 		{
 			// Create a Starling instance, running "Game" class
-			mStarling = new Starling(Game, stage);
+			mStarling = new Starling(InGame, stage);
 			mStarling.start();
 		}
 	}
