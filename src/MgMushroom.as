@@ -8,7 +8,10 @@ package
 {
 	
 	import flash.display.Sprite;
+	import screens.InGame;
 	import starling.core.Starling;
+	import objects.Hero;
+	import screens.Intro;
 	
 	//Setting up stage parameters
 	[SWF(width="1200", height="800", frameRate="60", backgroundColor="#000000", wmode="direct")]

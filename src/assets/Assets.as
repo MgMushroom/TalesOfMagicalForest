@@ -26,12 +26,19 @@ package assets
 		public static const BgStart:Class;
 		[Embed(source="/../Media/Pics/welcomeAbout.png")]
 		public static const BgAbout:Class;
+
 		[Embed(source="/../Media/Pics/leaves.png")]
 		public static const Leaves:Class;
 		[Embed(source="/../Media/Pics/cloud1.gif")]
 		public static const Cloud1:Class;
 		[Embed(source="/../Media/Pics/cloud2.png")]
 		public static const Cloud2:Class;
+
+		[Embed(source="/../Media/Pics/magicMushroom.gif")] 
+		public static const MagicHero:Class;
+	
+		[Embed(source="/../Media/Pics/bg_intro.png")] 
+		public static const BgIntro:Class;
 		
 		//making dictionary from embed graphics
 		private static var gameTextures:Dictionary = new Dictionary();

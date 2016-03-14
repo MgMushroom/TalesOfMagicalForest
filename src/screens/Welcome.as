@@ -5,16 +5,22 @@ package screens
 { 	
 	import com.greensock.TweenLite;
 	
+	import flash.events.TimerEvent;
 	import flash.media.Sound;
 	import flash.media.SoundChannel;
 	import flash.net.URLRequest;
+	import flash.text.TextField;
+	import flash.utils.*;
 	
 	import assets.Assets;
 	
+	import events.NavigationEvent;
 	import starling.display.Button;
 	import starling.display.Image;
 	import starling.display.Sprite;
 	import starling.events.Event;
+	
+	import events.delayedFunctionCall;
 	
 	public class Welcome extends Sprite
 	{
@@ -26,7 +32,12 @@ package screens
 		private var cloud2:Image;
 		private var playBtn:Button;
 		private var aboutBtn:Button;
-		private var sound:Sound;
+		private var bgIntro:Image;
+		
+		public var soundC:SoundChannel = new SoundChannel;
+		public var songLength:String;
+		public var soundIntro:SoundChannel = new SoundChannel;
+		
 		
 		public function Welcome()
 		{
@@ -35,22 +46,13 @@ package screens
 		
 		private function onAddedToStage(event:Event):void
 		{
-			
-			
 			drawScreen();
-		
-		
 		}
-	
 		
 		//Drawing welcome screen graphics
 		private function drawScreen():void
-		{
-		
-			var soundFile:URLRequest = new URLRequest("bg_musicwelcome.mp3");        
-			var song:Sound = new Sound();
-			song.load(soundFile);
-			song.play();
+		{	
+			welcomeMusic();
 			
 			bg = new Image (Assets.getTexture("BgWelcome"));
 			this.addChild(bg);
@@ -84,16 +86,29 @@ package screens
 			aboutBtn = new Button (Assets.getTexture("BgAbout"));
 			this.addChild(aboutBtn);
 			aboutBtn.x = 700;
-
 			
+			this.addEventListener(Event.TRIGGERED, onMainMenuClick);
 		
 		}
 		
-		private function startTheme():void
+		private function welcomeMusic():void
 		{
-			
+			var soundFile:URLRequest = new URLRequest("bg_musicwelcome.mp3");        
+			var song:Sound = new Sound();
+			song.load(soundFile);
+			soundC = song.play();
 		}
 		
+		private function onMainMenuClick(event:Event):void
+		{
+			var buttonClicked:Button = event.target as Button;
+			if(	(buttonClicked as Button) == playBtn)	
+			{
+				this.dispatchEvent(new NavigationEvent(NavigationEvent.CHANGE_SCREEN,{id: "play"}, true));
+				
+				
+			}
+		}
 		
 		//Welcomescreen initialize
 		public function initialize():void
@@ -105,6 +120,12 @@ package screens
 			TweenLite.to(char, 4, {x:140});
 			this.addEventListener(Event.ENTER_FRAME, animation);
 		
+		}
+		
+		public function disposeTemporarily():void
+		{
+			this.visible = false;
+			//if(this.hasEventListener(Event.ENTER_FRAME))this.removeEventListener(Event.ENTER_FRAME,heroAnimation);
 		}
 		
 		//Setting up animations and locations
@@ -127,12 +148,12 @@ package screens
 			
 			if (cloud1.x > 1200)
 			{
-				cloud1.x = -500;
+				cloud1.x = -700;
 			}
 			
 			if (cloud2.x > 1200)
 			{
-				cloud2.x = -200;
+				cloud2.x = -500;
 			}
 		}
 	}	
