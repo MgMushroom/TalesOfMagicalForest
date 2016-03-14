@@ -16,16 +16,19 @@ package assets
 	public class Assets extends Sprite
 	{
 		//importing graphics
-		[Embed(source="../Media/Pics/bgWelcome.png")]
+		[Embed(source="/../Media/Pics/bgWelcome.png")]
 		public static const BgWelcome:Class;
-		[Embed(source="../Media/Pics/welcomeLogo.png")]
+		[Embed(source="/../Media/Pics/welcomeLogo.png")]
 		public static const BgLogo:Class;
-		[Embed(source="../Media/Pics/welcomeChar.gif")]
+		[Embed(source="/../Media/Pics/welcomeChar.gif")]
 		public static const BgChar:Class;
-		[Embed(source="../Media/Pics/welcomeStart.png")]
+		[Embed(source="/../Media/Pics/welcomeStart.png")]
 		public static const BgStart:Class;
-		[Embed(source="../Media/Pics/welcomeAbout.png")]
+		[Embed(source="/../Media/Pics/welcomeAbout.png")]
 		public static const BgAbout:Class;
+		[Embed(source="/../Media/Pics/leaves.png")]
+		public static const Leaves:Class;
+		
 		
 		//making dictionary from embed graphics
 		private static var gameTextures:Dictionary = new Dictionary();

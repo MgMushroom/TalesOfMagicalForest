@@ -17,6 +17,7 @@ package screens
 		private var bg:Image;
 		private var logo:Image;
 		private var char:Image;
+		private var border:Image;
 		
 		private var playBtn:Button;
 		private var aboutBtn:Button;
@@ -38,13 +39,16 @@ package screens
 			bg = new Image (Assets.getTexture("BgWelcome"));
 			this.addChild(bg);
 			
+			border = new Image(Assets.getTexture("Leaves"));
+			this.addChild(border);
+			
 			logo = new Image (Assets.getTexture("BgLogo"));
 			this.addChild(logo);
-			logo.y = 100
+			logo.y = 50
 			logo.x = 500
 			
 			char = new Image (Assets.getTexture("BgChar"));
-			this.addChild(char);
+			//this.addChild(char);
 		
 			playBtn = new Button (Assets.getTexture("BgStart"));
 			this.addChild(playBtn);
@@ -77,10 +81,10 @@ package screens
 			//logo.y = 100 + (Math.cos(currentDate.getTime() * 0.002) * 10);
 			//logo.x = 500 + (Math.cos(currentDate.getTime() * 0.002) * 2);
 			
-			playBtn.y = 350 + (Math.cos(currentDate.getTime() * 0.002) * 12);
+			playBtn.y = 300 + (Math.cos(currentDate.getTime() * 0.002) * 12);
 			//playBtn.x = 700 + (Math.cos(currentDate.getTime() * 0.002) * 3);
 			
-			aboutBtn.y = 500 + (Math.cos(currentDate.getTime() * 0.002) * 9);
+			aboutBtn.y = 430 + (Math.cos(currentDate.getTime() * 0.002) * 9);
 			//aboutBtn.x = 700 + (Math.cos(currentDate.getTime() * 0.002) * 5);
 		}
 	
