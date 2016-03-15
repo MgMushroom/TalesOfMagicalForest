@@ -25,6 +25,7 @@ package GameControls
 		private var dDown:Boolean;
 		public var grav:int = 0;
 		
+		private var speedHero:Number;
 		
 		
 		
@@ -48,6 +49,9 @@ package GameControls
 		public function checkStuff(e:Event):void 
 		//if true move hero.x ( only a and d keys now)
 			{
+				//hero movement speed
+				speedHero = 7;
+			
 			//stage.addEventListener(Event.ENTER_FRAME, checkStuff);
 			stage.addEventListener(starling.events.KeyboardEvent.KEY_DOWN, keysDown);
 			stage.addEventListener(starling.events.KeyboardEvent.KEY_UP, keysUp);
@@ -57,7 +61,7 @@ package GameControls
 			{
 				
 				heroArt.texture = Assets.getTexture("MagicHeroL");
-				heroArt.x -= 5; //move left
+				heroArt.x -= speedHero; //move left
 				//heroArtR.scaleX = -1; // face to the left
 				
 				}
@@ -66,7 +70,7 @@ package GameControls
 				
 				
 				heroArt.texture = Assets.getTexture("MagicHeroR");
-				heroArt.x += 5;	//move right
+				heroArt.x += speedHero;	//move right
 				//heroArtL.scaleX = 1; // face to the right
 				
 				//heroArt.x -= heroArt.width;
