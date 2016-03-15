@@ -11,6 +11,7 @@ package
 	import screens.InGame;
 	import starling.core.Starling;
 	import objects.Hero;
+	import screens.Intro;
 	
 	//Setting up stage parameters
 	[SWF(width="1200", height="800", frameRate="60", backgroundColor="#000000", wmode="direct")]
@@ -22,7 +23,7 @@ package
 		public function MgMushroom()
 		{
 			// Create a Starling instance, running "Game" class
-			mStarling = new Starling(InGame, stage);
+			mStarling = new Starling(Game, stage);
 			mStarling.start();
 		}
 	}

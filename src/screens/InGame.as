@@ -2,13 +2,17 @@ package screens
 {
 	//import flash.events.Event;
 	
+
+	import com.greensock.TweenLite;
+
 	import GameControls.GameControl;
+
 	import objects.Hero;
-	import starling.display.Sprite;
-	import starling.textures.Texture;
-	import starling.events.Event;
+	
 	import starling.display.Quad;
 	import starling.display.Sprite;
+	import starling.events.Event;
+	import starling.textures.Texture;
 	import starling.utils.Color;
 	import flash.events.KeyboardEvent;
 	
@@ -39,7 +43,7 @@ package screens
 			hero = new Hero();
 			this.addChild(hero);
 			
-			HeroMovement();
+			//HeroMovement();
 		}
 		
 		private function HeroMovement():void
@@ -50,8 +54,24 @@ package screens
 			
 		}
 		
+
+		public function initialize():void
+		{
+			this.visible = true;
+			
+			
+		}
+		
+		public function disposeTemporarily():void
+		{
+			this.visible = false;
+			
+		}
+	
+
 		
 		
+
 	}
 
 }
