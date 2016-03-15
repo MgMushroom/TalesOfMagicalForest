@@ -1,5 +1,6 @@
 package objects 
 {
+	import GameControls.GameControl;
 	import starling.textures.Texture;
 	import assets.Assets;
 	//import flash.events.Event;
@@ -11,12 +12,15 @@ package objects
 	public class Hero extends Sprite 
 	{
 		trace("2");
+		private var heroControls:GameControl;
 		private var heroArt:Image;
 		
 		public function Hero() 
 		{
 			trace("3");
 			super();
+			heroControls = new GameControl;
+			addChild(heroControls);
 			this.addEventListener(starling.events.Event.ADDED_TO_STAGE,onAddedToStage);	
 		}
 		
@@ -25,6 +29,7 @@ package objects
 			trace("4");
 			this.removeEventListener(starling.events.Event.ADDED_TO_STAGE, onAddedToStage);
 			createHeroArt();
+			
 		}
 		//Haetaan heron textuuri
 		private function createHeroArt():void 

@@ -43,7 +43,7 @@ package screens
 			hero = new Hero();
 			this.addChild(hero);
 			
-			HeroMovement();
+			//HeroMovement();
 		}
 		
 		private function HeroMovement():void
