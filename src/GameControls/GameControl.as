@@ -23,6 +23,7 @@ package GameControls
 		//private var hero:Hero;
 		private var aDown:Boolean;
 		private var dDown:Boolean;
+		private var wDown:Boolean;
 		public var grav:int = 0;
 		
 		private var speedHero:Number;
@@ -39,7 +40,7 @@ package GameControls
 		
 			heroArt = new Image(Assets.getTexture("MagicHeroR"));
 			heroArt.x = 25;
-			heroArt.y = 300;
+			heroArt.y = 445;
 			this.addChild(heroArt);
 			trace("5");
 			
@@ -57,6 +58,22 @@ package GameControls
 			stage.addEventListener(starling.events.KeyboardEvent.KEY_UP, keysUp);
 		
 			//heroArt.gravity();
+			
+			
+			if(heroArt.y < 445)
+			{
+				heroArt.y += 10
+			}
+			
+			if(wDown)
+			{
+				if (heroArt.y == 452 || heroArt.y == 445)
+				{
+					heroArt.y += 7;
+				}
+			}
+			
+			
 			if (aDown)
 			{
 				
@@ -80,6 +97,12 @@ package GameControls
 		public function keysDown(e:KeyboardEvent):void 
 			{//Check if a or d key pushed
 				trace ("9");
+				
+				if (e.keyCode == 87)//Is a pressed
+				{
+					wDown = true;//if its set it to true
+				}
+				
 				if (e.keyCode == 65)//Is a pressed
 				{
 				aDown = true;//if its set it to true

@@ -50,6 +50,8 @@ package assets
 		[Embed(source="/../Media/Pics/logo.png")] 
 		public static const BrandLogo:Class;
 		
+		[Embed(source="/../Media/Pics/night.png")] 
+		public static const InGameBG:Class;
 		
 		//making dictionary from embed graphics
 		private static var gameTextures:Dictionary = new Dictionary();

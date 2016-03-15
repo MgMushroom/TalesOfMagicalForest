@@ -4,22 +4,27 @@ package screens
 	
 
 	import com.greensock.TweenLite;
-
+	
+	import flash.events.KeyboardEvent;
+	
 	import GameControls.GameControl;
-
+	
+	import assets.Assets;
+	
 	import objects.Hero;
 	
+	import starling.display.Image;
 	import starling.display.Quad;
 	import starling.display.Sprite;
 	import starling.events.Event;
 	import starling.textures.Texture;
 	import starling.utils.Color;
-	import flash.events.KeyboardEvent;
 	
 	public class InGame extends Sprite 
 	{
 		trace ("1");
 		private var hero:Hero;
+		private var ingameBG:Image;
 		private var aDown:Boolean = true;
 		private var dDown:Boolean = true;
 		private var HeroM:GameControl;
@@ -40,6 +45,10 @@ package screens
 		private function drawHero():void 
 		{
 			//Haetaan hero Hero classistä
+			
+			ingameBG = new Image(Assets.getTexture("InGameBG"));
+			this.addChild(ingameBG);
+			
 			hero = new Hero();
 			this.addChild(hero);
 			
