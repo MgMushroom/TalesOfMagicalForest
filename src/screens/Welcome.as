@@ -10,17 +10,16 @@ package screens
 	import flash.media.SoundChannel;
 	import flash.net.URLRequest;
 	import flash.text.TextField;
-	import flash.utils.*;
 	
 	import assets.Assets;
 	
 	import events.NavigationEvent;
+	import events.delayedFunctionCall;
+	
 	import starling.display.Button;
 	import starling.display.Image;
 	import starling.display.Sprite;
 	import starling.events.Event;
-	
-	import events.delayedFunctionCall;
 	
 	public class Welcome extends Sprite
 	{
@@ -33,6 +32,7 @@ package screens
 		private var playBtn:Button;
 		private var aboutBtn:Button;
 		private var bgIntro:Image;
+		private var brandLogo:Image;
 		
 		public var soundC:SoundChannel = new SoundChannel;
 		public var songLength:String;
@@ -46,7 +46,13 @@ package screens
 		
 		private function onAddedToStage(event:Event):void
 		{
+
 			drawScreen();
+
+			
+			drawScreen();
+		
+
 		}
 		
 		//Drawing welcome screen graphics
@@ -87,6 +93,12 @@ package screens
 			this.addChild(aboutBtn);
 			aboutBtn.x = 700;
 			
+			brandLogo = new Image(Assets.getTexture("BrandLogo"))
+			this.addChild(brandLogo);
+			brandLogo.x = 250;
+			brandLogo.y = 250;
+			
+			
 			this.addEventListener(Event.TRIGGERED, onMainMenuClick);
 		
 		}
@@ -105,7 +117,7 @@ package screens
 			if(	(buttonClicked as Button) == playBtn)	
 			{
 				this.dispatchEvent(new NavigationEvent(NavigationEvent.CHANGE_SCREEN,{id: "play"}, true));
-				
+				soundC.stop();
 				
 			}
 		}

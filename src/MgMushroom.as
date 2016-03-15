@@ -23,7 +23,7 @@ package
 		public function MgMushroom()
 		{
 			// Create a Starling instance, running "Game" class
-			mStarling = new Starling(Game, stage);
+			mStarling = new Starling(InGame, stage);
 			mStarling.start();
 		}
 	}
