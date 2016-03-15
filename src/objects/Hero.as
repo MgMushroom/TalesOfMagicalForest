@@ -34,10 +34,10 @@ package objects
 		//Haetaan heron textuuri
 		private function createHeroArt():void 
 		{
-			heroArt = new Image(Assets.getTexture("MagicHero"));
-			heroArt.x = 25
-			heroArt.y = 300
-			this.addChild(heroArt);
+			//heroArt = new Image(Assets.getTexture("MagicHero"));
+			//heroArt.x = 25
+			//eroArt.y = 300
+			//this.addChild(heroArt);
 			trace("5");
 		}
 		
