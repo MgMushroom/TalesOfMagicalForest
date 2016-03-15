@@ -94,7 +94,7 @@ package screens
 			aboutBtn.x = 700;
 			
 			brandLogo = new Image(Assets.getTexture("BrandLogo"))
-			this.addChild(brandLogo);
+			//this.addChild(brandLogo);
 			brandLogo.x = 250;
 			brandLogo.y = 250;
 			
