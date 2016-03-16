@@ -10,6 +10,7 @@ package screens
 	import flash.media.SoundChannel;
 	import flash.net.URLRequest;
 	import flash.text.TextField;
+	import flash.utils.getTimer;
 	
 	import assets.Assets;
 	
@@ -78,6 +79,7 @@ package screens
 			cloud2.x = -700
 			
 			char = new Image (Assets.getTexture("BgChar"));
+			char.x = -300;
 			this.addChild(char);
 			
 			border = new Image(Assets.getTexture("Leaves"));
@@ -85,7 +87,7 @@ package screens
 			
 			logo = new Image (Assets.getTexture("BgLogo"));
 			this.addChild(logo);
-			logo.y = 50
+			logo.y = 85
 			logo.x = 500
 			
 			playBtn = new Button (Assets.getTexture("BgStart"));
@@ -107,6 +109,7 @@ package screens
 			var song:Sound = new Sound();
 			song.load(soundFile);
 			soundC = song.play();
+
 		}
 		
 		
@@ -136,10 +139,24 @@ package screens
 		//Bring welcomescreen char tween
 		private function charTween():void
 		{
-			char.x = -char.width;
-			char.y = 180;	
-			TweenLite.to(char, 4, {x:140});
+			var startTime=getTimer();
 			
+			stage.addEventListener(Event.ENTER_FRAME, timeDelay);
+			
+			function timeDelay(event:Event):void
+			{
+				
+				var timePassed=getTimer();
+				if (timePassed-startTime >= 6500) 
+				{
+					stage.removeEventListener(Event.ENTER_FRAME, timeDelay);
+					
+					char.x = -char.width;
+					char.y = 180;	
+					TweenLite.to(char, 4, {x:140});
+					
+				}
+			}
 		}
 		
 		//disposing welcome screen
@@ -155,8 +172,8 @@ package screens
 			var currentDate:Date = new Date();
 			char.y = 180 + (Math.cos(currentDate.getTime() * 0.002) * 25);
 			
-			playBtn.y = 300 + (Math.cos(currentDate.getTime() * 0.002) * 12);
-			aboutBtn.y = 430 + (Math.cos(currentDate.getTime() * 0.002) * 9);
+			playBtn.y = 325 + (Math.cos(currentDate.getTime() * 0.002) * 12);
+			aboutBtn.y = 455 + (Math.cos(currentDate.getTime() * 0.002) * 9);
 			
 		
 			cloud1.x += 0.5;

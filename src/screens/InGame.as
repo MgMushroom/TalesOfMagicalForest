@@ -1,16 +1,20 @@
 package screens 
 {
 	
-	import GameControls.GameControl;
-	import assets.Assets;
-	import objects.Hero;
-	
 	import com.greensock.TweenLite;
 	
 	import flash.events.KeyboardEvent;
 	
-	import starling.display.MovieClip;
+	import GameControls.GameControl;
+	
+	import Tools.Map1;
+	
+	import assets.Assets;
+	
+	import objects.Hero;
+	
 	import starling.display.Image;
+	import starling.display.MovieClip;
 	import starling.display.Quad;
 	import starling.display.Sprite;
 	import starling.events.Event;
@@ -27,7 +31,9 @@ package screens
 		
 		//InGame images
 		private var ingameBG:Image;
-		
+		//
+		//InGame movieclips
+		private var ingameBGS:MovieClip = new Map1() as MovieClip;
 
 		public function InGame() 
 		{
@@ -39,6 +45,9 @@ package screens
 		private function onAddedToStage(event:Event):void 
 		{
 			this.removeEventListener(starling.events.Event.ADDED_TO_STAGE, onAddedToStage);
+			
+			
+			
 			drawWorld();
 			creatHero();
 			
@@ -47,6 +56,8 @@ package screens
 		//draw graphics too InGame
 		private function drawWorld():void
 		{
+			
+			
 			ingameBG = new Image(Assets.getTexture("InGameBG"));
 			this.addChild(ingameBG);
 			

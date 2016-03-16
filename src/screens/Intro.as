@@ -32,10 +32,10 @@ package screens
 			bgIntro = new Image(Assets.getTexture("BgIntro"));
 			addChild(bgIntro);
 			
-			var soundFileIntro:URLRequest = new URLRequest("msstudio.mp3");        
-			var intro:Sound = new Sound();
-			intro.load(soundFileIntro);
-			soundIntro = intro.play();
+			var soundFileSoundA1:URLRequest = new URLRequest("msstudio.mp3");        
+			var soundA1:Sound = new Sound();
+			soundA1.load(soundFileSoundA1);
+			soundIntro = soundA1.play();
 		}	
 	
 		public function initialize():void

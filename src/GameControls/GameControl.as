@@ -3,8 +3,13 @@ package GameControls
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.events.EventDispatcher;
+	import flash.media.Sound;
+	import flash.media.SoundChannel;
+	import flash.net.URLRequest;
+	import flash.utils.getTimer;
 	
 	import assets.Assets;
+	
 	import objects.Hero;
 	
 	import starling.display.Image;
@@ -15,25 +20,24 @@ package GameControls
 	
 	public class GameControl extends Sprite 
 	{
-		
-		//Image variables
+	//Image variables
 		private var heroArt:Image;
 		private var heroArtL:Image;
 		private var heroArtR:Image;
-		
-		//Boolean variables
+	//Boolean variables
 		private var aDown:Boolean;
 		private var dDown:Boolean;
 		private var spaceDown:Boolean;
-		
+		private var heroAttackL:Boolean;
+		private var heroAttackR:Boolean;
 		public var grav:int = 0;
-		
-		//heroSpeed
+	//heroSpeed
 		private var speedHero:Number;
+	//Sound variables
+		private var soundAmoutControl:int;
 		
 		
-		
-		//Get texture for hero and handle player controls
+	//Get texture for hero and handle player controls
 		public function GameControl() 
 		{	
 			this.addEventListener(Event.ENTER_FRAME, checkKeysAndParams);
@@ -50,6 +54,48 @@ package GameControls
 			trace("heroArt brougth");
 			
 		}
+		
+		private function attack():void
+		{
+			var startTime=getTimer();
+			
+			stage.addEventListener(Event.ENTER_FRAME, timeDelay);
+			
+			function timeDelay(event:Event):void
+			{
+				
+				var timePassed=getTimer();
+				if (timePassed-startTime >= 100) 
+				{
+					stage.removeEventListener(Event.ENTER_FRAME, timeDelay);
+					
+					if(heroArt.texture == Assets.getTexture("MagicHeroLAttack"))
+					{
+					heroArt.texture = Assets.getTexture("MagicHeroL");
+					
+					}
+				
+					if(heroArt.texture == Assets.getTexture("MagicHeroRAttack"))
+					{
+					heroArt.texture = Assets.getTexture("MagicHeroR");
+				
+					}
+				}
+			}
+		}			
+		
+		private function attackSound1():void
+		{
+			var attackSoundC:SoundChannel;
+			var soundFileSoundA1:URLRequest = new URLRequest("Attack1.mp3");        
+			var soundA1:Sound = new Sound();
+			soundA1.load(soundFileSoundA1);
+			attackSoundC = soundA1.play();
+		
+			
+		}
+		
+		//Checking control keys and params
 		public function checkKeysAndParams(e:Event):void 
 
 			{
@@ -67,19 +113,47 @@ package GameControls
 			
 			if(spaceDown)
 			{
-				
-				if(heroArt.texture == Assets.getTexture("MagicHeroL"))
+				if(soundAmoutControl < 1)
 				{
-					heroArt.texture = Assets.getTexture("MagicHeroLAttack");
+				
+					if(heroArt.texture == Assets.getTexture("MagicHeroL"))
+					{
+						heroArt.texture = Assets.getTexture("MagicHeroLAttack");
+					
+						aDown = false;
+						dDown = false;
+					
+							attack();
+					
+					
+						if(soundAmoutControl < 1)
+						{
+							attackSound1();
+							soundAmoutControl++;
+						}
+					}
 				}
 				
-				if(heroArt.texture == Assets.getTexture("MagicHeroR"))
+				if(soundAmoutControl < 1)
 				{
-					heroArt.texture = Assets.getTexture("MagicHeroRAttack");
+				
+					if(heroArt.texture == Assets.getTexture("MagicHeroR"))
+					{
+						heroArt.texture = Assets.getTexture("MagicHeroRAttack");
+					
+						aDown = false;
+						dDown = false;
+					
+						attack();
+					
+						if(soundAmoutControl < 1)
+						{
+							attackSound1();
+							soundAmoutControl++;
+						}
+					}
 				}
-			
 			}
-			
 			
 			if (aDown)
 			{
@@ -131,6 +205,7 @@ package GameControls
 				
 				if (e.keyCode == 32)
 				{
+					soundAmoutControl = 0;
 					spaceDown = false;
 				}
 				

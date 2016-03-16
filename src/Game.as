@@ -17,10 +17,10 @@ package
 	import screens.Intro;
 	import screens.Welcome;
 	
-	import starling.display.Quad;
+	
 	import starling.display.Sprite;
 	import starling.events.Event;
-	import starling.utils.Color;
+	
 	
 	public class Game extends Sprite
 	{
@@ -78,7 +78,7 @@ package
 			{
 				
 				var timePassed=getTimer();
-				if (timePassed-startTime >= 5000) 
+				if (timePassed-startTime >= 6000) 
 				{
 					introScreen.disposeTemporarily();
 				
