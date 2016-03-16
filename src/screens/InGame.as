@@ -7,7 +7,7 @@ package screens
 	
 	import GameControls.GameControl;
 	
-	import Tools.Map1;
+	//import assets.Map1;
 	
 	import assets.Assets;
 	
@@ -33,7 +33,7 @@ package screens
 		private var ingameBG:Image;
 		//
 		//InGame movieclips
-		private var ingameBGS:MovieClip = new Map1() as MovieClip;
+		//private var ingameBGS:MovieClip = new Map1() as MovieClip;
 
 		public function InGame() 
 		{
