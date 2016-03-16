@@ -35,6 +35,12 @@ package assets
 		[Embed(source="/../Media/Pics/MgMushroomR.gif")] 
 		public static const MagicHeroR:Class;
 		
+		[Embed(source="/../Media/Pics/MgMushroomLAttack.gif")] 
+		public static const MagicHeroLAttack:Class;
+		
+		[Embed(source="/../Media/Pics/MgMushroomRAttack.gif")] 
+		public static const MagicHeroRAttack:Class;
+		
 		[Embed(source="/../Media/Pics/leaves.png")]
 		public static const Leaves:Class;
 		

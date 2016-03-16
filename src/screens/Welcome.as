@@ -23,17 +23,23 @@ package screens
 	
 	public class Welcome extends Sprite
 	{
+		
+	//Welcome screen image variables	
 		private var bg:Image;
 		private var logo:Image;
 		private var char:Image;
 		private var border:Image;
 		private var cloud1:Image;
 		private var cloud2:Image;
-		private var playBtn:Button;
-		private var aboutBtn:Button;
 		private var bgIntro:Image;
 		private var brandLogo:Image;
 		
+	//Welcome screen button variables
+		private var playBtn:Button;
+		private var aboutBtn:Button;
+		
+		
+		//Welcome screen sound variables
 		public var soundC:SoundChannel = new SoundChannel;
 		public var songLength:String;
 		public var soundIntro:SoundChannel = new SoundChannel;
@@ -46,19 +52,16 @@ package screens
 		
 		private function onAddedToStage(event:Event):void
 		{
-
-			drawScreen();
-
-			
-			drawScreen();
 		
-
+		
+			drawScreen();
+			welcomeMusic();
 		}
+		
 		
 		//Drawing welcome screen graphics
 		private function drawScreen():void
 		{	
-			welcomeMusic();
 			
 			bg = new Image (Assets.getTexture("BgWelcome"));
 			this.addChild(bg);
@@ -92,17 +95,12 @@ package screens
 			aboutBtn = new Button (Assets.getTexture("BgAbout"));
 			this.addChild(aboutBtn);
 			aboutBtn.x = 700;
-			
-			brandLogo = new Image(Assets.getTexture("BrandLogo"))
-			//this.addChild(brandLogo);
-			brandLogo.x = 250;
-			brandLogo.y = 250;
-			
-			
+				
 			this.addEventListener(Event.TRIGGERED, onMainMenuClick);
 		
 		}
 		
+		//Bring sounds and music to welcome screen
 		private function welcomeMusic():void
 		{
 			var soundFile:URLRequest = new URLRequest("bg_musicwelcome.mp3");        
@@ -111,6 +109,8 @@ package screens
 			soundC = song.play();
 		}
 		
+		
+		//buttons actived control
 		private function onMainMenuClick(event:Event):void
 		{
 			var buttonClicked:Button = event.target as Button;
@@ -126,14 +126,23 @@ package screens
 		public function initialize():void
 		{
 			this.visible = true;
-			char.x = -char.width;
-			char.y = 180;	
 			
-			TweenLite.to(char, 4, {x:140});
+			charTween();
+			
 			this.addEventListener(Event.ENTER_FRAME, animation);
 		
 		}
 		
+		//Bring welcomescreen char tween
+		private function charTween():void
+		{
+			char.x = -char.width;
+			char.y = 180;	
+			TweenLite.to(char, 4, {x:140});
+			
+		}
+		
+		//disposing welcome screen
 		public function disposeTemporarily():void
 		{
 			this.visible = false;
@@ -146,14 +155,9 @@ package screens
 			var currentDate:Date = new Date();
 			char.y = 180 + (Math.cos(currentDate.getTime() * 0.002) * 25);
 			
-			//logo.y = 100 + (Math.cos(currentDate.getTime() * 0.002) * 10);
-			//logo.x = 500 + (Math.cos(currentDate.getTime() * 0.002) * 2);
-			
 			playBtn.y = 300 + (Math.cos(currentDate.getTime() * 0.002) * 12);
-			//playBtn.x = 700 + (Math.cos(currentDate.getTime() * 0.002) * 3);
-			
 			aboutBtn.y = 430 + (Math.cos(currentDate.getTime() * 0.002) * 9);
-			//aboutBtn.x = 700 + (Math.cos(currentDate.getTime() * 0.002) * 5);
+			
 		
 			cloud1.x += 0.5;
 			cloud2.x += 0.5;

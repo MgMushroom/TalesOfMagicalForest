@@ -28,17 +28,7 @@ package objects
 		{
 			trace("4");
 			this.removeEventListener(starling.events.Event.ADDED_TO_STAGE, onAddedToStage);
-			createHeroArt();
 			
-		}
-		//Haetaan heron textuuri
-		private function createHeroArt():void 
-		{
-			//heroArt = new Image(Assets.getTexture("MagicHero"));
-			//heroArt.x = 25
-			//eroArt.y = 300
-			//this.addChild(heroArt);
-			trace("5");
 		}
 		
 	}

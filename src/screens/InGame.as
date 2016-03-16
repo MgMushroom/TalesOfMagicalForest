@@ -1,18 +1,15 @@
 package screens 
 {
-	//import flash.events.Event;
 	
-
+	import GameControls.GameControl;
+	import assets.Assets;
+	import objects.Hero;
+	
 	import com.greensock.TweenLite;
 	
 	import flash.events.KeyboardEvent;
 	
-	import GameControls.GameControl;
-	
-	import assets.Assets;
-	
-	import objects.Hero;
-	
+	import starling.display.MovieClip;
 	import starling.display.Image;
 	import starling.display.Quad;
 	import starling.display.Sprite;
@@ -22,48 +19,51 @@ package screens
 	
 	public class InGame extends Sprite 
 	{
-		trace ("1");
+		trace ("Ingame actived");
+		
+		//Class variables
 		private var hero:Hero;
-		private var ingameBG:Image;
-		private var aDown:Boolean = true;
-		private var dDown:Boolean = true;
 		private var HeroM:GameControl;
 		
+		//InGame images
+		private var ingameBG:Image;
+		
+
 		public function InGame() 
 		{
 			this.addEventListener(starling.events.Event.ADDED_TO_STAGE, onAddedToStage);	
 			
 		}
 		
+		
 		private function onAddedToStage(event:Event):void 
 		{
 			this.removeEventListener(starling.events.Event.ADDED_TO_STAGE, onAddedToStage);
-			drawHero();
+			drawWorld();
+			creatHero();
 			
 		}
-		//drawhero
-		private function drawHero():void 
+		
+		//draw graphics too InGame
+		private function drawWorld():void
 		{
-			//Haetaan hero Hero classistä
-			
 			ingameBG = new Image(Assets.getTexture("InGameBG"));
 			this.addChild(ingameBG);
+			
+		}
+		
+		//creat hero too InGame
+		private function creatHero():void 
+		{
+			//bring Hero from class
 			
 			hero = new Hero();
 			this.addChild(hero);
 			
-			//HeroMovement();
-		}
-		
-		private function HeroMovement():void
-		{//Get GameControl
-			trace ("6");
-			HeroM = new GameControl();
-			this.addChild(HeroM);
 			
 		}
 		
-
+		//InGame initialize
 		public function initialize():void
 		{
 			this.visible = true;
@@ -71,6 +71,7 @@ package screens
 			
 		}
 		
+		//InGame dispose	
 		public function disposeTemporarily():void
 		{
 			this.visible = false;

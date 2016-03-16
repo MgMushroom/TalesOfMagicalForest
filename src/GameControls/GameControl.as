@@ -5,7 +5,6 @@ package GameControls
 	import flash.events.EventDispatcher;
 	
 	import assets.Assets;
-	
 	import objects.Hero;
 	
 	import starling.display.Image;
@@ -16,42 +15,47 @@ package GameControls
 	
 	public class GameControl extends Sprite 
 	{
+		
+		//Image variables
 		private var heroArt:Image;
 		private var heroArtL:Image;
 		private var heroArtR:Image;
 		
-		//private var hero:Hero;
+		//Boolean variables
 		private var aDown:Boolean;
 		private var dDown:Boolean;
-		private var wDown:Boolean;
+		private var spaceDown:Boolean;
+		
 		public var grav:int = 0;
 		
+		//heroSpeed
 		private var speedHero:Number;
 		
 		
 		
+		//Get texture for hero and handle player controls
 		public function GameControl() 
-		{//Get texture for hero and handle player controls
-			super();
-			//checkStuff();
-			this.addEventListener(Event.ENTER_FRAME, checkStuff);
-			/*stage.addEventListener(KeyboardEvent.KEY_DOWN, keysDown);
-			stage.addEventListener(KeyboardEvent.KEY_UP, keysUp);*/
+		{	
+			this.addEventListener(Event.ENTER_FRAME, checkKeysAndParams);
+			bringHeroArt();
 		
+		}
+		
+		private function bringHeroArt():void
+		{
 			heroArt = new Image(Assets.getTexture("MagicHeroR"));
 			heroArt.x = 25;
 			heroArt.y = 445;
 			this.addChild(heroArt);
-			trace("5");
+			trace("heroArt brougth");
 			
-			
-		
 		}
-		public function checkStuff(e:Event):void 
-		//if true move hero.x ( only a and d keys now)
+		public function checkKeysAndParams(e:Event):void 
+
 			{
-				//hero movement speed
-				speedHero = 7;
+			
+			//hero movement speed
+			speedHero = 7;
 			
 			//stage.addEventListener(Event.ENTER_FRAME, checkStuff);
 			stage.addEventListener(starling.events.KeyboardEvent.KEY_DOWN, keysDown);
@@ -60,17 +64,20 @@ package GameControls
 			//heroArt.gravity();
 			
 			
-			if(heroArt.y < 445)
-			{
-				heroArt.y += 10
-			}
 			
-			if(wDown)
+			if(spaceDown)
 			{
-				if (heroArt.y == 452 || heroArt.y == 445)
+				
+				if(heroArt.texture == Assets.getTexture("MagicHeroL"))
 				{
-					heroArt.y += 7;
+					heroArt.texture = Assets.getTexture("MagicHeroLAttack");
 				}
+				
+				if(heroArt.texture == Assets.getTexture("MagicHeroR"))
+				{
+					heroArt.texture = Assets.getTexture("MagicHeroRAttack");
+				}
+			
 			}
 			
 			
@@ -95,33 +102,46 @@ package GameControls
 			}
 		
 		public function keysDown(e:KeyboardEvent):void 
-			{//Check if a or d key pushed
-				trace ("9");
+			{
 				
-				if (e.keyCode == 87)//Is a pressed
+				//if control key pressed
+				//TRUE
+				
+				if (e.keyCode == 32)
 				{
-					wDown = true;//if its set it to true
+					spaceDown = true;
 				}
 				
-				if (e.keyCode == 65)//Is a pressed
+				if (e.keyCode == 65)
 				{
-				aDown = true;//if its set it to true
+					aDown = true;
 				}
-				if (e.keyCode == 68)//Is d pressed
+				
+				if (e.keyCode == 68)
 				{
-				dDown = true;//if its set it to true
+					dDown = true;
 				}
 			}
+		
 		public function keysUp(e:KeyboardEvent):void
-			{//Check if a or d key not down
-				trace("10");
-				if (e.keyCode == 65)//Is a pressed
+			{
+				
+				//if control key not pressed
+				//FALSE
+				
+				if (e.keyCode == 32)
 				{
-				aDown = false;//if its set it to false
+					spaceDown = false;
 				}
-				if (e.keyCode == 68)//Is d pressed
+				
+				if (e.keyCode == 65)
 				{
-				dDown = false;//if its set it to false
+					aDown = false;
+				}
+				
+				if (e.keyCode == 68)
+				{
+					dDown = false;
 				}
 			}
 			/*public function gravity():void

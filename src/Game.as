@@ -9,13 +9,14 @@ package
 	import flash.net.URLRequest;
 	import flash.utils.Timer;
 	import flash.utils.getTimer;
+	import flash.events.KeyboardEvent;
 	
 	import events.NavigationEvent;
 	
 	import screens.InGame;
 	import screens.Intro;
 	import screens.Welcome;
-	import flash.events.KeyboardEvent;
+	
 	import starling.display.Quad;
 	import starling.display.Sprite;
 	import starling.events.Event;
@@ -29,7 +30,6 @@ package
 		private var timerB:Boolean;
 		
 		
-		
 		public function Game()
 		{
 			this.addEventListener(starling.events.Event.ADDED_TO_STAGE,onAddedToStage);	
@@ -39,17 +39,18 @@ package
 		private function onAddedToStage (event:Event):void
 		{
 			
-			//Test quad
-			var quad:Quad = new Quad(200, 200, Color.RED);
-			quad.x = 550;
-			quad.y = 350;
-			addChild(quad);
-			removeChild(quad);
-			
 			trace ("Starling Frameworks initialized!");
 			
 			this.addEventListener(events.NavigationEvent.CHANGE_SCREEN, onChangeScreen);
 			
+			bringScreens();
+			
+			
+		}
+		
+		//bringing screens 
+		private function bringScreens():void
+		{
 			welcomeScreen = new Welcome;
 			addChild(welcomeScreen);
 			welcomeScreen.initialize();
@@ -58,12 +59,15 @@ package
 			addChild(introScreen);
 			introScreen.initialize();
 			introDelay();
-		
+			
 			screenInGame = new InGame;
 			this.addChild(screenInGame);
 			screenInGame.disposeTemporarily();
+			
 		}
 		
+		
+		//Intro delay control
 		private function introDelay():void
 		{
 			var startTime=getTimer();
@@ -77,10 +81,13 @@ package
 				if (timePassed-startTime >= 5000) 
 				{
 					introScreen.disposeTemporarily();
+				
 				}
 			}
 		}			
 		
+		
+		//chaning screens when play game
 		private function onChangeScreen(event:NavigationEvent):void
 		{
 			switch (event.params.id)
