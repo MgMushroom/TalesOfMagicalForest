@@ -1,0 +1,355 @@
+<!-- saved from url=(0014)about:internet -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>RenderTexture.as</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../SourceStyles.css"/>
+</head>
+
+<body><pre><span class="ActionScriptComment">// =================================================================================================
+</span><span class="ActionScriptComment">//
+</span><span class="ActionScriptComment">//    Starling Framework
+</span><span class="ActionScriptComment">//    Copyright 2011-2014 Gamua. All Rights Reserved.
+</span><span class="ActionScriptComment">//
+</span><span class="ActionScriptComment">//    This program is free software. You can redistribute and/or modify it
+</span><span class="ActionScriptComment">//    in accordance with the terms of the accompanying license agreement.
+</span><span class="ActionScriptComment">//
+</span><span class="ActionScriptComment">// =================================================================================================
+</span>
+<span class="ActionScriptpackage">package</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">textures</span>
+<span class="ActionScriptBracket/Brace">{</span>
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display3D</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Context3D</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display3D</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">VertexBuffer3D</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display3D</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">textures</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">TextureBase</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">geom</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Matrix</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">geom</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Rectangle</span>;
+    
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">core</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">RenderSupport</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">core</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Starling</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">BlendMode</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">DisplayObject</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Image</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">errors</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">MissingContextError</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">filters</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">FragmentFilter</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">utils</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">SystemUtil</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">utils</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">execute</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">utils</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">getNextPowerOfTwo</span>;
+
+    <span class="ActionScriptASDoc">/** A RenderTexture is a dynamic texture onto which you can draw any display object.
+     * 
+     *  &lt;p&gt;After creating a render texture, just call the &lt;code&gt;drawObject&lt;/code&gt; method to render 
+     *  an object directly onto the texture. The object will be drawn onto the texture at its current
+     *  position, adhering its current rotation, scale and alpha properties.&lt;/p&gt; 
+     *  
+     *  &lt;p&gt;Drawing is done very efficiently, as it is happening directly in graphics memory. After 
+     *  you have drawn objects onto the texture, the performance will be just like that of a normal 
+     *  texture - no matter how many objects you have drawn.&lt;/p&gt;
+     *  
+     *  &lt;p&gt;If you draw lots of objects at once, it is recommended to bundle the drawing calls in 
+     *  a block via the &lt;code&gt;drawBundled&lt;/code&gt; method, like shown below. That will speed it up 
+     *  immensely, allowing you to draw hundreds of objects very quickly.&lt;/p&gt;
+     *  
+     *     &lt;pre&gt;
+     *  renderTexture.drawBundled(function():void
+     *  {
+     *     for (var i:int=0; i&amp;lt;numDrawings; ++i)
+     *     {
+     *         image.rotation = (2 &amp;#42; Math.PI / numDrawings) &amp;#42; i;
+     *         renderTexture.draw(image);
+     *     }   
+     *  });
+     *  &lt;/pre&gt;
+     *  
+     *  &lt;p&gt;To erase parts of a render texture, you can use any display object like a "rubber" by
+     *  setting its blending mode to "BlendMode.ERASE".&lt;/p&gt;
+     * 
+     *  &lt;p&gt;Beware that render textures can't be restored when the Starling's render context is lost.
+     *  &lt;/p&gt;
+     *
+     *  &lt;strong&gt;Persistence&lt;/strong&gt;
+     *
+     *  &lt;p&gt;Persistent render textures (see the 'persistent' flag in the constructor) are more
+     *  expensive, because they might have to use two render buffers internally. Disable this
+     *  parameter if you don't need that.&lt;/p&gt;
+     *
+     *  &lt;p&gt;On modern hardware, you can make use of the static 'optimizePersistentBuffers'
+     *  property to overcome the need for double buffering. Use this feature with care, though!&lt;/p&gt;
+     *
+     */</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptclass">class</span> <span class="ActionScriptDefault_Text">RenderTexture</span> <span class="ActionScriptReserved">extends</span> <span class="ActionScriptDefault_Text">SubTexture</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">CONTEXT_POT_SUPPORT_KEY</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">"RenderTexture.supportsNonPotDimensions"</span>;
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">PMA</span>:<span class="ActionScriptDefault_Text">Boolean</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+        
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">mActiveTexture</span>:<span class="ActionScriptDefault_Text">Texture</span>;
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">mBufferTexture</span>:<span class="ActionScriptDefault_Text">Texture</span>;
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">mHelperImage</span>:<span class="ActionScriptDefault_Text">Image</span>;
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">mDrawing</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">mBufferReady</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">mIsPersistent</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">mSupport</span>:<span class="ActionScriptDefault_Text">RenderSupport</span>;
+        
+        <span class="ActionScriptASDoc">/** helper object */</span>
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">sClipRect</span>:<span class="ActionScriptDefault_Text">Rectangle</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Rectangle</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        
+        <span class="ActionScriptASDoc">/** Indicates if new persistent textures should use a single render buffer instead of
+         *  the default double buffering approach. That's faster and requires less memory, but is
+         *  not supported on all hardware.
+         *
+         *  &lt;p&gt;You can safely enable this property on all iOS and Desktop systems. On Android,
+         *  it's recommended to enable it only on reasonably modern hardware, e.g. only when
+         *  at least one of the 'Standard' profiles is supported.&lt;/p&gt;
+         *
+         *  &lt;p&gt;Beware: this feature requires at least Flash/AIR version 15.&lt;/p&gt;
+         *
+         *  @default false
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">optimizePersistentBuffers</span>:<span class="ActionScriptDefault_Text">Boolean</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+
+        <span class="ActionScriptASDoc">/** Creates a new RenderTexture with a certain size (in points). If the texture is
+         *  persistent, the contents of the texture remains intact after each draw call, allowing
+         *  you to use the texture just like a canvas. If it is not, it will be cleared before each
+         *  draw call.
+         *
+         *  &lt;p&gt;Beware that persistence requires an additional texture buffer (i.e. the required
+         *  memory is doubled). You can avoid that via 'optimizePersistentBuffers', though.&lt;/p&gt;
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">RenderTexture</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">width</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">height</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">persistent</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">true</span><span class="ActionScriptOperator">,</span>
+                                      <span class="ActionScriptDefault_Text">scale</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>-1<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">format</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"bgra"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">repeat</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptBracket/Brace">)</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptComment">// TODO: when Adobe has fixed this bug on the iPad 1 (see 'supportsNonPotDimensions'),
+</span>            <span class="ActionScriptComment">//       we can remove 'legalWidth/Height' and just pass on the original values.
+</span>            <span class="ActionScriptComment">//
+</span>            <span class="ActionScriptComment">// [Workaround]
+</span>
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">scale</span> <span class="ActionScriptOperator">&lt;=</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptDefault_Text">scale</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">contentScaleFactor</span>;
+
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">legalWidth</span>:<span class="ActionScriptDefault_Text">Number</span>  <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">width</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">legalHeight</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">height</span>;
+
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">supportsNonPotDimensions</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">legalWidth</span>  <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">getNextPowerOfTwo</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">width</span>  <span class="ActionScriptOperator">*</span> <span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">/</span> <span class="ActionScriptDefault_Text">scale</span>;
+                <span class="ActionScriptDefault_Text">legalHeight</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">getNextPowerOfTwo</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">height</span> <span class="ActionScriptOperator">*</span> <span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">/</span> <span class="ActionScriptDefault_Text">scale</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+
+            <span class="ActionScriptComment">// [/Workaround]
+</span>
+            <span class="ActionScriptDefault_Text">mActiveTexture</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Texture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">empty</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">legalWidth</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">legalHeight</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">PMA</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">false</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">true</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">format</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">repeat</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">mActiveTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">root</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">onRestore</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">mActiveTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">root</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">clear</span>;
+            
+            <span class="ActionScriptReserved">super</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">mActiveTexture</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Rectangle</span><span class="ActionScriptBracket/Brace">(</span>0<span class="ActionScriptOperator">,</span> 0<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">height</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">true</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">false</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">rootWidth</span>:<span class="ActionScriptDefault_Text">Number</span>  <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">mActiveTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">root</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">rootHeight</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">mActiveTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">root</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span>;
+            
+            <span class="ActionScriptDefault_Text">mIsPersistent</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">persistent</span>;
+            <span class="ActionScriptDefault_Text">mSupport</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">RenderSupport</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">mSupport</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">setProjectionMatrix</span><span class="ActionScriptBracket/Brace">(</span>0<span class="ActionScriptOperator">,</span> 0<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">rootWidth</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">rootHeight</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">height</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">persistent</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">optimizePersistentBuffers</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">SystemUtil</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">supportsRelaxedTargetClearRequirement</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">mBufferTexture</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Texture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">empty</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">legalWidth</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">legalHeight</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">PMA</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">false</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">true</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">format</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">repeat</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">mBufferTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">root</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">onRestore</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">mBufferTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">root</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">clear</span>;
+                <span class="ActionScriptDefault_Text">mHelperImage</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Image</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">mBufferTexture</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">mHelperImage</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">smoothing</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">TextureSmoothing</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">NONE</span>; <span class="ActionScriptComment">// solves some antialias-issues
+</span>            <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** @inheritDoc */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">override</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">dispose</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">mSupport</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">dispose</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">mActiveTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">dispose</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">isDoubleBuffered</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">mBufferTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">dispose</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">mHelperImage</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">dispose</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            
+            <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">dispose</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Draws an object into the texture. Note that any filters on the object will currently
+         *  be ignored.
+         * 
+         *  @param object       The object to draw.
+         *  @param matrix       If 'matrix' is null, the object will be drawn adhering its 
+         *                      properties for position, scale, and rotation. If it is not null,
+         *                      the object will be drawn in the orientation depicted by the matrix.
+         *  @param alpha        The object's alpha value will be multiplied with this value.
+         *  @param antiAliasing Only supported beginning with AIR 13, and only on Desktop.
+         *                      Values range from 0 (no antialiasing) to 4 (best quality).
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">draw</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">object</span>:<span class="ActionScriptDefault_Text">DisplayObject</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">matrix</span>:<span class="ActionScriptDefault_Text">Matrix</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">alpha</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>1.0<span class="ActionScriptOperator">,</span>
+                             <span class="ActionScriptDefault_Text">antiAliasing</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">object</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptReserved">return</span>;
+            
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">mDrawing</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">render</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">object</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">matrix</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">alpha</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">else</span>
+                <span class="ActionScriptDefault_Text">renderBundled</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">render</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">object</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">matrix</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">alpha</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">antiAliasing</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Bundles several calls to &lt;code&gt;draw&lt;/code&gt; together in a block. This avoids buffer 
+         *  switches and allows you to draw multiple objects into a non-persistent texture.
+         *  Note that the 'antiAliasing' setting provided here overrides those provided in
+         *  individual 'draw' calls.
+         *  
+         *  @param drawingBlock  a callback with the form: &lt;pre&gt;function():void;&lt;/pre&gt;
+         *  @param antiAliasing  Only supported beginning with AIR 13, and only on Desktop.
+         *                       Values range from 0 (no antialiasing) to 4 (best quality). */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">drawBundled</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">drawingBlock</span>:<span class="ActionScriptDefault_Text">Function</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">antiAliasing</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">renderBundled</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">drawingBlock</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span> 1.0<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">antiAliasing</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">render</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">object</span>:<span class="ActionScriptDefault_Text">DisplayObject</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">matrix</span>:<span class="ActionScriptDefault_Text">Matrix</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">alpha</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>1.0<span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">filter</span>:<span class="ActionScriptDefault_Text">FragmentFilter</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">filter</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">mask</span>:<span class="ActionScriptDefault_Text">DisplayObject</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">mask</span>;
+
+            <span class="ActionScriptDefault_Text">mSupport</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">loadIdentity</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">mSupport</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">blendMode</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">blendMode</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptDefault_Text">BlendMode</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">AUTO</span> <span class="ActionScriptOperator">?</span>
+                <span class="ActionScriptDefault_Text">BlendMode</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">NORMAL</span> : <span class="ActionScriptDefault_Text">object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">blendMode</span>;
+
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">matrix</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptDefault_Text">mSupport</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">prependMatrix</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">matrix</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">else</span>        <span class="ActionScriptDefault_Text">mSupport</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">transformMatrix</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">object</span><span class="ActionScriptBracket/Brace">)</span>;
+
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">mask</span><span class="ActionScriptBracket/Brace">)</span>   <span class="ActionScriptDefault_Text">mSupport</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">pushMask</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">mask</span><span class="ActionScriptBracket/Brace">)</span>;
+
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">filter</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptDefault_Text">filter</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">render</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">object</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">mSupport</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">alpha</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">else</span>        <span class="ActionScriptDefault_Text">object</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">render</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">mSupport</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">alpha</span><span class="ActionScriptBracket/Brace">)</span>;
+
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">mask</span><span class="ActionScriptBracket/Brace">)</span>   <span class="ActionScriptDefault_Text">mSupport</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">popMask</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">renderBundled</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">renderBlock</span>:<span class="ActionScriptDefault_Text">Function</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">object</span>:<span class="ActionScriptDefault_Text">DisplayObject</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span>
+                                       <span class="ActionScriptDefault_Text">matrix</span>:<span class="ActionScriptDefault_Text">Matrix</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">alpha</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>1.0<span class="ActionScriptOperator">,</span>
+                                       <span class="ActionScriptDefault_Text">antiAliasing</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">context</span>:<span class="ActionScriptDefault_Text">Context3D</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">context</span>;
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">context</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptReserved">throw</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">MissingContextError</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">Starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">current</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">contextValid</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptReserved">return</span>;
+
+            <span class="ActionScriptComment">// switch buffers
+</span>            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">isDoubleBuffered</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">tmpTexture</span>:<span class="ActionScriptDefault_Text">Texture</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">mActiveTexture</span>;
+                <span class="ActionScriptDefault_Text">mActiveTexture</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">mBufferTexture</span>;
+                <span class="ActionScriptDefault_Text">mBufferTexture</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">tmpTexture</span>;
+                <span class="ActionScriptDefault_Text">mHelperImage</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">texture</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">mBufferTexture</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">previousRenderTarget</span>:<span class="ActionScriptDefault_Text">Texture</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">mSupport</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">renderTarget</span>;
+            
+            <span class="ActionScriptComment">// limit drawing to relevant area
+</span>            <span class="ActionScriptDefault_Text">sClipRect</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">setTo</span><span class="ActionScriptBracket/Brace">(</span>0<span class="ActionScriptOperator">,</span> 0<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">mActiveTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">mActiveTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span><span class="ActionScriptBracket/Brace">)</span>;
+
+            <span class="ActionScriptDefault_Text">mSupport</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">pushClipRect</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">sClipRect</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">mSupport</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">setRenderTarget</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">mActiveTexture</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">antiAliasing</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">isDoubleBuffered</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">isPersistent</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">mBufferReady</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">mSupport</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">clear</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+
+            <span class="ActionScriptComment">// draw buffer
+</span>            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">isDoubleBuffered</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptDefault_Text">mBufferReady</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">mHelperImage</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">render</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">mSupport</span><span class="ActionScriptOperator">,</span> 1.0<span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">else</span>
+                <span class="ActionScriptDefault_Text">mBufferReady</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            
+            <span class="ActionScriptReserved">try</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">mDrawing</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+                <span class="ActionScriptDefault_Text">execute</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">renderBlock</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">object</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">matrix</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">alpha</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">finally</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">mDrawing</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+                <span class="ActionScriptDefault_Text">mSupport</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">finishQuadBatch</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">mSupport</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">nextFrame</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">mSupport</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">renderTarget</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">previousRenderTarget</span>;
+                <span class="ActionScriptDefault_Text">mSupport</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">popClipRect</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Clears the render texture with a certain color and alpha value. Call without any
+         *  arguments to restore full transparency. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">clear</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">rgb</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">alpha</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>0.0<span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">Starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">current</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">contextValid</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptReserved">return</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">previousRenderTarget</span>:<span class="ActionScriptDefault_Text">Texture</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">mSupport</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">renderTarget</span>;
+
+            <span class="ActionScriptDefault_Text">mSupport</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">renderTarget</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">mActiveTexture</span>;
+            <span class="ActionScriptDefault_Text">mSupport</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">clear</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">rgb</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">alpha</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">mSupport</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">renderTarget</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">previousRenderTarget</span>;
+            <span class="ActionScriptDefault_Text">mBufferReady</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** On the iPad 1 (and maybe other hardware?) clearing a non-POT RectangleTexture causes
+         *  an error in the next "createVertexBuffer" call. Thus, we're forced to make this
+         *  really ... elegant check here. */</span>
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">supportsNonPotDimensions</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Boolean</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">target</span>:<span class="ActionScriptDefault_Text">Starling</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">current</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">context</span>:<span class="ActionScriptDefault_Text">Context3D</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">context</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">support</span>:<span class="ActionScriptDefault_Text">Object</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">target</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">contextData</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">CONTEXT_POT_SUPPORT_KEY</span><span class="ActionScriptBracket/Brace">]</span>;
+
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">support</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">target</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">profile</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptString">"baselineConstrained"</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptString">"createRectangleTexture"</span> <span class="ActionScriptReserved">in</span> <span class="ActionScriptDefault_Text">context</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">texture</span>:<span class="ActionScriptDefault_Text">TextureBase</span>;
+                    <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">buffer</span>:<span class="ActionScriptDefault_Text">VertexBuffer3D</span>;
+
+                    <span class="ActionScriptReserved">try</span>
+                    <span class="ActionScriptBracket/Brace">{</span>
+                        <span class="ActionScriptDefault_Text">texture</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">context</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptString">"createRectangleTexture"</span><span class="ActionScriptBracket/Brace">]</span><span class="ActionScriptBracket/Brace">(</span>2<span class="ActionScriptOperator">,</span> 3<span class="ActionScriptOperator">,</span> <span class="ActionScriptString">"bgra"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">true</span><span class="ActionScriptBracket/Brace">)</span>;
+                        <span class="ActionScriptDefault_Text">context</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">setRenderToTexture</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">texture</span><span class="ActionScriptBracket/Brace">)</span>;
+                        <span class="ActionScriptDefault_Text">context</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">clear</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                        <span class="ActionScriptDefault_Text">context</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">setRenderToBackBuffer</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                        <span class="ActionScriptDefault_Text">context</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">createVertexBuffer</span><span class="ActionScriptBracket/Brace">(</span>1<span class="ActionScriptOperator">,</span> 1<span class="ActionScriptBracket/Brace">)</span>;
+                        <span class="ActionScriptDefault_Text">support</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+                    <span class="ActionScriptBracket/Brace">}</span>
+                    <span class="ActionScriptReserved">catch</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">e</span>:<span class="ActionScriptDefault_Text">Error</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptBracket/Brace">{</span>
+                        <span class="ActionScriptDefault_Text">support</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+                    <span class="ActionScriptBracket/Brace">}</span>
+                    <span class="ActionScriptReserved">finally</span>
+                    <span class="ActionScriptBracket/Brace">{</span>
+                        <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">texture</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptDefault_Text">texture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">dispose</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                        <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">buffer</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptDefault_Text">buffer</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">dispose</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptReserved">else</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">support</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+
+                <span class="ActionScriptDefault_Text">target</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">contextData</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">CONTEXT_POT_SUPPORT_KEY</span><span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">support</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">support</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptComment">// properties
+</span>
+        <span class="ActionScriptASDoc">/** Indicates if the render texture is using double buffering. This might be necessary for
+         *  persistent textures, depending on the runtime version and the value of
+         *  'forceDoubleBuffering'. */</span>
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">isDoubleBuffered</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Boolean</span> <span class="ActionScriptBracket/Brace">{</span> <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">mBufferTexture</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span>; <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptASDoc">/** Indicates if the texture is persistent over multiple draw calls. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">isPersistent</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Boolean</span> <span class="ActionScriptBracket/Brace">{</span> <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">mIsPersistent</span>; <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** @inheritDoc */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">override</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">base</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">TextureBase</span> <span class="ActionScriptBracket/Brace">{</span> <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">mActiveTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">base</span>; <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** @inheritDoc */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">override</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">root</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">ConcreteTexture</span> <span class="ActionScriptBracket/Brace">{</span> <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">mActiveTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">root</span>; <span class="ActionScriptBracket/Brace">}</span>
+    <span class="ActionScriptBracket/Brace">}</span>
+<span class="ActionScriptBracket/Brace">}</span></pre></body>
+</html>

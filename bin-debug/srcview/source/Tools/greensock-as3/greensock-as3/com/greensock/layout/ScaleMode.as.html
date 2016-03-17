@@ -1,0 +1,41 @@
+<!-- saved from url=(0014)about:internet -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>ScaleMode.as</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../SourceStyles.css"/>
+</head>
+
+<body><pre><span class="ActionScriptASDoc">/**
+ * VERSION: 1.04
+ * DATE: 2010-03-06
+ * AS3
+ * UPDATES AND DOCUMENTATION AT: http://blog.greensock.com/
+ **/</span>
+ <span class="ActionScriptpackage">package</span> <span class="ActionScriptDefault_Text">com</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">greensock</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">layout</span> <span class="ActionScriptBracket/Brace">{</span>
+<span class="ActionScriptASDoc">/**
+ * Provides constants for defining how objects should scale/stretch to fit within an area (like a &lt;code&gt;LiquidArea&lt;/code&gt; or &lt;code&gt;AutoFitArea&lt;/code&gt;). &lt;br /&gt;&lt;br /&gt; 
+ * 
+ * &lt;b&gt;Copyright 2011, GreenSock. All rights reserved.&lt;/b&gt; This work is subject to the terms in &lt;a href="http://www.greensock.com/terms_of_use.html"&gt;http://www.greensock.com/terms_of_use.html&lt;/a&gt; or for corporate Club GreenSock members, the software agreement that was issued with the corporate membership.
+ * 
+ * @author Jack Doyle, jack@greensock.com
+ */</span>    
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptclass">class</span> <span class="ActionScriptDefault_Text">ScaleMode</span> <span class="ActionScriptBracket/Brace">{</span>
+        
+        <span class="ActionScriptASDoc">/** Stretches the object to fill the area completely in terms of both width and height. This mode does &lt;b&gt;NOT&lt;/b&gt; concern itself with preserving the object's original aspect ratio (proportions). **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">STRETCH</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">"stretch"</span>;
+        <span class="ActionScriptASDoc">/** Stretches the object's width to fill the area horizontally, but does not affect its height **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">WIDTH_ONLY</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">"widthOnly"</span>;
+        <span class="ActionScriptASDoc">/** Stretches the object's height to fill the area vertically, but does not affect its width **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">HEIGHT_ONLY</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">"heightOnly"</span>;
+        <span class="ActionScriptASDoc">/** Scales the object proportionally to completely fill the area, allowing portions of it to exceed the bounds when its aspect ratio doesn't match the area's. For example, if the area is 100x50 and the DisplayObject is natively 200x200, it will scale it down to 100x100 meaning it will exceed the bounds of the area vertically. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">PROPORTIONAL_OUTSIDE</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">"proportionalOutside"</span>;
+        <span class="ActionScriptASDoc">/** Scales the object proportionally to fit inside the area (its edges will never exceed the bounds of the area). For example, if the area is 100x50 and the DisplayObject is natively 200x200, it will scale it down to 50x50 meaning it will not fill the area horizontally, but it will vertically. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">PROPORTIONAL_INSIDE</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">"proportionalInside"</span>;
+        <span class="ActionScriptASDoc">/** Does not scale the object at all **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">NONE</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">"none"</span>;
+        
+    <span class="ActionScriptBracket/Brace">}</span>
+<span class="ActionScriptBracket/Brace">}</span></pre></body>
+</html>

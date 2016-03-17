@@ -1,0 +1,258 @@
+<!-- saved from url=(0014)about:internet -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>Sprite.as</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../SourceStyles.css"/>
+</head>
+
+<body><pre><span class="ActionScriptComment">// =================================================================================================
+</span><span class="ActionScriptComment">//
+</span><span class="ActionScriptComment">//    Starling Framework
+</span><span class="ActionScriptComment">//    Copyright 2011-2014 Gamua. All Rights Reserved.
+</span><span class="ActionScriptComment">//
+</span><span class="ActionScriptComment">//    This program is free software. You can redistribute and/or modify it
+</span><span class="ActionScriptComment">//    in accordance with the terms of the accompanying license agreement.
+</span><span class="ActionScriptComment">//
+</span><span class="ActionScriptComment">// =================================================================================================
+</span>
+<span class="ActionScriptpackage">package</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display</span>
+<span class="ActionScriptBracket/Brace">{</span>
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">geom</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Matrix</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">geom</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Matrix3D</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">geom</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Point</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">geom</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Rectangle</span>;
+    
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">core</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">RenderSupport</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">events</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Event</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">utils</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">MatrixUtil</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">utils</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">RectangleUtil</span>;
+
+    <span class="ActionScriptASDoc">/** Dispatched on all children when the object is flattened. */</span>
+    <span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata">Event</span><span class="ActionScriptBracket/Brace">(</span>=<span class="ActionScriptString">"flatten"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">type</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"starling.events.Event"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>
+    
+    <span class="ActionScriptASDoc">/** A Sprite is the most lightweight, non-abstract container class.
+     *  &lt;p&gt;Use it as a simple means of grouping objects together in one coordinate system, or
+     *  as the base class for custom display objects.&lt;/p&gt;
+     *
+     *  &lt;strong&gt;Flattened Sprites&lt;/strong&gt;
+     * 
+     *  &lt;p&gt;The &lt;code&gt;flatten&lt;/code&gt;-method allows you to optimize the rendering of static parts of 
+     *  your display list.&lt;/p&gt;
+     *
+     *  &lt;p&gt;It analyzes the tree of children attached to the sprite and optimizes the rendering calls 
+     *  in a way that makes rendering extremely fast. The speed-up comes at a price, though: you 
+     *  will no longer see any changes in the properties of the children (position, rotation, 
+     *  alpha, etc.). To update the object after changes have happened, simply call 
+     *  &lt;code&gt;flatten&lt;/code&gt; again, or &lt;code&gt;unflatten&lt;/code&gt; the object.&lt;/p&gt;
+     *  
+     *  &lt;strong&gt;Clipping Rectangle&lt;/strong&gt;
+     * 
+     *  &lt;p&gt;The &lt;code&gt;clipRect&lt;/code&gt; property allows you to clip the visible area of the sprite
+     *  to a rectangular region. Only pixels inside the rectangle will be displayed. This is a very
+     *  fast way to mask objects. However, there is one limitation: the &lt;code&gt;clipRect&lt;/code&gt;
+     *  only works with stage-aligned rectangles, i.e. you cannot rotate or skew the rectangle.
+     *  This limitation is inherited from the underlying "scissoring" technique that is used
+     *  internally.&lt;/p&gt;
+     *  
+     *  @see DisplayObject
+     *  @see DisplayObjectContainer
+     */</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptclass">class</span> <span class="ActionScriptDefault_Text">Sprite</span> <span class="ActionScriptReserved">extends</span> <span class="ActionScriptDefault_Text">DisplayObjectContainer</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">mFlattenedContents</span>:<span class="ActionScriptDefault_Text">Vector</span><span class="ActionScriptBracket/Brace">.&lt;</span><span class="ActionScriptDefault_Text">QuadBatch</span><span class="ActionScriptBracket/Brace">&gt;</span>;
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">mFlattenRequested</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">mFlattenOptimized</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">mClipRect</span>:<span class="ActionScriptDefault_Text">Rectangle</span>;
+        
+        <span class="ActionScriptASDoc">/** Helper objects. */</span>
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">sHelperMatrix</span>:<span class="ActionScriptDefault_Text">Matrix</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Matrix</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">sHelperPoint</span>:<span class="ActionScriptDefault_Text">Point</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Point</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">sHelperRect</span>:<span class="ActionScriptDefault_Text">Rectangle</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Rectangle</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        
+        <span class="ActionScriptASDoc">/** Creates an empty sprite. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">Sprite</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">super</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** @inheritDoc */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">override</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">dispose</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">disposeFlattenedContents</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">dispose</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">disposeFlattenedContents</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">mFlattenedContents</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">for</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">i</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">max</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptOperator">=</span><span class="ActionScriptDefault_Text">mFlattenedContents</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span>; <span class="ActionScriptDefault_Text">i</span><span class="ActionScriptOperator">&lt;</span><span class="ActionScriptDefault_Text">max</span>; <span class="ActionScriptOperator">++</span><span class="ActionScriptDefault_Text">i</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">mFlattenedContents</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">i</span><span class="ActionScriptBracket/Brace">]</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">dispose</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                
+                <span class="ActionScriptDefault_Text">mFlattenedContents</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Optimizes the sprite for optimal rendering performance. Changes in the
+         *  children of a flattened sprite will not be displayed any longer. For this to happen,
+         *  either call &lt;code&gt;flatten&lt;/code&gt; again, or &lt;code&gt;unflatten&lt;/code&gt; the sprite. 
+         *  Beware that the actual flattening will not happen right away, but right before the
+         *  next rendering. 
+         * 
+         *  &lt;p&gt;When you flatten a sprite, the result of all matrix operations that are otherwise
+         *  executed during rendering are cached. For this reason, a flattened sprite can be
+         *  rendered with much less strain on the CPU. However, a flattened sprite will always
+         *  produce at least one draw call; if it were merged together with other objects, this
+         *  would cause additional matrix operations, and the optimization would have been in vain.
+         *  Thus, don't just blindly flatten all your sprites, but reserve flattening for sprites
+         *  with a big number of children.&lt;/p&gt;
+         *
+         *  &lt;p&gt;Beware that while you can add a 'mask' or 'clipRect' to a flattened sprite, any
+         *  such property will be ignored on its children. Furthermore, while a 'Sprite3D' may
+         *  contain a flattened sprite, a flattened sprite must not contain a 'Sprite3D'.&lt;/p&gt;
+         *
+         *  @param ignoreChildOrder If the child order is not important, you can further optimize
+         *           the number of draw calls. Naturally, this is not an option for all use-cases.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">flatten</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">ignoreChildOrder</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">mFlattenRequested</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            <span class="ActionScriptDefault_Text">mFlattenOptimized</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">ignoreChildOrder</span>;
+            <span class="ActionScriptDefault_Text">broadcastEventWith</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Event</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">FLATTEN</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Removes the rendering optimizations that were created when flattening the sprite.
+         *  Changes to the sprite's children will immediately become visible again. */</span> 
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">unflatten</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">mFlattenRequested</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+            <span class="ActionScriptDefault_Text">disposeFlattenedContents</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Indicates if the sprite was flattened. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">isFlattened</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Boolean</span> 
+        <span class="ActionScriptBracket/Brace">{</span> 
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">mFlattenedContents</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptDefault_Text">mFlattenRequested</span>; 
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** The object's clipping rectangle in its local coordinate system.
+         *  Only pixels within that rectangle will be drawn. 
+         *  &lt;strong&gt;Note:&lt;/strong&gt; clipping rectangles are axis aligned with the screen, so they
+         *  will not be rotated or skewed if the Sprite is. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">clipRect</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Rectangle</span> <span class="ActionScriptBracket/Brace">{</span> <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">mClipRect</span>; <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">clipRect</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Rectangle</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span> 
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">mClipRect</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptDefault_Text">mClipRect</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">copyFrom</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">else</span> <span class="ActionScriptDefault_Text">mClipRect</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span> <span class="ActionScriptOperator">?</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">clone</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span> : <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptASDoc">/** Returns the bounds of the container's clipping rectangle in the given coordinate space,
+         *  or null if the sprite does not have one. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">getClipRect</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">targetSpace</span>:<span class="ActionScriptDefault_Text">DisplayObject</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">resultRect</span>:<span class="ActionScriptDefault_Text">Rectangle</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Rectangle</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">mClipRect</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">resultRect</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptDefault_Text">resultRect</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Rectangle</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">x</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">y</span>:<span class="ActionScriptDefault_Text">Number</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">minX</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span>  <span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">MAX_VALUE</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">maxX</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">MAX_VALUE</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">minY</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span>  <span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">MAX_VALUE</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">maxY</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">MAX_VALUE</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">transMatrix</span>:<span class="ActionScriptDefault_Text">Matrix</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">getTransformationMatrix</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">targetSpace</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">sHelperMatrix</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptReserved">for</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">i</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptOperator">=</span>0; <span class="ActionScriptDefault_Text">i</span><span class="ActionScriptOperator">&lt;</span>4; <span class="ActionScriptOperator">++</span><span class="ActionScriptDefault_Text">i</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">switch</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">i</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptReserved">case</span> 0: <span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">mClipRect</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">left</span>;  <span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">mClipRect</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">top</span>;    <span class="ActionScriptReserved">break</span>;
+                    <span class="ActionScriptReserved">case</span> 1: <span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">mClipRect</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">left</span>;  <span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">mClipRect</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">bottom</span>; <span class="ActionScriptReserved">break</span>;
+                    <span class="ActionScriptReserved">case</span> 2: <span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">mClipRect</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">right</span>; <span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">mClipRect</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">top</span>;    <span class="ActionScriptReserved">break</span>;
+                    <span class="ActionScriptReserved">case</span> 3: <span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">mClipRect</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">right</span>; <span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">mClipRect</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">bottom</span>; <span class="ActionScriptReserved">break</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">transformedPoint</span>:<span class="ActionScriptDefault_Text">Point</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">MatrixUtil</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">transformCoords</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">transMatrix</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">x</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">y</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">sHelperPoint</span><span class="ActionScriptBracket/Brace">)</span>;
+                
+                <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">minX</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">transformedPoint</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptDefault_Text">minX</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">transformedPoint</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span>;
+                <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">maxX</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">transformedPoint</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptDefault_Text">maxX</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">transformedPoint</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span>;
+                <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">minY</span> <span class="ActionScriptOperator">&gt;</span> <span class="ActionScriptDefault_Text">transformedPoint</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptDefault_Text">minY</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">transformedPoint</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span>;
+                <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">maxY</span> <span class="ActionScriptOperator">&lt;</span> <span class="ActionScriptDefault_Text">transformedPoint</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptDefault_Text">maxY</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">transformedPoint</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            
+            <span class="ActionScriptDefault_Text">resultRect</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">setTo</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">minX</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">minY</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">maxX</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">minX</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">maxY</span><span class="ActionScriptOperator">-</span><span class="ActionScriptDefault_Text">minY</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">resultRect</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** @inheritDoc */</span> 
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">override</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">getBounds</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">targetSpace</span>:<span class="ActionScriptDefault_Text">DisplayObject</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">resultRect</span>:<span class="ActionScriptDefault_Text">Rectangle</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Rectangle</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">bounds</span>:<span class="ActionScriptDefault_Text">Rectangle</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">getBounds</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">targetSpace</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">resultRect</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptComment">// if we have a scissor rect, intersect it with our bounds
+</span>            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">mClipRect</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">RectangleUtil</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">intersect</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">bounds</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">getClipRect</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">targetSpace</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">sHelperRect</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">,</span> 
+                                        <span class="ActionScriptDefault_Text">bounds</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">bounds</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** @inheritDoc */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">override</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">hitTest</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">localPoint</span>:<span class="ActionScriptDefault_Text">Point</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">forTouch</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">DisplayObject</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">mClipRect</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">mClipRect</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">containsPoint</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">localPoint</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptReserved">else</span>
+                <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">hitTest</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">localPoint</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">forTouch</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** @inheritDoc */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">override</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">render</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">support</span>:<span class="ActionScriptDefault_Text">RenderSupport</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">parentAlpha</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">mClipRect</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">clipRect</span>:<span class="ActionScriptDefault_Text">Rectangle</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">support</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">pushClipRect</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">getClipRect</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">stage</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">sHelperRect</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">clipRect</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">isEmpty</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptComment">// empty clipping bounds - no need to render children.
+</span>                    <span class="ActionScriptDefault_Text">support</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">popClipRect</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptReserved">return</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptBracket/Brace">}</span>
+            
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">mFlattenedContents</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptDefault_Text">mFlattenRequested</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">mFlattenedContents</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">mFlattenedContents</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptBracket/Brace">&lt;</span><span class="ActionScriptDefault_Text">QuadBatch</span><span class="ActionScriptBracket/Brace">&gt;</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata"></span><span class="ActionScriptBracket/Brace"></span>;
+                
+                <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">mFlattenRequested</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">QuadBatch</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">compile</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">mFlattenedContents</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">mFlattenOptimized</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptDefault_Text">QuadBatch</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">optimize</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">mFlattenedContents</span><span class="ActionScriptBracket/Brace">)</span>;
+
+                    <span class="ActionScriptDefault_Text">support</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">applyClipRect</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>; <span class="ActionScriptComment">// compiling filters might change scissor rect. :-\
+</span>                    <span class="ActionScriptDefault_Text">mFlattenRequested</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+                
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">alpha</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">parentAlpha</span> <span class="ActionScriptOperator">*</span> <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">alpha</span>;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">numBatches</span>:<span class="ActionScriptDefault_Text">int</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">mFlattenedContents</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span>;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">mvpMatrix</span>:<span class="ActionScriptDefault_Text">Matrix3D</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">support</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">mvpMatrix3D</span>;
+                
+                <span class="ActionScriptDefault_Text">support</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">finishQuadBatch</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">support</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">raiseDrawCount</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">numBatches</span><span class="ActionScriptBracket/Brace">)</span>;
+                
+                <span class="ActionScriptReserved">for</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">i</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptOperator">=</span>0; <span class="ActionScriptDefault_Text">i</span><span class="ActionScriptOperator">&lt;</span><span class="ActionScriptDefault_Text">numBatches</span>; <span class="ActionScriptOperator">++</span><span class="ActionScriptDefault_Text">i</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">quadBatch</span>:<span class="ActionScriptDefault_Text">QuadBatch</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">mFlattenedContents</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">i</span><span class="ActionScriptBracket/Brace">]</span>;
+                    <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">blendMode</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">quadBatch</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">blendMode</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptDefault_Text">BlendMode</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">AUTO</span> <span class="ActionScriptOperator">?</span>
+                        <span class="ActionScriptDefault_Text">support</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">blendMode</span> : <span class="ActionScriptDefault_Text">quadBatch</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">blendMode</span>;
+                    <span class="ActionScriptDefault_Text">quadBatch</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">renderCustom</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">mvpMatrix</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">alpha</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">blendMode</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">else</span> <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">render</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">support</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">parentAlpha</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">mClipRect</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">support</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">popClipRect</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+    <span class="ActionScriptBracket/Brace">}</span>
+<span class="ActionScriptBracket/Brace">}</span></pre></body>
+</html>

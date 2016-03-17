@@ -1,0 +1,167 @@
+<!-- saved from url=(0014)about:internet -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>PathFollower.as</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../SourceStyles.css"/>
+</head>
+
+<body><pre><span class="ActionScriptASDoc">/**
+ * VERSION: 0.5
+ * DATE: 2011-01-12
+ * AS3
+ * UPDATES AND DOCS AT: http://www.greensock.com
+ **/</span>
+<span class="ActionScriptpackage">package</span> <span class="ActionScriptDefault_Text">com</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">greensock</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">motionPaths</span> <span class="ActionScriptBracket/Brace">{</span>
+<span class="ActionScriptASDoc">/**
+ * A PathFollower is used to associate a particular target object (like a MovieClip, Point, Sprite, etc.) 
+ * with a MotionPath and it offers a tweenable &lt;code&gt;progress&lt;/code&gt; property that manages positioning
+ * the target on the path accordingly. The &lt;code&gt;progress&lt;/code&gt; property is a value between
+ * 0 and 1 where 0 is at the beginning of the path, 0.5 is in the middle, and 1 is at the end. 
+ * When the follower's &lt;code&gt;autoRotate&lt;/code&gt; property is &lt;code&gt;true&lt;/code&gt;, the target will be
+ * rotated in relation to the path that it is following. &lt;br /&gt;&lt;br /&gt;
+ * 
+ * @example Example AS3 code:&lt;listing version="3.0"&gt;
+import com.greensock.~~;
+import com.greensock.motionPaths.~~;
+
+//create a circle motion path at coordinates x:150, y:150 with a radius of 100
+var circle:Circle2D = new Circle2D(150, 150, 100);
+
+//make the MovieClip "mc" follow the circle and start at a position of 90 degrees (this returns a PathFollower instance)
+var follower:PathFollower = circle.addFollower(mc, circle.angleToProgress(90), true);
+
+//tween the follower clockwise along the path to 315 degrees
+TweenLite.to(follower, 2, {progress:circle.followerTween(follower, 315, Direction.CLOCKWISE)});
+
+//tween the follower counter-clockwise to 200 degrees and add an extra revolution
+TweenLite.to(follower, 2, {progress:circle.followerTween(follower, 200, Direction.COUNTER_CLOCKWISE, 1)});
+&lt;/listing&gt;
+ * 
+ * &lt;b&gt;NOTES&lt;/b&gt;&lt;br /&gt;
+ * &lt;ul&gt;
+ *         &lt;li&gt;All followers are automatically updated when you alter the MotionPath that they're following.&lt;/li&gt;
+ *         &lt;li&gt;To tween all followers along the path at once, simply tween the MotionPath's &lt;code&gt;progress&lt;/code&gt; 
+ *             property which will provide better performance than tweening each follower independently.&lt;/li&gt;
+ * &lt;/ul&gt;
+ * 
+ * &lt;b&gt;Copyright 2011, GreenSock. All rights reserved.&lt;/b&gt; This work is subject to the terms in &lt;a href="http://www.greensock.com/terms_of_use.html"&gt;http://www.greensock.com/terms_of_use.html&lt;/a&gt; or for corporate Club GreenSock members, the software agreement that was issued with the corporate membership.
+ * 
+ * @author Jack Doyle, jack@greensock.com
+ */</span>    
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptclass">class</span> <span class="ActionScriptDefault_Text">PathFollower</span> <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptASDoc">/** The target object associated with the PathFollower (like a Sprite, MovieClip, Point, etc.). The object must have x and y properties. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">target</span>:<span class="ActionScriptDefault_Text">Object</span>;
+        
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">cachedProgress</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/** @private not re-interpolated between 0 and 1. We store this value and cachedProgress instead of calculating one of them on the fly in order to maximize rendering performance. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">cachedRawProgress</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">cachedNext</span>:<span class="ActionScriptDefault_Text">PathFollower</span>;
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">cachedPrev</span>:<span class="ActionScriptDefault_Text">PathFollower</span>;
+        
+        <span class="ActionScriptASDoc">/** The MotionPath instance that this PathFollower should follow **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">path</span>:<span class="ActionScriptDefault_Text">MotionPath</span>;
+        <span class="ActionScriptASDoc">/** When &lt;code&gt;autoRotate&lt;/code&gt; is &lt;code&gt;true&lt;/code&gt;, the follower will automatically be rotated so that it is oriented to the angle of the path that it is following. To offset this value (like to always add 90 degrees for example), use the &lt;code&gt;rotationOffset&lt;/code&gt; property. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">autoRotate</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+        <span class="ActionScriptASDoc">/** When &lt;code&gt;autoRotate&lt;/code&gt; is &lt;code&gt;true&lt;/code&gt;, this value will always be added to the resulting &lt;code&gt;rotation&lt;/code&gt; of the target. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">rotationOffset</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        
+        <span class="ActionScriptASDoc">/**
+         * Constructor
+         * 
+         * @param target The target object associated with the PathFollower (like a Sprite, MovieClip, Point, etc.). The object must have x and y properties. 
+         * @param autoRotate When &lt;code&gt;autoRotate&lt;/code&gt; is &lt;code&gt;true&lt;/code&gt;, the follower will automatically be rotated so that it is oriented to the angle of the path that it is following. To offset this value (like to always add 90 degrees for example), use the &lt;code&gt;rotationOffset&lt;/code&gt; property.
+         * @param rotationOffset When &lt;code&gt;autoRotate&lt;/code&gt; is &lt;code&gt;true&lt;/code&gt;, this value will always be added to the resulting &lt;code&gt;rotation&lt;/code&gt; of the target.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">PathFollower</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">target</span>:<span class="ActionScriptDefault_Text">Object</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">autoRotate</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">rotationOffset</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">target</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">target</span>;
+            <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">autoRotate</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">autoRotate</span>;
+            <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">rotationOffset</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">rotationOffset</span>;
+            <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedProgress</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedRawProgress</span> <span class="ActionScriptOperator">=</span> 0;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** 
+         * Identical to &lt;code&gt;progress&lt;/code&gt; except that the value doesn't get re-interpolated between 0 and 1.
+         * &lt;code&gt;rawProgress&lt;/code&gt; (and &lt;code&gt;progress&lt;/code&gt;) indicates the follower's position along the motion path. 
+         * For example, to place the object on the path at the halfway point, you could set its &lt;code&gt;rawProgress&lt;/code&gt; 
+         * to 0.5. You can tween to values that are greater than 1 or less than 0. For example, setting &lt;code&gt;rawProgress&lt;/code&gt; 
+         * to 1.2 also sets &lt;code&gt;progress&lt;/code&gt; to 0.2 and setting &lt;code&gt;rawProgress&lt;/code&gt; to -0.2 is the 
+         * same as setting &lt;code&gt;progress&lt;/code&gt; to 0.8. If your goal is to tween the PathFollower around a Circle2D twice 
+         * completely, you could just add 2 to the &lt;code&gt;rawProgress&lt;/code&gt; value or use a relative value in the tween, like: &lt;br /&gt;&lt;br /&gt;&lt;code&gt;
+         * 
+         * TweenLite.to(myFollower, 5, {rawProgress:"2"}); //or myFollower.rawProgress + 2
+         * 
+         * &lt;/code&gt;&lt;br /&gt;&lt;br /&gt;
+         * 
+         * Since &lt;code&gt;rawProgress&lt;/code&gt; doesn't re-interpolate values to always fitting between 0 and 1, it
+         * can be useful if you need to find out how many times the PathFollower has wrapped.
+         * 
+         * @see #progress
+         **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">rawProgress</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedRawProgress</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">rawProgress</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">progress</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** 
+         * A value between 0 and 1 that indicates the follower's position along the motion path. For example,
+         * to place the object on the path at the halfway point, you would set its &lt;code&gt;progress&lt;/code&gt; to 0.5.
+         * You can tween to values that are greater than 1 or less than 0 but the values are simply wrapped. 
+         * So, for example, setting &lt;code&gt;progress&lt;/code&gt; to 1.2 is the same as setting it to 0.2 and -0.2 is the 
+         * same as 0.8. If your goal is to tween the PathFollower around a Circle2D twice completely, you could just 
+         * add 2 to the &lt;code&gt;progress&lt;/code&gt; value or use a relative value in the tween, like: &lt;br /&gt;&lt;br /&gt;&lt;code&gt;
+         * 
+         * TweenLite.to(myFollower, 5, {progress:"2"}); //or myFollower.progress + 2&lt;/code&gt;&lt;br /&gt;&lt;br /&gt;
+         * 
+         * &lt;code&gt;progress&lt;/code&gt; is identical to &lt;code&gt;rawProgress&lt;/code&gt; except that &lt;code&gt;rawProgress&lt;/code&gt; 
+         * does not get re-interpolated between 0 and 1. For example, if &lt;code&gt;rawProgress&lt;/code&gt; 
+         * is set to -3.4, &lt;code&gt;progress&lt;/code&gt; would be 0.6. &lt;code&gt;rawProgress&lt;/code&gt; can be useful if 
+         * you need to find out how many times the PathFollower has wrapped.
+         * 
+         * Also note that if you set &lt;code&gt;progress&lt;/code&gt; to any value &lt;i&gt;outside&lt;/i&gt; of the 0-1 range, 
+         * &lt;code&gt;rawProgress&lt;/code&gt; will be set to that exact value. If &lt;code&gt;progress&lt;/code&gt; is
+         * set to a value &lt;i&gt;within&lt;/i&gt; the typical 0-1 range, it will only affect the decimal value of 
+         * &lt;code&gt;rawProgress&lt;/code&gt;. For example, if &lt;code&gt;rawProgress&lt;/code&gt; is 3.4 and then you 
+         * set &lt;code&gt;progress&lt;/code&gt; to 0.1, &lt;code&gt;rawProgress&lt;/code&gt; will end up at 3.1 (notice
+         * the "3" integer was kept). But if &lt;code&gt;progress&lt;/code&gt; was instead set to 5.1, since
+         * it exceeds the 0-1 range, &lt;code&gt;rawProgress&lt;/code&gt; would become 5.1. This behavior was 
+         * adopted in order to deal most effectively with wrapping situations. For example, if 
+         * &lt;code&gt;rawProgress&lt;/code&gt; was tweened to 3.4 and then later you wanted to fine-tune
+         * where things were positioned by tweening &lt;code&gt;progress&lt;/code&gt; to 0.8, it still may be
+         * important to be able to determine how many loops/wraps occurred, so &lt;code&gt;rawProgress&lt;/code&gt;
+         * should be 3.8, not reset to 0.8. Feel free to use &lt;code&gt;rawProgress&lt;/code&gt; exclusively if you 
+         * prefer to avoid any of the re-interpolation that occurs with &lt;code&gt;progress&lt;/code&gt;.
+         * 
+         * @see #rawProgress
+         **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">progress</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedProgress</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">progress</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span> <span class="ActionScriptOperator">&gt;</span> 1<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedRawProgress</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span>;
+                <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedProgress</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedProgress</span> <span class="ActionScriptOperator">==</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedProgress</span> <span class="ActionScriptOperator">=</span> 1;
+                <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptBracket/Brace">}</span> <span class="ActionScriptReserved">else</span> <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span> <span class="ActionScriptOperator">&lt;</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedRawProgress</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span>;
+                <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedProgress</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">-</span> 1<span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span> <span class="ActionScriptReserved">else</span> <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedRawProgress</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedRawProgress</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">value</span>;
+                <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedProgress</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">path</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">path</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">renderObjectAt</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">target</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedProgress</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">autoRotate</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">rotationOffset</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+    <span class="ActionScriptBracket/Brace">}</span>
+<span class="ActionScriptBracket/Brace">}</span></pre></body>
+</html>

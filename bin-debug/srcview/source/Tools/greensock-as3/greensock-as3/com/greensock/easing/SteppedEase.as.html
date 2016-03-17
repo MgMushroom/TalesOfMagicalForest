@@ -1,0 +1,100 @@
+<!-- saved from url=(0014)about:internet -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>SteppedEase.as</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../SourceStyles.css"/>
+</head>
+
+<body><pre><span class="ActionScriptASDoc">/**
+ * VERSION: 0.5
+ * DATE: 2010-11-30
+ * AS3
+ * UPDATES AND DOCS AT: http://www.greensock.com/
+ **/</span>
+<span class="ActionScriptpackage">package</span> <span class="ActionScriptDefault_Text">com</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">greensock</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">easing</span> <span class="ActionScriptBracket/Brace">{</span>
+<span class="ActionScriptASDoc">/**
+ * Most easing equations give a smooth, gradual transition between the start and end values, but SteppedEase provides
+ * an easy way to define a specific number of steps that the transition should take. For example, if mc.x is 0 and you 
+ * want to tween it to 100 with 5 steps (20, 40, 60, 80, and 100) over the course of 2 seconds, you'd do:&lt;br /&gt;&lt;br /&gt;&lt;code&gt;
+ * 
+ * TweenLite.to(mc, 2, {x:100, ease:SteppedEase.create(5)});&lt;br /&gt;&lt;br /&gt;&lt;/code&gt;
+ * 
+ * &lt;b&gt;EXAMPLE CODE&lt;/b&gt;&lt;br /&gt;&lt;br /&gt;&lt;code&gt;
+ * import com.greensock.TweenLite;&lt;br /&gt;
+ * import com.greensock.easing.SteppedEase;&lt;br /&gt;&lt;br /&gt;
+ * 
+ * TweenLite.to(mc, 2, {x:100, ease:SteppedEase.create(5)});&lt;br /&gt;&lt;br /&gt;
+ * 
+ * //or create an instance directly&lt;br /&gt;
+ * var steppedEase:SteppedEase = new SteppedEase(5);&lt;br /&gt;
+ * TweenLite.to(mc, 3, {y:300, ease:steppedEase.ease});
+ * &lt;/code&gt;&lt;br /&gt;&lt;br /&gt;
+ * 
+ * Note: SteppedEase is optimized for use with the GreenSock tweenining platform, so it isn't intended to be used with other engines. 
+ * Specifically, its easing equation always returns values between 0 and 1.&lt;br /&gt;&lt;br /&gt;
+ * 
+ * &lt;b&gt;Copyright 2011, GreenSock. All rights reserved.&lt;/b&gt; This work is subject to the terms in &lt;a href="http://www.greensock.com/terms_of_use.html"&gt;http://www.greensock.com/terms_of_use.html&lt;/a&gt; or for corporate Club GreenSock members, the software agreement that was issued with the corporate membership.
+ * 
+ * @author Jack Doyle, jack@greensock.com
+ */</span>     
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptclass">class</span> <span class="ActionScriptDefault_Text">SteppedEase</span> <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_steps</span>:<span class="ActionScriptDefault_Text">int</span>;
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_stepAmount</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        
+        <span class="ActionScriptASDoc">/**
+         * Constructor
+         * 
+         * @param steps Number of steps between the start and the end values. 
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">SteppedEase</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">steps</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">_stepAmount</span> <span class="ActionScriptOperator">=</span> 1 <span class="ActionScriptOperator">/</span> <span class="ActionScriptDefault_Text">steps</span>;
+            <span class="ActionScriptDefault_Text">_steps</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">steps</span> <span class="ActionScriptOperator">+</span> 1;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * This static function provides a quick way to create a SteppedEase and immediately reference its ease function 
+         * in a tween, like:&lt;br /&gt;&lt;br /&gt;&lt;code&gt;
+         * 
+         * TweenLite.to(mc, 2, {x:100, ease:SteppedEase.create(5)});&lt;br /&gt;
+         * &lt;/code&gt;
+         * 
+         * @param steps Number of steps between the start and the end values. 
+         * @return The easing function that can be plugged into a tween
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">create</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">steps</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Function</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">se</span>:<span class="ActionScriptDefault_Text">SteppedEase</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">SteppedEase</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">steps</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">se</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ease</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Easing function that interpolates values. 
+         * 
+         * @param t time
+         * @param b start (should always be 0)
+         * @param c change (should always be 1)
+         * @param d duration
+         * @return Result of the ease
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">ease</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">t</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">b</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">c</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">d</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">ratio</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">t</span> <span class="ActionScriptOperator">/</span> <span class="ActionScriptDefault_Text">d</span>;
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">ratio</span> <span class="ActionScriptOperator">&lt;</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">ratio</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptBracket/Brace">}</span> <span class="ActionScriptReserved">else</span> <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">ratio</span> <span class="ActionScriptOperator">&gt;=</span> 1<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">ratio</span> <span class="ActionScriptOperator">=</span> 0.999999999;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_steps</span> <span class="ActionScriptOperator">*</span> <span class="ActionScriptDefault_Text">ratio</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">&gt;&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">*</span> <span class="ActionScriptDefault_Text">_stepAmount</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Number of steps between the start and the end values. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">steps</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">int</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_steps</span> <span class="ActionScriptOperator">-</span> 1;
+        <span class="ActionScriptBracket/Brace">}</span>
+
+    <span class="ActionScriptBracket/Brace">}</span>
+<span class="ActionScriptBracket/Brace">}</span>
+</pre></body>
+</html>

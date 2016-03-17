@@ -1,0 +1,119 @@
+<!-- saved from url=(0014)about:internet -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>SelfLoader.as</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../SourceStyles.css"/>
+</head>
+
+<body><pre><span class="ActionScriptASDoc">/**
+ * VERSION: 1.7
+ * DATE: 2010-11-13
+ * AS3
+ * UPDATES AND DOCS AT: http://www.greensock.com/loadermax/
+ **/</span>
+<span class="ActionScriptpackage">package</span> <span class="ActionScriptDefault_Text">com</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">greensock</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">loading</span> <span class="ActionScriptBracket/Brace">{</span>
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">com</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">greensock</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">loading</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">core</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">LoaderItem</span>;
+    
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">DisplayObject</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">LoaderInfo</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">events</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Event</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">events</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ProgressEvent</span>;
+<span class="ActionScriptASDoc">/**
+ * Tracks the loading progress of the swf in which the loader resides (basically a simple tool for tracking
+ * the &lt;code&gt;loaderInfo&lt;/code&gt;'s progress). SelfLoader is only useful in situations where you want to factor
+ * the current swf's loading progress into a LoaderMax queue or maybe display a progress bar for the current
+ * swf or fire an event when loading has finished.&lt;br /&gt;&lt;br /&gt;
+ * 
+ * &lt;strong&gt;OPTIONAL VARS PROPERTIES&lt;/strong&gt;&lt;br /&gt;
+ * The following special properties can be passed into the SelfLoader constructor via its &lt;code&gt;vars&lt;/code&gt; parameter:&lt;br /&gt;
+ * &lt;ul&gt;
+ *         &lt;li&gt;&lt;strong&gt; name : String&lt;/strong&gt; - A name that is used to identify the loader instance. This name can be fed to the &lt;code&gt;LoaderMax.getLoader()&lt;/code&gt; or &lt;code&gt;LoaderMax.getContent()&lt;/code&gt; methods or traced at any time. Each loader's name should be unique. If you don't define one, a unique name will be created automatically, like "loader21".&lt;/li&gt;
+ *         &lt;li&gt;&lt;strong&gt; autoDispose : Boolean&lt;/strong&gt; - When &lt;code&gt;autoDispose&lt;/code&gt; is &lt;code&gt;true&lt;/code&gt;, the loader will be disposed immediately after it completes (it calls the &lt;code&gt;dispose()&lt;/code&gt; method internally after dispatching its &lt;code&gt;COMPLETE&lt;/code&gt; event). This will remove any listeners that were defined in the vars object (like onComplete, onProgress, onError). Once a loader is disposed, it can no longer be found with &lt;code&gt;LoaderMax.getLoader()&lt;/code&gt; or &lt;code&gt;LoaderMax.getContent()&lt;/code&gt;. The default &lt;code&gt;autoDispose&lt;/code&gt; value is &lt;code&gt;false&lt;/code&gt;.
+ *         
+ *         &lt;br /&gt;&lt;br /&gt;----EVENT HANDLER SHORTCUTS----&lt;/li&gt;
+ *         &lt;li&gt;&lt;strong&gt; onProgress : Function&lt;/strong&gt; - A handler function for &lt;code&gt;LoaderEvent.PROGRESS&lt;/code&gt; events which are dispatched whenever the &lt;code&gt;bytesLoaded&lt;/code&gt; changes. Make sure your onProgress function accepts a single parameter of type &lt;code&gt;LoaderEvent&lt;/code&gt; (&lt;code&gt;com.greensock.events.LoaderEvent&lt;/code&gt;). You can use the LoaderEvent's &lt;code&gt;target.progress&lt;/code&gt; to get the loader's progress value or use its &lt;code&gt;target.bytesLoaded&lt;/code&gt; and &lt;code&gt;target.bytesTotal&lt;/code&gt;.&lt;/li&gt;
+ *         &lt;li&gt;&lt;strong&gt; onComplete : Function&lt;/strong&gt; - A handler function for &lt;code&gt;LoaderEvent.COMPLETE&lt;/code&gt; events which are dispatched when the loader has finished loading successfully. Make sure your onComplete function accepts a single parameter of type &lt;code&gt;LoaderEvent&lt;/code&gt; (&lt;code&gt;com.greensock.events.LoaderEvent&lt;/code&gt;).&lt;/li&gt;
+ * &lt;/ul&gt;&lt;br /&gt;
+ * 
+ * @example Example AS3 code:&lt;listing version="3.0"&gt;
+ import com.greensock.loading.~~;
+ import com.greensock.events.LoaderEvent;
+ 
+//create a SelfLoader
+var loader:SelfLoader = new SelfLoader(this, {name:"self", onProgress:progressHandler, onComplete:completeHandler});
+
+//Or you could put the SelfLoader into a LoaderMax. Create one first...
+var queue:LoaderMax = new LoaderMax({name:"mainQueue", onProgress:progressHandler, onComplete:completeHandler, onError:errorHandler});
+
+//append the SelfLoader and several other loaders
+queue.append( loader );
+queue.append( new ImageLoader("images/photo1.jpg", {name:"photo1", container:this}) );
+queue.append( new SWFLoader("swf/child.swf", {name:"child", container:this, x:100, estimatedBytes:3500}) );
+
+//start loading the LoaderMax queue
+queue.load();
+
+function progressHandler(event:LoaderEvent):void {
+    trace("progress: " + event.target.progress);
+}
+
+function completeHandler(event:LoaderEvent):void {
+    trace(event.target + " complete");
+}
+
+function errorHandler(event:LoaderEvent):void {
+    trace("error occured with " + event.target + ": " + event.text);
+}
+ &lt;/listing&gt;
+ * 
+ * &lt;b&gt;Copyright 2011, GreenSock. All rights reserved.&lt;/b&gt; This work is subject to the terms in &lt;a href="http://www.greensock.com/terms_of_use.html"&gt;http://www.greensock.com/terms_of_use.html&lt;/a&gt; or for corporate Club GreenSock members, the software agreement that was issued with the corporate membership.
+ * 
+ * @author Jack Doyle, jack@greensock.com
+ */</span>    
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptclass">class</span> <span class="ActionScriptDefault_Text">SelfLoader</span> <span class="ActionScriptReserved">extends</span> <span class="ActionScriptDefault_Text">LoaderItem</span> <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_loaderInfo</span>:<span class="ActionScriptDefault_Text">LoaderInfo</span>;
+        
+        <span class="ActionScriptASDoc">/**
+         * Constructor
+         * 
+         * @param self A DisplayObject from the main swf (it will use this DisplayObject's &lt;code&gt;loaderInfo&lt;/code&gt; to track the loading progress).
+         * @param vars An object containing optional configuration details. For example: &lt;code&gt;new SelfLoader(this, {name:"self", onComplete:completeHandler, onProgress:progressHandler})&lt;/code&gt;.&lt;br /&gt;&lt;br /&gt;
+         * 
+         * The following special properties can be passed into the constructor via the &lt;code&gt;vars&lt;/code&gt; parameter:&lt;br /&gt;
+         * &lt;ul&gt;
+         *         &lt;li&gt;&lt;strong&gt; name : String&lt;/strong&gt; - A name that is used to identify the loader instance. This name can be fed to the &lt;code&gt;LoaderMax.getLoader()&lt;/code&gt; or &lt;code&gt;LoaderMax.getContent()&lt;/code&gt; methods or traced at any time. Each loader's name should be unique. If you don't define one, a unique name will be created automatically, like "loader21".&lt;/li&gt;
+         *         &lt;li&gt;&lt;strong&gt; autoDispose : Boolean&lt;/strong&gt; - When &lt;code&gt;autoDispose&lt;/code&gt; is &lt;code&gt;true&lt;/code&gt;, the loader will be disposed immediately after it completes (it calls the &lt;code&gt;dispose()&lt;/code&gt; method internally after dispatching its &lt;code&gt;COMPLETE&lt;/code&gt; event). This will remove any listeners that were defined in the vars object (like onComplete, onProgress, onError). Once a loader is disposed, it can no longer be found with &lt;code&gt;LoaderMax.getLoader()&lt;/code&gt; or &lt;code&gt;LoaderMax.getContent()&lt;/code&gt;. The default &lt;code&gt;autoDispose&lt;/code&gt; value is &lt;code&gt;false&lt;/code&gt;.
+         *         
+         *         &lt;br /&gt;&lt;br /&gt;----EVENT HANDLER SHORTCUTS----&lt;/li&gt;
+         *         &lt;li&gt;&lt;strong&gt; onProgress : Function&lt;/strong&gt; - A handler function for &lt;code&gt;LoaderEvent.PROGRESS&lt;/code&gt; events which are dispatched whenever the &lt;code&gt;bytesLoaded&lt;/code&gt; changes. Make sure your onProgress function accepts a single parameter of type &lt;code&gt;LoaderEvent&lt;/code&gt; (&lt;code&gt;com.greensock.events.LoaderEvent&lt;/code&gt;). You can use the LoaderEvent's &lt;code&gt;target.progress&lt;/code&gt; to get the loader's progress value or use its &lt;code&gt;target.bytesLoaded&lt;/code&gt; and &lt;code&gt;target.bytesTotal&lt;/code&gt;.&lt;/li&gt;
+         *         &lt;li&gt;&lt;strong&gt; onComplete : Function&lt;/strong&gt; - A handler function for &lt;code&gt;LoaderEvent.COMPLETE&lt;/code&gt; events which are dispatched when the loader has finished loading successfully. Make sure your onComplete function accepts a single parameter of type &lt;code&gt;LoaderEvent&lt;/code&gt; (&lt;code&gt;com.greensock.events.LoaderEvent&lt;/code&gt;).&lt;/li&gt;
+         * &lt;/ul&gt;
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">SelfLoader</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">self</span>:<span class="ActionScriptDefault_Text">DisplayObject</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">vars</span>:<span class="ActionScriptDefault_Text">Object</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">super</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">self</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">loaderInfo</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">url</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">vars</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_type</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">"SelfLoader"</span>;
+            <span class="ActionScriptDefault_Text">_loaderInfo</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">self</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">loaderInfo</span>;
+            <span class="ActionScriptDefault_Text">_loaderInfo</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">addEventListener</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">ProgressEvent</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">PROGRESS</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">_progressHandler</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">false</span><span class="ActionScriptOperator">,</span> 0<span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">true</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_loaderInfo</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">addEventListener</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Event</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">COMPLETE</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">_completeHandler</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">false</span><span class="ActionScriptOperator">,</span> 0<span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">true</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_cachedBytesTotal</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_loaderInfo</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">bytesTotal</span>;
+            <span class="ActionScriptDefault_Text">_cachedBytesLoaded</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_loaderInfo</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">bytesLoaded</span>;
+            <span class="ActionScriptDefault_Text">_status</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_cachedBytesLoaded</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptDefault_Text">_cachedBytesTotal</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">?</span> <span class="ActionScriptDefault_Text">LoaderStatus</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">COMPLETED</span> : <span class="ActionScriptDefault_Text">LoaderStatus</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">LOADING</span>;        
+            <span class="ActionScriptDefault_Text">_auditedSize</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            <span class="ActionScriptDefault_Text">_content</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">self</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** @private scrubLevel: 0 = cancel, 1 = unload, 2 = dispose, 3 = flush **/</span>
+        <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">protected</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">_dump</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">scrubLevel</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">newStatus</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">suppressEvents</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">scrubLevel</span> <span class="ActionScriptOperator">&gt;=</span> 2<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">_loaderInfo</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">removeEventListener</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">ProgressEvent</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">PROGRESS</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">_progressHandler</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">_loaderInfo</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">removeEventListener</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Event</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">COMPLETE</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">_completeHandler</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">_dump</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">scrubLevel</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">newStatus</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">suppressEvents</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+    <span class="ActionScriptBracket/Brace">}</span>
+<span class="ActionScriptBracket/Brace">}</span></pre></body>
+</html>

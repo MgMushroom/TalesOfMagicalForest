@@ -1,0 +1,98 @@
+<!-- saved from url=(0014)about:internet -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>LoaderEvent.as</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../SourceStyles.css"/>
+</head>
+
+<body><pre><span class="ActionScriptASDoc">/**
+ * VERSION: 1.87
+ * DATE: 2011-07-30
+ * AS3
+ * UPDATES AND DOCS AT: http://www.greensock.com/loadermax/
+ **/</span>
+<span class="ActionScriptpackage">package</span> <span class="ActionScriptDefault_Text">com</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">greensock</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">events</span> <span class="ActionScriptBracket/Brace">{</span>
+    
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">events</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Event</span>;
+<span class="ActionScriptASDoc">/**
+ * An Event dispatched by one of the loaders in the LoaderMax system.
+ * &lt;br /&gt;&lt;br /&gt;
+ * 
+ * &lt;b&gt;Copyright 2011, GreenSock. All rights reserved.&lt;/b&gt; This work is subject to the terms in &lt;a href="http://www.greensock.com/terms_of_use.html"&gt;http://www.greensock.com/terms_of_use.html&lt;/a&gt; or for corporate Club GreenSock members, the software agreement that was issued with the corporate membership.
+ * 
+ * @author Jack Doyle, jack@greensock.com
+ */</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptclass">class</span> <span class="ActionScriptDefault_Text">LoaderEvent</span> <span class="ActionScriptReserved">extends</span> <span class="ActionScriptDefault_Text">Event</span> <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptASDoc">/** Dispatched by a LoaderMax (or other loader that may dynamically recognize nested loaders like XMLLoader and SWFLoader) when one of its children begins loading. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">CHILD_OPEN</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"childOpen"</span>;
+        <span class="ActionScriptASDoc">/** Dispatched by a LoaderMax (or other loader that may dynamically recognize nested loaders like XMLLoader and SWFLoader) when one of its children dispatches a &lt;code&gt;PROGRESS&lt;/code&gt; Event. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">CHILD_PROGRESS</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"childProgress"</span>;
+        <span class="ActionScriptASDoc">/** Dispatched by a LoaderMax (or other loader that may dynamically recognize nested loaders like XMLLoader and SWFLoader) when one of its children aborts its loading. This can happen when the loader fails, when &lt;code&gt;cancel()&lt;/code&gt; is manually called, or when another loader is prioritized in the loading queue.  **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">CHILD_CANCEL</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"childCancel"</span>;
+        <span class="ActionScriptASDoc">/** Dispatched by a LoaderMax (or other loader that may dynamically recognize nested loaders like XMLLoader and SWFLoader) when one of its children finishes loading. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">CHILD_COMPLETE</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"childComplete"</span>;
+        <span class="ActionScriptASDoc">/** Dispatched by a LoaderMax (or other loader that may dynamically recognize nested loaders like XMLLoader and SWFLoader) when one of its children fails to load. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">CHILD_FAIL</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"childFail"</span>;
+        <span class="ActionScriptASDoc">/** Dispatched when the loader begins loading, like when its &lt;code&gt;load()&lt;/code&gt; method is called. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">OPEN</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"open"</span>;
+        <span class="ActionScriptASDoc">/** Dispatched when the loader's &lt;code&gt;bytesLoaded&lt;/code&gt; changes. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">PROGRESS</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"progress"</span>;
+        <span class="ActionScriptASDoc">/** Dispatched when the loader aborts its loading. This can happen when the loader fails, when &lt;code&gt;cancel()&lt;/code&gt; is manually called, or when another loader is prioritized in the loading queue. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">CANCEL</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"cancel"</span>;
+        <span class="ActionScriptASDoc">/** Dispatched when the loader fails. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">FAIL</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"fail"</span>;
+        <span class="ActionScriptASDoc">/** Dispatched when the loader initializes which means different things for different loaders. For example, a SWFLoader dispatches &lt;code&gt;INIT&lt;/code&gt; when it downloads enough of the swf to render the first frame. When a VideoLoader receives MetaData, it dispatches its &lt;code&gt;INIT&lt;/code&gt; event, as does an MP3Loader when it receives ID3 data. See the docs for each class for specifics. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">INIT</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"init"</span>;
+        <span class="ActionScriptASDoc">/** Dispatched when the loader finishes loading. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">COMPLETE</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"complete"</span>;
+        <span class="ActionScriptASDoc">/** Dispatched when the loader (or one of its children) receives an HTTP_STATUS event (see Adobe docs for specifics). **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">HTTP_STATUS</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"httpStatus"</span>;
+        <span class="ActionScriptASDoc">/** When script access is denied for a particular loader (like if an ImageLoader or SWFLoader tries loading from another domain and the crossdomain.xml file is missing or doesn't grant permission properly), a SCRIPT_ACCESS_DENIED LoaderEvent will be dispatched. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">SCRIPT_ACCESS_DENIED</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"scriptAccessDenied"</span>;
+        <span class="ActionScriptASDoc">/** Dispatched when the loader (or one of its children) throws any error, like an IO_ERROR or SECURITY_ERROR. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">ERROR</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"error"</span>;
+        <span class="ActionScriptASDoc">/** Dispatched when the the loader (or one of its children) encounters an IO_ERROR (typically when it cannot find the file at the specified &lt;code&gt;url&lt;/code&gt;). **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">IO_ERROR</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"ioError"</span>;
+        <span class="ActionScriptASDoc">/** Dispatched when the loader (or one of its children) encounters a SECURITY_ERROR (see Adobe's docs for details). **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">SECURITY_ERROR</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"securityError"</span>;
+        <span class="ActionScriptASDoc">/** Dispatched when a swf that's loaded by a SWFLoader encounters an UncaughtErrorEvent which is basically any Error that gets thrown outside of a try...catch statement. This can be useful when subloading swfs from a 3rd party that may contain errors. However, UNCAUGHT_ERROR events will only be dispatched if the parent swf is published for Flash Player 10.1 or later! See SWFLoader's &lt;code&gt;suppressUncaughtErrors&lt;/code&gt; special property if you'd like to have it automatically suppress these errors. The original UncaughtErrorEvent is stored in the LoaderEvent's &lt;code&gt;data&lt;/code&gt; property. So, for example, if you'd like to call &lt;code&gt;preventDefault()&lt;/code&gt; on that event, you'd do &lt;code&gt;myLoaderEvent.data.preventDefault()&lt;/code&gt;. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">UNCAUGHT_ERROR</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"uncaughtError"</span>;
+        <span class="ActionScriptASDoc">/** 
+         * Dispatched when the loader unloads (which happens when either &lt;code&gt;unload()&lt;/code&gt; or &lt;code&gt;dispose(true)&lt;/code&gt; is called
+         * or if a loader is canceled while in the process of loading). This can be particularly useful to listen for in a swf that was
+         * subloaded by a SWFLoader so that it can get notified when the parent has requested an unload. For example, in the subloaded swf, 
+         * you could do:&lt;br /&gt;&lt;br /&gt;&lt;code&gt;
+         * 
+         * var curParent:DisplayObjectContainer = this.parent;&lt;br /&gt;
+         * while (curParent) { &lt;br /&gt;
+         *     if (curParent.hasOwnProperty("rawContent") &amp;amp;&amp;amp; curParent.hasOwnProperty("loader")) { &lt;br /&gt;
+         *         Object(curParent).loader.addEventListener("unload", dispose, false, 0, true); &lt;br /&gt;
+         *     }&lt;br /&gt;
+         *     curParent = curParent.parent;&lt;br /&gt;
+         * }&lt;br /&gt;
+         * function dispose(event:Event):void { &lt;br /&gt;
+         *     //do cleanup stuff here like removing event listeners, stopping sounds, closing NetStreams, etc...&lt;br /&gt;
+         * } &lt;/code&gt;
+         **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">UNLOAD</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"unload"</span>;
+        
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_target</span>:<span class="ActionScriptDefault_Text">Object</span>;
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_ready</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+        
+        <span class="ActionScriptASDoc">/** For &lt;code&gt;ERROR, FAIL&lt;/code&gt;, and &lt;code&gt;CHILD_FAIL&lt;/code&gt; events, this text will give more details about the error or failure. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">text</span>:<span class="ActionScriptDefault_Text">String</span>;
+        <span class="ActionScriptASDoc">/** Event-related data which varies based on the type of event. For example, VideoLoader dispatches a VIDEO_CUE_POINT event containing data about the cue point. A SWFLoader dispatches an UNCAUGHT_ERROR event containing the original UncaughtErrorEvent instance. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">data</span>:<span class="ActionScriptOperator">*</span>;
+        
+        <span class="ActionScriptASDoc">/**
+         * Constructor  
+         * 
+         * @param type Type of event
+         * @param target Target
+         * @param text Error text (if any)
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">LoaderEvent</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">type</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">target</span>:<span class="ActionScriptDefault_Text">Object</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">text</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">""</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">data</span>:<span class="ActionScriptOperator">*</span>=<span class="ActionScriptOperator">n</span>

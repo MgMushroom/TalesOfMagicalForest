@@ -1,0 +1,145 @@
+<!-- saved from url=(0014)about:internet -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>BinaryDataLoader.as</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../SourceStyles.css"/>
+</head>
+
+<body><pre><span class="ActionScriptASDoc">/**
+ * VERSION: 1.84
+ * DATE: 2011-03-23
+ * AS3
+ * UPDATES AND DOCS AT: http://www.greensock.com/loadermax/
+ **/</span>
+<span class="ActionScriptpackage">package</span> <span class="ActionScriptDefault_Text">com</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">greensock</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">loading</span> <span class="ActionScriptBracket/Brace">{</span>
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">events</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Event</span>;
+
+<span class="ActionScriptASDoc">/**
+ * Loads generic binary data - identical to using a DataLoader with its "&lt;code&gt;format&lt;/code&gt;" 
+ * special property set to &lt;code&gt;"binary"&lt;/code&gt;. The reason for having a &lt;code&gt;BinaryDataLoader&lt;/code&gt;
+ * class is to allow certain file extensions (like ".zip") to be associated with it so that the 
+ * &lt;code&gt;LoaderMax.parse()&lt;/code&gt; method can accurately parse URLs with those file extensions. If you do 
+ * not plan on using the &lt;code&gt;LoaderMax.parse()&lt;/code&gt; method, however, you could save a small amount 
+ * of kb by simply using DataLoaders with their format set to "binary" instead of using BinaryDataLoaders.&lt;br /&gt;&lt;br /&gt;
+ * 
+ * The following are essentially the same:&lt;br /&gt;&lt;code&gt;
+ * new DataLoader("file.zip", {format:"binary"}); &lt;br /&gt;
+ * new BinaryDataLoader("file.zip"); &lt;/code&gt;&lt;br /&gt;&lt;br /&gt;
+ * 
+ * If you'd like to associate additional file extensions with BinaryDataLoader, you may use the
+ * &lt;code&gt;LoaderMax.registerFileType()&lt;/code&gt; method.&lt;br /&gt;&lt;br /&gt;
+ * 
+ * &lt;strong&gt;OPTIONAL VARS PROPERTIES&lt;/strong&gt;&lt;br /&gt;
+ * The following special properties can be passed into the BinaryDataLoader constructor via its &lt;code&gt;vars&lt;/code&gt; 
+ * parameter which can be either a generic object or a &lt;code&gt;&lt;a href="data/DataLoaderVars.html"&gt;DataLoaderVars&lt;/a&gt;&lt;/code&gt; object:&lt;br /&gt;
+ * &lt;ul&gt;
+ *         &lt;li&gt;&lt;strong&gt; name : String&lt;/strong&gt; - A name that is used to identify the loader instance. This name can be fed to the &lt;code&gt;LoaderMax.getLoader()&lt;/code&gt; or &lt;code&gt;LoaderMax.getContent()&lt;/code&gt; methods or traced at any time. Each loader's name should be unique. If you don't define one, a unique name will be created automatically, like "loader21".&lt;/li&gt;
+ *         &lt;li&gt;&lt;strong&gt; alternateURL : String&lt;/strong&gt; - If you define an &lt;code&gt;alternateURL&lt;/code&gt;, the loader will initially try to load from its original &lt;code&gt;url&lt;/code&gt; and if it fails, it will automatically (and permanently) change the loader's &lt;code&gt;url&lt;/code&gt; to the &lt;code&gt;alternateURL&lt;/code&gt; and try again. Think of it as a fallback or backup &lt;code&gt;url&lt;/code&gt;. It is perfectly acceptable to use the same &lt;code&gt;alternateURL&lt;/code&gt; for multiple loaders (maybe a default image for various ImageLoaders for example).&lt;/li&gt;
+ *         &lt;li&gt;&lt;strong&gt; noCache : Boolean&lt;/strong&gt; - If &lt;code&gt;true&lt;/code&gt;, a "gsCacheBusterID" parameter will be appended to the url with a random set of numbers to prevent caching (don't worry, this info is ignored when you &lt;code&gt;LoaderMax.getLoader()&lt;/code&gt; or &lt;code&gt;LoaderMax.getContent()&lt;/code&gt; by &lt;code&gt;url&lt;/code&gt; or when you're running locally)&lt;/li&gt;
+ *         &lt;li&gt;&lt;strong&gt; estimatedBytes : uint&lt;/strong&gt; - Initially, the loader's &lt;code&gt;bytesTotal&lt;/code&gt; is set to the &lt;code&gt;estimatedBytes&lt;/code&gt; value (or &lt;code&gt;LoaderMax.defaultEstimatedBytes&lt;/code&gt; if one isn't defined). Then, when the loader begins loading and it can accurately determine the bytesTotal, it will do so. Setting &lt;code&gt;estimatedBytes&lt;/code&gt; is optional, but the more accurate the value, the more accurate your loaders' overall progress will be initially. If the loader is inserted into a LoaderMax instance (for queue management), its &lt;code&gt;auditSize&lt;/code&gt; feature can attempt to automatically determine the &lt;code&gt;bytesTotal&lt;/code&gt; at runtime (there is a slight performance penalty for this, however - see LoaderMax's documentation for details).&lt;/li&gt;
+ *         &lt;li&gt;&lt;strong&gt; requireWithRoot : DisplayObject&lt;/strong&gt; - LoaderMax supports &lt;i&gt;subloading&lt;/i&gt;, where an object can be factored into a parent's loading progress. If you want LoaderMax to require this BinaryDataLoader as part of its parent SWFLoader's progress, you must set the &lt;code&gt;requireWithRoot&lt;/code&gt; property to your swf's &lt;code&gt;root&lt;/code&gt;. For example, &lt;code&gt;var loader:BinaryDataLoader = new BinaryDataLoader("file.zip", {name:"zipFile", requireWithRoot:this.root});&lt;/code&gt;&lt;/li&gt;
+ *         &lt;li&gt;&lt;strong&gt; allowMalformedURL : Boolean&lt;/strong&gt; - Normally, the URL will be parsed and any variables in the query string (like "?name=test&amp;amp;state=il&amp;amp;gender=m") will be placed into a URLVariables object which is added to the URLRequest. This avoids a few bugs in Flash, but if you need to keep the entire URL intact (no parsing into URLVariables), set &lt;code&gt;allowMalformedURL:true&lt;/code&gt;. For example, if your URL has duplicate variables in the query string like &lt;code&gt;http://www.greensock.com/?c=S&amp;amp;c=SE&amp;amp;c=SW&lt;/code&gt;, it is technically considered a malformed URL and a URLVariables object can't properly contain all the duplicates, so in this case you'd want to set &lt;code&gt;allowMalformedURL&lt;/code&gt; to &lt;code&gt;true&lt;/code&gt;.&lt;/li&gt;
+ *         &lt;li&gt;&lt;strong&gt; autoDispose : Boolean&lt;/strong&gt; - When &lt;code&gt;autoDispose&lt;/code&gt; is &lt;code&gt;true&lt;/code&gt;, the loader will be disposed immediately after it completes (it calls the &lt;code&gt;dispose()&lt;/code&gt; method internally after dispatching its &lt;code&gt;COMPLETE&lt;/code&gt; event). This will remove any listeners that were defined in the vars object (like onComplete, onProgress, onError, onInit). Once a loader is disposed, it can no longer be found with &lt;code&gt;LoaderMax.getLoader()&lt;/code&gt; or &lt;code&gt;LoaderMax.getContent()&lt;/code&gt; - it is essentially destroyed but its content is not unloaded (you must call &lt;code&gt;unload()&lt;/code&gt; or &lt;code&gt;dispose(true)&lt;/code&gt; to unload its content). The default &lt;code&gt;autoDispose&lt;/code&gt; value is &lt;code&gt;false&lt;/code&gt;.
+ *         
+ *         &lt;br /&gt;&lt;br /&gt;----EVENT HANDLER SHORTCUTS----&lt;/li&gt;
+ *         &lt;li&gt;&lt;strong&gt; onOpen : Function&lt;/strong&gt; - A handler function for &lt;code&gt;LoaderEvent.OPEN&lt;/code&gt; events which are dispatched when the loader begins loading. Make sure your onOpen function accepts a single parameter of type &lt;code&gt;LoaderEvent&lt;/code&gt; (&lt;code&gt;com.greensock.events.LoaderEvent&lt;/code&gt;).&lt;/li&gt;
+ *         &lt;li&gt;&lt;strong&gt; onProgress : Function&lt;/strong&gt; - A handler function for &lt;code&gt;LoaderEvent.PROGRESS&lt;/code&gt; events which are dispatched whenever the &lt;code&gt;bytesLoaded&lt;/code&gt; changes. Make sure your onProgress function accepts a single parameter of type &lt;code&gt;LoaderEvent&lt;/code&gt; (&lt;code&gt;com.greensock.events.LoaderEvent&lt;/code&gt;). You can use the LoaderEvent's &lt;code&gt;target.progress&lt;/code&gt; to get the loader's progress value or use its &lt;code&gt;target.bytesLoaded&lt;/code&gt; and &lt;code&gt;target.bytesTotal&lt;/code&gt;.&lt;/li&gt;
+ *         &lt;li&gt;&lt;strong&gt; onComplete : Function&lt;/strong&gt; - A handler function for &lt;code&gt;LoaderEvent.COMPLETE&lt;/code&gt; events which are dispatched when the loader has finished loading successfully. Make sure your onComplete function accepts a single parameter of type &lt;code&gt;LoaderEvent&lt;/code&gt; (&lt;code&gt;com.greensock.events.LoaderEvent&lt;/code&gt;).&lt;/li&gt;
+ *         &lt;li&gt;&lt;strong&gt; onCancel : Function&lt;/strong&gt; - A handler function for &lt;code&gt;LoaderEvent.CANCEL&lt;/code&gt; events which are dispatched when loading is aborted due to either a failure or because another loader was prioritized or &lt;code&gt;cancel()&lt;/code&gt; was manually called. Make sure your onCancel function accepts a single parameter of type &lt;code&gt;LoaderEvent&lt;/code&gt; (&lt;code&gt;com.greensock.events.LoaderEvent&lt;/code&gt;).&lt;/li&gt;
+ *         &lt;li&gt;&lt;strong&gt; onError : Function&lt;/strong&gt; - A handler function for &lt;code&gt;LoaderEvent.ERROR&lt;/code&gt; events which are dispatched whenever the loader experiences an error (typically an IO_ERROR or SECURITY_ERROR). An error doesn't necessarily mean the loader failed, however - to listen for when a loader fails, use the &lt;code&gt;onFail&lt;/code&gt; special property. Make sure your onError function accepts a single parameter of type &lt;code&gt;LoaderEvent&lt;/code&gt; (&lt;code&gt;com.greensock.events.LoaderEvent&lt;/code&gt;).&lt;/li&gt;
+ *         &lt;li&gt;&lt;strong&gt; onFail : Function&lt;/strong&gt; - A handler function for &lt;code&gt;LoaderEvent.FAIL&lt;/code&gt; events which are dispatched whenever the loader fails and its &lt;code&gt;status&lt;/code&gt; changes to &lt;code&gt;LoaderStatus.FAILED&lt;/code&gt;. Make sure your onFail function accepts a single parameter of type &lt;code&gt;LoaderEvent&lt;/code&gt; (&lt;code&gt;com.greensock.events.LoaderEvent&lt;/code&gt;).&lt;/li&gt;
+ *         &lt;li&gt;&lt;strong&gt; onIOError : Function&lt;/strong&gt; - A handler function for &lt;code&gt;LoaderEvent.IO_ERROR&lt;/code&gt; events which will also call the onError handler, so you can use that as more of a catch-all whereas &lt;code&gt;onIOError&lt;/code&gt; is specifically for LoaderEvent.IO_ERROR events. Make sure your onIOError function accepts a single parameter of type &lt;code&gt;LoaderEvent&lt;/code&gt; (&lt;code&gt;com.greensock.events.LoaderEvent&lt;/code&gt;).&lt;/li&gt;
+ *         &lt;li&gt;&lt;strong&gt; onHTTPStatus : Function&lt;/strong&gt; - A handler function for &lt;code&gt;LoaderEvent.HTTP_STATUS&lt;/code&gt; events. Make sure your onHTTPStatus function accepts a single parameter of type &lt;code&gt;LoaderEvent&lt;/code&gt; (&lt;code&gt;com.greensock.events.LoaderEvent&lt;/code&gt;). You can determine the httpStatus code using the LoaderEvent's &lt;code&gt;target.httpStatus&lt;/code&gt; (LoaderItems keep track of their &lt;code&gt;httpStatus&lt;/code&gt; when possible, although certain environments prevent Flash from getting httpStatus information).&lt;/li&gt;
+ * &lt;/ul&gt;&lt;br /&gt;
+ * 
+ * &lt;strong&gt;Note:&lt;/strong&gt; Using a &lt;code&gt;&lt;a href="data/DataLoaderVars.html"&gt;DataLoaderVars&lt;/a&gt;&lt;/code&gt; instance 
+ * instead of a generic object to define your &lt;code&gt;vars&lt;/code&gt; is a bit more verbose but provides 
+ * code hinting and improved debugging because it enforces strict data typing. Use whichever one you prefer.&lt;br /&gt;&lt;br /&gt;
+ * 
+ * @example Example AS3 code:&lt;listing version="3.0"&gt;
+ import com.greensock.loading.~~;
+ import com.greensock.events.LoaderEvent;
+ 
+ //create a BinaryDataLoader
+ var loader:BinaryDataLoader = new BinaryDataLoader("file.zip", {name:"myZipFile", requireWithRoot:this.root, estimatedBytes:6800});
+ 
+ //begin loading
+ loader.load();
+ 
+ //or we could parse() and array of files, creating a LoaderMax queue with loaders for each file. To do that, we'll first create the array:
+ var files:Array = ["files/archive.zip","images/1.jpg","files/report.pdf","swfs/child.swf"];
+ 
+ //since we want the parse() method to recognize the .pdf file as a BinaryDataLoader, we should registerFileType() first because pdf isn't one of the extensions recognized by default.
+ LoaderMax.registerFileType("pdf", BinaryDataLoader);
+  
+ //before we parse() the array, we need to activate() the loader types that LoaderMax should recognize (we only need to do this once)
+ LoaderMax.activate([BinaryDataLoader, ImageLoader, SWFLoader]);
+ 
+ //now parse the files and create a LoaderMax queue
+ var queue:LoaderMax = LoaderMax.parse(files, {onProgress:progressHandler, onComplete:completeHandler, onChildFail:childFailHandler});
+ queue.load();
+ 
+ function progressHandler(event:LoaderEvent):void {
+     trace("progress: " + event.target.progress);
+ }
+ 
+ function completeHandler(event:LoaderEvent):void {
+     trace("completed " + event.target);
+ }
+ 
+ function childFailHandler(event:LoaderEvent):void {
+     trace(event.target + " failed.");
+ }
+ 
+ &lt;/listing&gt;
+ * 
+ * &lt;b&gt;Copyright 2011, GreenSock. All rights reserved.&lt;/b&gt; This work is subject to the terms in &lt;a href="http://www.greensock.com/terms_of_use.html"&gt;http://www.greensock.com/terms_of_use.html&lt;/a&gt; or for corporate Club GreenSock members, the software agreement that was issued with the corporate membership.
+ * 
+ * @see com.greensock.loading.data.DataLoaderVars
+ * 
+ * @author Jack Doyle, jack@greensock.com
+ */</span>    
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptclass">class</span> <span class="ActionScriptDefault_Text">BinaryDataLoader</span> <span class="ActionScriptReserved">extends</span> <span class="ActionScriptDefault_Text">DataLoader</span> <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_classActivated</span>:<span class="ActionScriptDefault_Text">Boolean</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_activateClass</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"BinaryDataLoader"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">BinaryDataLoader</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptString">"zip"</span><span class="ActionScriptBracket/Brace">)</span>;
+        
+        <span class="ActionScriptASDoc">/**
+         * Constructor
+         * 
+         * @param urlOrRequest The url (&lt;code&gt;String&lt;/code&gt;) or &lt;code&gt;URLRequest&lt;/code&gt; from which the loader should get its content.
+         * @param vars An object containing optional configuration details. For example: &lt;code&gt;new BinaryDataLoader("file.zip", {name:"myZipFile", onComplete:completeHandler, onProgress:progressHandler})&lt;/code&gt;.&lt;br /&gt;&lt;br /&gt;
+         * 
+         * The following special properties can be passed into the constructor via the &lt;code&gt;vars&lt;/code&gt; parameter 
+         * which can be either a generic object or a &lt;code&gt;&lt;a href="data/DataLoaderVars.html"&gt;DataLoaderVars&lt;/a&gt;&lt;/code&gt; object:&lt;br /&gt;
+         * &lt;ul&gt;
+         *         &lt;li&gt;&lt;strong&gt; name : String&lt;/strong&gt; - A name that is used to identify the loader instance. This name can be fed to the &lt;code&gt;LoaderMax.getLoader()&lt;/code&gt; or &lt;code&gt;LoaderMax.getContent()&lt;/code&gt; methods or traced at any time. Each loader's name should be unique. If you don't define one, a unique name will be created automatically, like "loader21".&lt;/li&gt;
+         *         &lt;li&gt;&lt;strong&gt; alternateURL : String&lt;/strong&gt; - If you define an &lt;code&gt;alternateURL&lt;/code&gt;, the loader will initially try to load from its original &lt;code&gt;url&lt;/code&gt; and if it fails, it will automatically (and permanently) change the loader's &lt;code&gt;url&lt;/code&gt; to the &lt;code&gt;alternateURL&lt;/code&gt; and try again. Think of it as a fallback or backup &lt;code&gt;url&lt;/code&gt;. It is perfectly acceptable to use the same &lt;code&gt;alternateURL&lt;/code&gt; for multiple loaders (maybe a default image for various ImageLoaders for example).&lt;/li&gt;
+         *         &lt;li&gt;&lt;strong&gt; noCache : Boolean&lt;/strong&gt; - If &lt;code&gt;true&lt;/code&gt;, a "gsCacheBusterID" parameter will be appended to the url with a random set of numbers to prevent caching (don't worry, this info is ignored when you &lt;code&gt;LoaderMax.getLoader()&lt;/code&gt; or &lt;code&gt;LoaderMax.getContent()&lt;/code&gt; by &lt;code&gt;url&lt;/code&gt; or when you're running locally)&lt;/li&gt;
+         *         &lt;li&gt;&lt;strong&gt; estimatedBytes : uint&lt;/strong&gt; - Initially, the loader's &lt;code&gt;bytesTotal&lt;/code&gt; is set to the &lt;code&gt;estimatedBytes&lt;/code&gt; value (or &lt;code&gt;LoaderMax.defaultEstimatedBytes&lt;/code&gt; if one isn't defined). Then, when the loader begins loading and it can accurately determine the bytesTotal, it will do so. Setting &lt;code&gt;estimatedBytes&lt;/code&gt; is optional, but the more accurate the value, the more accurate your loaders' overall progress will be initially. If the loader is inserted into a LoaderMax instance (for queue management), its &lt;code&gt;auditSize&lt;/code&gt; feature can attempt to automatically determine the &lt;code&gt;bytesTotal&lt;/code&gt; at runtime (there is a slight performance penalty for this, however - see LoaderMax's documentation for details).&lt;/li&gt;
+         *         &lt;li&gt;&lt;strong&gt; requireWithRoot : DisplayObject&lt;/strong&gt; - LoaderMax supports &lt;i&gt;subloading&lt;/i&gt;, where an object can be factored into a parent's loading progress. If you want LoaderMax to require this BinaryDataLoader as part of its parent SWFLoader's progress, you must set the &lt;code&gt;requireWithRoot&lt;/code&gt; property to your swf's &lt;code&gt;root&lt;/code&gt;. For example, &lt;code&gt;var loader:BinaryDataLoader = new BinaryDataLoader("file.zip", {name:"myZipFile", requireWithRoot:this.root});&lt;/code&gt;&lt;/li&gt;
+         *         &lt;li&gt;&lt;strong&gt; allowMalformedURL : Boolean&lt;/strong&gt; - Normally, the URL will be parsed and any variables in the query string (like "?name=test&amp;amp;state=il&amp;amp;gender=m") will be placed into a URLVariables object which is added to the URLRequest. This avoids a few bugs in Flash, but if you need to keep the entire URL intact (no parsing into URLVariables), set &lt;code&gt;allowMalformedURL:true&lt;/code&gt;. For example, if your URL has duplicate variables in the query string like &lt;code&gt;http://www.greensock.com/?c=S&amp;amp;c=SE&amp;amp;c=SW&lt;/code&gt;, it is technically considered a malformed URL and a URLVariables object can't properly contain all the duplicates, so in this case you'd want to set &lt;code&gt;allowMalformedURL&lt;/code&gt; to &lt;code&gt;true&lt;/code&gt;.&lt;/li&gt;
+         *         &lt;li&gt;&lt;strong&gt; autoDispose : Boolean&lt;/strong&gt; - When &lt;code&gt;autoDispose&lt;/code&gt; is &lt;code&gt;true&lt;/code&gt;, the loader will be disposed immediately after it completes (it calls the &lt;code&gt;dispose()&lt;/code&gt; method internally after dispatching its &lt;code&gt;COMPLETE&lt;/code&gt; event). This will remove any listeners that were defined in the vars object (like onComplete, onProgress, onError, onInit). Once a loader is disposed, it can no longer be found with &lt;code&gt;LoaderMax.getLoader()&lt;/code&gt; or &lt;code&gt;LoaderMax.getContent()&lt;/code&gt; - it is essentially destroyed but its content is not unloaded (you must call &lt;code&gt;unload()&lt;/code&gt; or &lt;code&gt;dispose(true)&lt;/code&gt; to unload its content). The default &lt;code&gt;autoDispose&lt;/code&gt; value is &lt;code&gt;false&lt;/code&gt;.
+         *         
+         *         &lt;br /&gt;&lt;br /&gt;----EVENT HANDLER SHORTCUTS----&lt;/li&gt;
+         *         &lt;li&gt;&lt;strong&gt; onOpen : Function&lt;/strong&gt; - A handler function for &lt;code&gt;LoaderEvent.OPEN&lt;/code&gt; events which are dispatched when the loader begins loading. Make sure your onOpen function accepts a single parameter of type &lt;code&gt;LoaderEvent&lt;/code&gt; (&lt;code&gt;com.greensock.events.LoaderEvent&lt;/code&gt;).&lt;/li&gt;
+         *         &lt;li&gt;&lt;strong&gt; onProgress : Function&lt;/strong&gt; - A handler function for &lt;code&gt;LoaderEvent.PROGRESS&lt;/code&gt; events which are dispatched whenever the &lt;code&gt;bytesLoaded&lt;/code&gt; changes. Make sure your onProgress function accepts a single parameter of type &lt;code&gt;LoaderEvent&lt;/code&gt; (&lt;code&gt;com.greensock.events.LoaderEvent&lt;/code&gt;). You can use the LoaderEvent's &lt;code&gt;target.progress&lt;/code&gt; to get the loader's progress value or use its &lt;code&gt;target.bytesLoaded&lt;/code&gt; and &lt;code&gt;target.bytesTotal&lt;/code&gt;.&lt;/li&gt;
+         *         &lt;li&gt;&lt;strong&gt; onComplete : Function&lt;/strong&gt; - A handler function for &lt;code&gt;LoaderEvent.COMPLETE&lt;/code&gt; events which are dispatched when the loader has finished loading successfully. Make sure your onComplete function accepts a single parameter of type &lt;code&gt;LoaderEvent&lt;/code&gt; (&lt;code&gt;com.greensock.events.LoaderEvent&lt;/code&gt;).&lt;/li&gt;
+         *         &lt;li&gt;&lt;strong&gt; onCancel : Function&lt;/strong&gt; - A handler function for &lt;code&gt;LoaderEvent.CANCEL&lt;/code&gt; events which are dispatched when loading is aborted due to either a failure or because another loader was prioritized or &lt;code&gt;cancel()&lt;/code&gt; was manually called. Make sure your onCancel function accepts a single parameter of type &lt;code&gt;LoaderEvent&lt;/code&gt; (&lt;code&gt;com.greensock.events.LoaderEvent&lt;/code&gt;).&lt;/li&gt;
+         *         &lt;li&gt;&lt;strong&gt; onError : Function&lt;/strong&gt; - A handler function for &lt;code&gt;LoaderEvent.ERROR&lt;/code&gt; events which are dispatched whenever the loader experiences an error (typically an IO_ERROR or SECURITY_ERROR). An error doesn't necessarily mean the loader failed, however - to listen for when a loader fails, use the &lt;code&gt;onFail&lt;/code&gt; special property. Make sure your onError function accepts a single parameter of type &lt;code&gt;LoaderEvent&lt;/code&gt; (&lt;code&gt;com.greensock.events.LoaderEvent&lt;/code&gt;).&lt;/li&gt;
+         *         &lt;li&gt;&lt;strong&gt; onFail : Function&lt;/strong&gt; - A handler function for &lt;code&gt;LoaderEvent.FAIL&lt;/code&gt; events which are dispatched whenever the loader fails and its &lt;code&gt;status&lt;/code&gt; changes to &lt;code&gt;LoaderStatus.FAILED&lt;/code&gt;. Make sure your onFail function accepts a single parameter of type &lt;code&gt;LoaderEvent&lt;/code&gt; (&lt;code&gt;com.greensock.events.LoaderEvent&lt;/code&gt;).&lt;/li&gt;
+         *         &lt;li&gt;&lt;strong&gt; onIOError : Function&lt;/strong&gt; - A handler function for &lt;code&gt;LoaderEvent.IO_ERROR&lt;/code&gt; events which will also call the onError handler, so you can use that as more of a catch-all whereas &lt;code&gt;onIOError&lt;/code&gt; is specifically for LoaderEvent.IO_ERROR events. Make sure your onIOError function accepts a single parameter of type &lt;code&gt;LoaderEvent&lt;/code&gt; (&lt;code&gt;com.greensock.events.LoaderEvent&lt;/code&gt;).&lt;/li&gt;
+         *         &lt;li&gt;&lt;strong&gt; onHTTPStatus : Function&lt;/strong&gt; - A handler function for &lt;code&gt;LoaderEvent.HTTP_STATUS&lt;/code&gt; events. Make sure your onHTTPStatus function accepts a single parameter of type &lt;code&gt;LoaderEvent&lt;/code&gt; (&lt;code&gt;com.greensock.events.LoaderEvent&lt;/code&gt;). You can determine the httpStatus code using the LoaderEvent's &lt;code&gt;target.httpStatus&lt;/code&gt; (LoaderItems keep track of their &lt;code&gt;httpStatus&lt;/code&gt; when possible, although certain environments prevent Flash from getting httpStatus information).&lt;/li&gt;
+         * &lt;/ul&gt;
+         * @see com.greensock.loading.data.DataLoaderVars
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">BinaryDataLoader</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">urlOrRequest</span>:<span class="ActionScriptOperator">*</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">vars</span>:<span class="ActionScriptDefault_Text">Object</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">super</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">urlOrRequest</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">vars</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_loader</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">dataFormat</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">"binary"</span>; <span class="ActionScriptComment">//just to make sure it wasn't overridden if the "format" special vars property was passed into in DataLoader's constructor.
+</span>            <span class="ActionScriptDefault_Text">_type</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">"BinaryDataLoader"</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+    <span class="ActionScriptBracket/Brace">}</span>
+<span class="ActionScriptBracket/Brace">}</span></pre></body>
+</html>

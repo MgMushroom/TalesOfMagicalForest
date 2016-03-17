@@ -1,0 +1,316 @@
+<!-- saved from url=(0014)about:internet -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>TimelineMax.as</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../SourceStyles.css"/>
+</head>
+
+<body><pre><span class="ActionScriptASDoc">/**
+ * VERSION: 1.698
+ * DATE: 2012-03-29
+ * AS3 (AS2 version is also available)
+ * UPDATES AND DOCS AT: http://www.greensock.com/timelinemax/
+ **/</span>
+<span class="ActionScriptpackage">package</span> <span class="ActionScriptDefault_Text">com</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">greensock</span> <span class="ActionScriptBracket/Brace">{</span>
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">com</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">greensock</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">core</span><span class="ActionScriptOperator">.</span><span class="ActionScriptOperator">*</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">com</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">greensock</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">OverwriteManager</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">com</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">greensock</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">events</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">TweenEvent</span>;
+    
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">events</span><span class="ActionScriptOperator">.</span><span class="ActionScriptOperator">*</span>;
+<span class="ActionScriptASDoc">/**
+ *     TimelineMax extends TimelineLite, offering exactly the same functionality plus useful 
+ *  (but non-essential) features like AS3 event dispatching, repeat, repeatDelay, yoyo, 
+ *  currentLabel, addCallback(), removeCallback(), tweenTo(), tweenFromTo(), getLabelAfter(), getLabelBefore(),
+ *     and getActive() (and probably more in the future). It is the ultimate sequencing tool. 
+ *  Think of a TimelineMax instance like a virtual MovieClip timeline or a container where 
+ *  you place tweens (or other timelines) over the course of time. You can:
+ *     
+ * &lt;ul&gt;
+ *         &lt;li&gt; build sequences easily by adding tweens with the append(), prepend(), insert(), appendMultiple(), 
+ *             prependMultiple(), and insertMultiple() methods. Tweens can overlap as much as you want and you have 
+ *             complete control over where they get placed on the timeline.&lt;/li&gt;
+ * 
+ *         &lt;li&gt; add labels, play(), stop(), gotoAndPlay(), gotoAndStop(), restart(), tweenTo() and even reverse()! &lt;/li&gt;
+ *         
+ *         &lt;li&gt; nest timelines within timelines as deeply as you want.&lt;/li&gt;
+ *         
+ *         &lt;li&gt; set the progress of the timeline using its &lt;code&gt;currentProgress&lt;/code&gt; property. For example, to skip to
+ *           the halfway point, set &lt;code&gt;myTimeline.currentProgress = 0.5&lt;/code&gt;.&lt;/li&gt;
+ *           
+ *         &lt;li&gt; tween the &lt;code&gt;currentTime&lt;/code&gt;, &lt;code&gt;totalTime&lt;/code&gt;, &lt;code&gt;currentProgress&lt;/code&gt;, or &lt;code&gt;totalProgress&lt;/code&gt; 
+ *          property to fastforward/rewind the timeline. You could 
+ *           even attach a slider to one of these properties to give the user the ability to drag 
+ *           forwards/backwards through the whole timeline.&lt;/li&gt;
+ *           
+ *         &lt;li&gt; add onStart, onUpdate, onComplete, onReverseComplete, and/or onRepeat callbacks using the 
+ *           constructor's &lt;code&gt;vars&lt;/code&gt; object.&lt;/li&gt;
+ *         
+ *         &lt;li&gt; speed up or slow down the entire timeline with its &lt;code&gt;timeScale&lt;/code&gt; property. You can even tween
+ *           this property to gradually speed up or slow down the timeline.&lt;/li&gt;
+ *           
+ *         &lt;li&gt; use the insertMultiple(), appendMultiple(), or prependMultiple() methods to create 
+ *             complex sequences including various alignment modes and staggering capabilities.  
+ *             Works great in conjunction with TweenMax.allTo() too. &lt;/li&gt;
+ *           
+ *         &lt;li&gt; base the timing on frames instead of seconds if you prefer. Please note, however, that
+ *           the timeline's timing mode dictates its childrens' timing mode as well. &lt;/li&gt;
+ *         
+ *         &lt;li&gt; kill the tweens of a particular object inside the timeline with killTweensOf() or get the tweens of an object
+ *           with getTweensOf() or get all the tweens/timelines in the timeline with getChildren()&lt;/li&gt;
+ *           
+ *         &lt;li&gt; set the timeline to repeat any number of times or indefinitely. You can even set a delay
+ *           between each repeat cycle and/or cause the repeat cycles to yoyo, appearing to reverse
+ *           every other cycle. &lt;/li&gt;
+ *         
+ *         &lt;li&gt; listen for START, UPDATE, REPEAT, REVERSE_COMPLETE, and COMPLETE events.&lt;/li&gt;
+ *         
+ *         &lt;li&gt; get the active tweens in the timeline with getActive().&lt;/li&gt;
+ * 
+ *         &lt;li&gt; add callbacks (function calls) anywhere in the timeline that call a function of your choosing when 
+ *             the "virtual playhead" passes a particular spot.&lt;/li&gt;
+ *         
+ *         &lt;li&gt; Get the &lt;code&gt;currentLabel&lt;/code&gt; or find labels at various positions in the timeline
+ *             using getLabelAfter() and getLabelBefore()&lt;/li&gt;
+ *     &lt;/ul&gt;
+ *     
+ * &lt;b&gt;EXAMPLE:&lt;/b&gt;&lt;br /&gt;&lt;br /&gt;&lt;code&gt;
+ *         
+ *         import com.greensock.~~;&lt;br /&gt;&lt;br /&gt;
+ *         
+ *         //create the timeline and add an onComplete call to myFunction when the timeline completes&lt;br /&gt;
+ *         var myTimeline:TimelineMax = new TimelineMax({onComplete:myFunction});&lt;br /&gt;&lt;br /&gt;
+ *         
+ *         //add a tween&lt;br /&gt;
+ *         myTimeline.append(new TweenLite(mc, 1, {x:200, y:100}));&lt;br /&gt;&lt;br /&gt;
+ *         
+ *         //add another tween at the end of the timeline (makes sequencing easy)&lt;br /&gt;
+ *         myTimeline.append(new TweenLite(mc, 0.5, {alpha:0}));&lt;br /&gt;&lt;br /&gt;
+ *         
+ *         //repeat the entire timeline twice&lt;br /&gt;
+ *         myTimeline.repeat = 2;&lt;br /&gt;&lt;br /&gt;
+ *         
+ *         //delay the repeat by 0.5 seconds each time.&lt;br /&gt;
+ *         myTimeline.repeatDelay = 0.5;&lt;br /&gt;&lt;br /&gt;
+ *         
+ *         //pause the timeline (stop() works too)&lt;br /&gt;
+ *         myTimeline.pause();&lt;br /&gt;&lt;br /&gt;
+ *         
+ *         //reverse it anytime...&lt;br /&gt;
+ *         myTimeline.reverse();&lt;br /&gt;&lt;br /&gt;
+ *         
+ *         //Add a "spin" label 3-seconds into the timeline.&lt;br /&gt;
+ *         myTimeline.addLabel("spin", 3);&lt;br /&gt;&lt;br /&gt;
+ *         
+ *         //insert a rotation tween at the "spin" label (you could also define the insert point as the time instead of a label)&lt;br /&gt;
+ *         myTimeline.insert(new TweenLite(mc, 2, {rotation:"360"}), "spin"); &lt;br /&gt;&lt;br /&gt;
+ *         
+ *         //go to the "spin" label and play the timeline from there...&lt;br /&gt;
+ *         myTimeline.gotoAndPlay("spin");&lt;br /&gt;&lt;br /&gt;
+ * 
+ *         //call myCallbackwhen the "virtual playhead" travels past the 1.5-second point.
+ *         myTimeline.addCallback(myCallback, 1.5);
+ *         
+ *         //add a tween to the beginning of the timeline, pushing all the other existing tweens back in time&lt;br /&gt;
+ *         myTimeline.prepend(new TweenMax(mc, 1, {tint:0xFF0000}));&lt;br /&gt;&lt;br /&gt;
+ *         
+ *         //nest another TimelineMax inside your timeline...&lt;br /&gt;
+ *         var nestedTimeline:TimelineMax = new TimelineMax();&lt;br /&gt;
+ *         nestedTimeline.append(new TweenLite(mc2, 1, {x:200}));&lt;br /&gt;
+ *         myTimeline.append(nestedTimeline);&lt;br /&gt;&lt;br /&gt;&lt;/code&gt;
+ *         
+ *         
+ *     &lt;code&gt;insertMultiple()&lt;/code&gt; and &lt;code&gt;appendMultiple()&lt;/code&gt; provide some very powerful sequencing tools as well, 
+ *  allowing you to add an Array of tweens/timelines and optionally align them with &lt;code&gt;SEQUENCE&lt;/code&gt; or &lt;code&gt;START&lt;/code&gt; 
+ *  modes, and even stagger them if you want. For example, to insert 3 tweens into the timeline, aligning their start times but 
+ *  staggering them by 0.2 seconds, &lt;br /&gt;&lt;br /&gt;&lt;code&gt;
+ *     
+ *         myTimeline.insertMultiple([new TweenLite(mc, 1, {y:"100"}),
+ *                                    new TweenLite(mc2, 1, {x:120}),
+ *                                    new TweenLite(mc3, 1, {alpha:0.5})], 
+ *                                    0, 
+ *                                    TweenAlign.START, 
+ *                                    0.2);&lt;/code&gt;&lt;br /&gt;&lt;br /&gt;
+ *                                    
+ *     You can use the constructor's &lt;code&gt;vars&lt;/code&gt; object to do all the setup too, like:&lt;br /&gt;&lt;br /&gt;&lt;code&gt;
+ *     
+ *         var myTimeline:TimelineMax = new TimelineMax({tweens:[new TweenLite(mc1, 1, {y:"100"}), TweenMax.to(mc2, 1, {tint:0xFF0000})], align:TweenAlign.SEQUENCE, onComplete:myFunction, repeat:2, repeatDelay:1});&lt;/code&gt;&lt;br /&gt;&lt;br /&gt;
+ *     
+ *     If that confuses you, don't worry. Just use the &lt;code&gt;append()&lt;/code&gt;, &lt;code&gt;insert()&lt;/code&gt;, and &lt;code&gt;prepend()&lt;/code&gt; methods to build your
+ *     sequence. But power users will likely appreciate the quick, compact way they can set up sequences now. &lt;br /&gt;&lt;br /&gt;
+ *  
+ *
+ * &lt;b&gt;NOTES:&lt;/b&gt;
+ * &lt;ul&gt;
+ *     &lt;li&gt; TimelineMax automatically inits the OverwriteManager class to prevent unexpected overwriting behavior in sequences.
+ *       The default mode is &lt;code&gt;AUTO&lt;/code&gt;, but you can set it to whatever you want with &lt;code&gt;OverwriteManager.init()&lt;/code&gt;
+ *      (see &lt;a href="http://www.greensock.com/overwritemanager/"&gt;http://www.greensock.com/overwritemanager/&lt;/a&gt;)&lt;/li&gt;
+ *     &lt;li&gt; TimelineMax adds about 4.9k to your SWF (not including OverwriteManager).&lt;/li&gt;
+ * &lt;/ul&gt;
+ * 
+ * &lt;b&gt;Copyright 2012, GreenSock. All rights reserved.&lt;/b&gt; This work is subject to the terms in &lt;a href="http://www.greensock.com/terms_of_use.html"&gt;http://www.greensock.com/terms_of_use.html&lt;/a&gt; or for corporate Club GreenSock members, the software agreement that was issued with the corporate membership.
+ * 
+ * @author Jack Doyle, jack@greensock.com
+ **/</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptclass">class</span> <span class="ActionScriptDefault_Text">TimelineMax</span> <span class="ActionScriptReserved">extends</span> <span class="ActionScriptDefault_Text">TimelineLite</span> <span class="ActionScriptReserved">implements</span> <span class="ActionScriptDefault_Text">IEventDispatcher</span> <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">version</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> 1.698;
+        
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_repeat</span>:<span class="ActionScriptDefault_Text">int</span>;
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_repeatDelay</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_cyclesComplete</span>:<span class="ActionScriptDefault_Text">int</span>;
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_dispatcher</span>:<span class="ActionScriptDefault_Text">EventDispatcher</span>;
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_hasUpdateListener</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+        
+        <span class="ActionScriptASDoc">/** 
+         * Works in conjunction with the repeat property, determining the behavior of each cycle; when &lt;code&gt;yoyo&lt;/code&gt; is true, 
+         * the timeline will go back and forth, appearing to reverse every other cycle (this has no affect on the &lt;code&gt;reversed&lt;/code&gt; property though). 
+         * So if repeat is 2 and &lt;code&gt;yoyo&lt;/code&gt; is false, it will look like: start - 1 - 2 - 3 - 1 - 2 - 3 - 1 - 2 - 3 - end. 
+         * But if repeat is 2 and &lt;code&gt;yoyo&lt;/code&gt; is true, it will look like: start - 1 - 2 - 3 - 3 - 2 - 1 - 1 - 2 - 3 - end.  
+         **/</span>
+         <span class="ActionScriptReserved">public</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">yoyo</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+        
+        <span class="ActionScriptASDoc">/**
+         * Constructor. &lt;br /&gt;&lt;br /&gt;
+         * 
+         * &lt;b&gt;SPECIAL PROPERTIES&lt;/b&gt;&lt;br /&gt;
+         * The following special properties may be passed in via the constructor's vars parameter, like
+         * &lt;code&gt;new TimelineMax({paused:true, onComplete:myFunction, repeat:2, yoyo:true})&lt;/code&gt; 
+         * 
+         * &lt;ul&gt;
+         *     &lt;li&gt;&lt;b&gt; delay : Number&lt;/b&gt;                Amount of delay in seconds (or frames for frames-based timelines) before the timeline should begin.&lt;/li&gt;
+         *                                 
+         *     &lt;li&gt;&lt;b&gt; useFrames : Boolean&lt;/b&gt;            If &lt;code&gt;useFrames&lt;/code&gt; is set to true, the timeline's timing mode will be based on frames. 
+         *                                             Otherwise, it will be based on seconds/time. NOTE: a TimelineLite's timing mode is 
+         *                                             always determined by its parent timeline. &lt;/li&gt;
+         * 
+         *  &lt;li&gt;&lt;b&gt; paused : Boolean&lt;/b&gt;             Sets the initial paused state of the timeline (by default, timelines automatically begin playing immediately)&lt;/li&gt;
+         * 
+         *     &lt;li&gt;&lt;b&gt; reversed : Boolean&lt;/b&gt;            If true, the timeline will be reversed initially. This does NOT force it to the very end and start 
+         *                                             playing backwards. It simply affects the orientation of the timeline, so if &lt;code&gt;reversed&lt;/code&gt; is set to 
+         *                                             true initially, it will appear not to play because it is already at the beginning. To cause it to
+         *                                             play backwards from the end, set reversed to true and then set the &lt;code&gt;currentProgress&lt;/code&gt; property to 1 immediately
+         *                                             after creating the timeline.&lt;/li&gt;
+         *                                     
+         *     &lt;li&gt;&lt;b&gt; tweens : Array&lt;/b&gt;                To immediately insert several tweens into the timeline, use the &lt;code&gt;tweens&lt;/code&gt; special property
+         *                                             to pass in an Array of TweenLite/TweenMax/TimelineLite/TimelineMax instances. You can use this in conjunction
+         *                                             with the &lt;code&gt;align&lt;/code&gt; and &lt;code&gt;stagger&lt;/code&gt; special properties to set up complex sequences with minimal code.
+         *                                             These values simply get passed to the &lt;code&gt;insertMultiple()&lt;/code&gt; method.&lt;/li&gt;
+         *     
+         *     &lt;li&gt;&lt;b&gt; align : String&lt;/b&gt;                Only used in conjunction with the &lt;code&gt;tweens&lt;/code&gt; special property when multiple tweens are
+         *                                             to be inserted immediately through the constructor. The value simply gets passed to the 
+         *                                             &lt;code&gt;insertMultiple()&lt;/code&gt; method. The default is &lt;code&gt;TweenAlign.NORMAL&lt;/code&gt;. Options are:
+         *                                             &lt;ul&gt;
+         *                                                 &lt;li&gt;&lt;b&gt; TweenAlign.SEQUENCE:&lt;/b&gt; aligns the tweens one-after-the-other in a sequence&lt;/li&gt;
+         *                                                 &lt;li&gt;&lt;b&gt; TweenAlign.START:&lt;/b&gt; aligns the start times of all of the tweens (ignores delays)&lt;/li&gt;
+         *                                                 &lt;li&gt;&lt;b&gt; TweenAlign.NORMAL:&lt;/b&gt; aligns the start times of all the tweens (honors delays)&lt;/li&gt;
+         *                                             &lt;/ul&gt;The &lt;code&gt;align&lt;/code&gt; special property does &lt;b&gt;not&lt;/b&gt; force all child tweens/timelines to maintain
+         *                                             relative positioning, so for example, if you use TweenAlign.SEQUENCE and then later change the duration
+         *                                             of one of the nested tweens, it does &lt;b&gt;not&lt;/b&gt; force all subsequent timelines to change their position
+         *                                             on the timeline. The &lt;code&gt;align&lt;/code&gt; special property only affects the alignment of the tweens that are
+         *                                             initially placed into the timeline through the &lt;code&gt;tweens&lt;/code&gt; special property of the &lt;code&gt;vars&lt;/code&gt; object.&lt;/li&gt;
+         *                                         
+         *     &lt;li&gt;&lt;b&gt; stagger : Number&lt;/b&gt;            Only used in conjunction with the &lt;code&gt;tweens&lt;/code&gt; special property when multiple tweens are
+         *                                             to be inserted immediately. It staggers the tweens by a set amount of time (in seconds) (or
+         *                                             in frames if &lt;code&gt;useFrames&lt;/code&gt; is true). For example, if the stagger value is 0.5 and the &lt;code&gt;align&lt;/code&gt; 
+         *                                             property is set to &lt;code&gt;TweenAlign.START&lt;/code&gt;, the second tween will start 0.5 seconds after the first one 
+         *                                             starts, then 0.5 seconds later the third one will start, etc. If the align property is 
+         *                                             &lt;code&gt;TweenAlign.SEQUENCE&lt;/code&gt;, there would be 0.5 seconds added between each tween. This value simply gets 
+         *                                             passed to the &lt;code&gt;insertMultiple()&lt;/code&gt; method. Default is 0.&lt;/li&gt;
+         *     
+         *     &lt;li&gt;&lt;b&gt; onStart : Function&lt;/b&gt;            A function that should be called when the timeline begins (the &lt;code&gt;currentProgress&lt;/code&gt; won't necessarily
+         *                                             be zero when onStart is called. For example, if the timeline is created and then its &lt;code&gt;currentProgress&lt;/code&gt;
+         *                                             property is immediately set to 0.5 or if its &lt;code&gt;currentTime&lt;/code&gt; property is set to something other than zero,
+         *                                             onStart will still get fired because it is the first time the timeline is getting rendered.)&lt;/li&gt;
+         *     
+         *     &lt;li&gt;&lt;b&gt; onStartParams : Array&lt;/b&gt;        An Array of parameters to pass the onStart function.&lt;/li&gt;
+         *     
+         *     &lt;li&gt;&lt;b&gt; onUpdate : Function&lt;/b&gt;            A function that should be called every time the timeline's time/position is updated 
+         *                                             (on every frame while the timeline is active)&lt;/li&gt;
+         *     
+         *     &lt;li&gt;&lt;b&gt; onUpdateParams : Array&lt;/b&gt;        An Array of parameters to pass the onUpdate function&lt;/li&gt;
+         *     
+         *     &lt;li&gt;&lt;b&gt; onComplete : Function&lt;/b&gt;        A function that should be called when the timeline has finished &lt;/li&gt;
+         *     
+         *     &lt;li&gt;&lt;b&gt; onCompleteParams : Array&lt;/b&gt;    An Array of parameters to pass the onComplete function&lt;/li&gt;
+         *     
+         *     &lt;li&gt;&lt;b&gt; onReverseComplete : Function&lt;/b&gt; A function that should be called when the timeline has reached its starting point again after having been reversed &lt;/li&gt;
+         *     
+         *     &lt;li&gt;&lt;b&gt; onReverseCompleteParams : Array&lt;/b&gt; An Array of parameters to pass the onReverseComplete functions&lt;/li&gt;
+         *  
+         *     &lt;li&gt;&lt;b&gt; onRepeat : Function&lt;/b&gt;            A function that should be called every time the timeline repeats &lt;/li&gt;
+         *     
+         *     &lt;li&gt;&lt;b&gt; onRepeatParams : Array&lt;/b&gt;        An Array of parameters to pass the onRepeat function&lt;/li&gt;
+         *     
+         *     &lt;li&gt;&lt;b&gt; autoRemoveChildren : Boolean&lt;/b&gt; If autoRemoveChildren is set to true, as soon as child tweens/timelines complete,
+         *                                             they will automatically get killed/removed. This is normally undesireable because
+         *                                             it prevents going backwards in time (like if you want to reverse() or set the 
+         *                                             &lt;code&gt;currentProgress&lt;/code&gt; value to a lower value, etc.). It can, however, improve speed and memory
+         *                                             management. TweenLite's root timelines use &lt;code&gt;autoRemoveChildren:true&lt;/code&gt;.&lt;/li&gt;
+         * 
+         *     &lt;li&gt;&lt;b&gt; repeat : int&lt;/b&gt;                Number of times that the timeline should repeat. To repeat indefinitely, use -1.&lt;/li&gt;
+         *     
+         *     &lt;li&gt;&lt;b&gt; repeatDelay : Number&lt;/b&gt;        Amount of time in seconds (or frames for frames-based timelines) between repeats.&lt;/li&gt;
+         *     
+         *     &lt;li&gt;&lt;b&gt; yoyo : Boolean&lt;/b&gt;                 Works in conjunction with the repeat property, determining the behavior of each 
+         *                                             cycle. When &lt;code&gt;yoyo&lt;/code&gt; is true, the timeline will go back and forth, appearing to reverse 
+         *                                             every other cycle (this has no affect on the &lt;code&gt;reversed&lt;/code&gt; property though). So if repeat is
+         *                                             2 and yoyo is false, it will look like: start - 1 - 2 - 3 - 1 - 2 - 3 - 1 - 2 - 3 - end. But 
+         *                                             if repeat is 2 and yoyo is true, it will look like: start - 1 - 2 - 3 - 3 - 2 - 1 - 1 - 2 - 3 - end. &lt;/li&gt;
+         *                                     
+         *     &lt;li&gt;&lt;b&gt; onStartListener : Function&lt;/b&gt;    A function to which the TimelineMax instance should dispatch a TweenEvent when it begins.
+         *                                               This is the same as doing &lt;code&gt;myTimeline.addEventListener(TweenEvent.START, myFunction);&lt;/code&gt;&lt;/li&gt;
+         *     
+         *     &lt;li&gt;&lt;b&gt; onUpdateListener : Function&lt;/b&gt;    A function to which the TimelineMax instance should dispatch a TweenEvent every time it 
+         *                                             updates values.    This is the same as doing &lt;code&gt;myTimeline.addEventListener(TweenEvent.UPDATE, myFunction);&lt;/code&gt;&lt;/li&gt;
+         *       
+         *     &lt;li&gt;&lt;b&gt; onCompleteListener : Function&lt;/b&gt;    A function to which the TimelineMax instance should dispatch a TweenEvent when it completes.
+         *                                                   This is the same as doing &lt;code&gt;myTimeline.addEventListener(TweenEvent.COMPLETE, myFunction);&lt;/code&gt;&lt;/li&gt;
+         *     &lt;/ul&gt;
+         * 
+         * @param vars optionally pass in special properties like useFrames, onComplete, onCompleteParams, onUpdate, onUpdateParams, onStart, onStartParams, tweens, align, stagger, delay, autoRemoveChildren, onCompleteListener, onStartListener, onUpdateListener, repeat, repeatDelay, and/or yoyo.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">TimelineMax</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">vars</span>:<span class="ActionScriptDefault_Text">Object</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">super</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">vars</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">_repeat</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">vars</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">repeat</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">?</span> <span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">vars</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">repeat</span><span class="ActionScriptBracket/Brace">)</span> : 0;
+            <span class="ActionScriptDefault_Text">_repeatDelay</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">vars</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">repeatDelay</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">?</span> <span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">vars</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">repeatDelay</span><span class="ActionScriptBracket/Brace">)</span> : 0;
+            <span class="ActionScriptDefault_Text">_cyclesComplete</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">yoyo</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">vars</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">yoyo</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">true</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cacheIsDirty</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">vars</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">onCompleteListener</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">vars</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">onUpdateListener</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">vars</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">onStartListener</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">vars</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">onRepeatListener</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">vars</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">onReverseCompleteListener</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">initDispatcher</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * If you want a function to be called at a particular time or label, use addCallback. When you add
+         * a callback, it is technically considered a zero-duration tween, so if you getChildren() there will be
+         * a tween returned for each callback. You can discern a callback from other tweens by the fact that
+         * their target is a function and the duration is zero. 
+         * 
+         * @param function the function to be called
+         * @param timeOrLabel the time in seconds (or frames for frames-based timelines) or label at which the callback should be inserted. For example, myTimeline.addCallback(myFunction, 3) would call myFunction() 3-seconds into the timeline, and myTimeline.addCallback(myFunction, "myLabel") would call it at the "myLabel" label.
+         * @param params an Array of parameters to pass the callback
+         * @return TweenLite instance
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">addCallback</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">callback</span>:<span class="ActionScriptDefault_Text">Function</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">timeOrLabel</span>:<span class="ActionScriptOperator">*</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">params</span>:<span class="ActionScriptDefault_Text">Array</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">TweenLite</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">cb</span>:<span class="ActionScriptDefault_Text">TweenLite</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">TweenLite</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">callback</span><span class="ActionScriptOperator">,</span> 0<span class="ActionScriptOperator">,</span> <span class="ActionScriptBracket/Brace">{</span><span class="ActionScriptDefault_Text">onComplete</span>:<span class="ActionScriptDefault_Text">callback</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">onCompleteParams</span>:<span class="ActionScriptDefault_Text">params</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">overwrite</span>:0<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">immediateRender</span>:<span class="ActionScriptReserved">false</span><span class="ActionScriptBracket/Brace">}</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">insert</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">cb</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">timeOrLabel</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">cb</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Removes a callback from a particular time or label. If timeOrLabel is null, all callbacks of that
+         * particular function are removed from the timeline.
+         * 
+         * @param function callback function to be removed
+         * @param timeOrLabel the time in seconds (or frames for frames-based timelines) or label from which the callback should be removed. For example, &lt;code&gt;myTimeline.removeCallback(myFunction, 3)&lt;/code&gt; would remove the callback from 3-seconds into the timeline, and &lt;code&gt;myTimeline.removeCallback(myFunction, "myLabel")&lt;/code&gt; would remove it from the "myLabel" label, and &lt;code&gt;myTimeline.removeCallback(myFunction, null)&lt;/code&gt; would remove ALL callbacks of that function regardless of where they are on the timeline.
+         * @return true if any callbacks were successfully found and removed. false otherwise.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">removeCallback</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">callback</span>:<span class="ActionScriptDefault_Text">Function</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">timeOrLabel</span>:<span class="ActionScriptOperator">*</span>=<span class="ActionScriptOperator">n</span>

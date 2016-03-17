@@ -1,0 +1,63 @@
+<!-- saved from url=(0014)about:internet -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>TouchPhase.as</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../SourceStyles.css"/>
+</head>
+
+<body><pre><span class="ActionScriptComment">// =================================================================================================
+</span><span class="ActionScriptComment">//
+</span><span class="ActionScriptComment">//    Starling Framework
+</span><span class="ActionScriptComment">//    Copyright 2011-2014 Gamua. All Rights Reserved.
+</span><span class="ActionScriptComment">//
+</span><span class="ActionScriptComment">//    This program is free software. You can redistribute and/or modify it
+</span><span class="ActionScriptComment">//    in accordance with the terms of the accompanying license agreement.
+</span><span class="ActionScriptComment">//
+</span><span class="ActionScriptComment">// =================================================================================================
+</span>
+<span class="ActionScriptpackage">package</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">events</span>
+<span class="ActionScriptBracket/Brace">{</span>
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">errors</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">AbstractClassError</span>;
+
+    <span class="ActionScriptASDoc">/** A class that provides constant values for the phases of a touch object. 
+     *  
+     *  &lt;p&gt;A touch moves through at least the following phases in its life:&lt;/p&gt;
+     *  
+     *  &lt;code&gt;BEGAN -&gt; MOVED -&gt; ENDED&lt;/code&gt;
+     *  
+     *  &lt;p&gt;Furthermore, a touch can enter a &lt;code&gt;STATIONARY&lt;/code&gt; phase. That phase does not
+     *  trigger a touch event itself, and it can only occur in multitouch environments. Picture a 
+     *  situation where one finger is moving and the other is stationary. A touch event will
+     *  be dispatched only to the object under the &lt;em&gt;moving&lt;/em&gt; finger. In the list of touches
+     *  of that event, you will find the second touch in the stationary phase.&lt;/p&gt;
+     *  
+     *  &lt;p&gt;Finally, there's the &lt;code&gt;HOVER&lt;/code&gt; phase, which is exclusive to mouse input. It is
+     *  the equivalent of a &lt;code&gt;MouseOver&lt;/code&gt; event in Flash when the mouse button is
+     *  &lt;em&gt;not&lt;/em&gt; pressed.&lt;/p&gt; 
+     */</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">final</span> <span class="ActionScriptclass">class</span> <span class="ActionScriptDefault_Text">TouchPhase</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptASDoc">/** @private */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">TouchPhase</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span> <span class="ActionScriptReserved">throw</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">AbstractClassError</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>; <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Only available for mouse input: the cursor hovers over an object &lt;em&gt;without&lt;/em&gt; a 
+         *  pressed button. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">HOVER</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">"hover"</span>;
+        
+        <span class="ActionScriptASDoc">/** The finger touched the screen just now, or the mouse button was pressed. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">BEGAN</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">"began"</span>;
+        
+        <span class="ActionScriptASDoc">/** The finger moves around on the screen, or the mouse is moved while the button is 
+         *  pressed. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">MOVED</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">"moved"</span>;
+        
+        <span class="ActionScriptASDoc">/** The finger or mouse (with pressed button) has not moved since the last frame. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">STATIONARY</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">"stationary"</span>;
+        
+        <span class="ActionScriptASDoc">/** The finger was lifted from the screen or from the mouse button. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">ENDED</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">"ended"</span>;
+    <span class="ActionScriptBracket/Brace">}</span>
+<span class="ActionScriptBracket/Brace">}</span></pre></body>
+</html>

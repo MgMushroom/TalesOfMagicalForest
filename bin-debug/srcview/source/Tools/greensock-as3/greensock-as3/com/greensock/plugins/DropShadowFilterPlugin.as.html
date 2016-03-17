@@ -1,0 +1,79 @@
+<!-- saved from url=(0014)about:internet -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>DropShadowFilterPlugin.as</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../SourceStyles.css"/>
+</head>
+
+<body><pre><span class="ActionScriptASDoc">/**
+ * VERSION: 2.0
+ * DATE: 8/18/2009
+ * ACTIONSCRIPT VERSION: 3.0 
+ * UPDATES AND DOCUMENTATION AT: http://www.TweenMax.com
+ **/</span>
+<span class="ActionScriptpackage">package</span> <span class="ActionScriptDefault_Text">com</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">greensock</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">plugins</span> <span class="ActionScriptBracket/Brace">{</span>
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">com</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">greensock</span><span class="ActionScriptOperator">.</span><span class="ActionScriptOperator">*</span>;
+    
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">filters</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">DropShadowFilter</span>;
+<span class="ActionScriptASDoc">/**
+ * Tweens a DropShadowFilter. The following properties are available (you only need to define the ones you want to tween):
+ * &lt;code&gt;
+ * &lt;ul&gt;
+ *         &lt;li&gt; distance : Number [0]&lt;/li&gt;
+ *         &lt;li&gt; angle : Number [45]&lt;/li&gt;
+ *         &lt;li&gt; color : uint [0x000000]&lt;/li&gt;
+ *         &lt;li&gt; alpha :Number [0]&lt;/li&gt;
+ *         &lt;li&gt; blurX : Number [0]&lt;/li&gt;
+ *         &lt;li&gt; blurY : Number [0]&lt;/li&gt;
+ *         &lt;li&gt; strength : Number [1]&lt;/li&gt;
+ *         &lt;li&gt; quality : uint [2]&lt;/li&gt;
+ *         &lt;li&gt; inner : Boolean [false]&lt;/li&gt;
+ *         &lt;li&gt; knockout : Boolean [false]&lt;/li&gt;
+ *         &lt;li&gt; hideObject : Boolean [false]&lt;/li&gt;
+ *         &lt;li&gt; index : uint&lt;/li&gt;
+ *         &lt;li&gt; addFilter : Boolean [false]&lt;/li&gt;
+ *         &lt;li&gt; remove : Boolean [false]&lt;/li&gt;
+ * &lt;/ul&gt;
+ * &lt;/code&gt;
+ * Set &lt;code&gt;remove&lt;/code&gt; to true if you want the filter to be removed when the tween completes. &lt;br /&gt;&lt;br /&gt;
+ * 
+ * &lt;b&gt;USAGE:&lt;/b&gt;&lt;br /&gt;&lt;br /&gt;
+ * &lt;code&gt;
+ *         import com.greensock.TweenLite; &lt;br /&gt;
+ *         import com.greensock.plugins.TweenPlugin; &lt;br /&gt;
+ *         import com.greensock.plugins.DropShadowFilterPlugin; &lt;br /&gt;
+ *         TweenPlugin.activate([DropShadowFilterPlugin]); //activation is permanent in the SWF, so this line only needs to be run once.&lt;br /&gt;&lt;br /&gt;
+ * 
+ *         TweenLite.to(mc, 1, {dropShadowFilter:{blurX:5, blurY:5, distance:5, alpha:0.6}}); &lt;br /&gt;&lt;br /&gt;
+ * &lt;/code&gt;
+ * 
+ * &lt;b&gt;Copyright 2011, GreenSock. All rights reserved.&lt;/b&gt; This work is subject to the terms in &lt;a href="http://www.greensock.com/terms_of_use.html"&gt;http://www.greensock.com/terms_of_use.html&lt;/a&gt; or for corporate Club GreenSock members, the software agreement that was issued with the corporate membership.
+ * 
+ * @author Jack Doyle, jack@greensock.com
+ */</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptclass">class</span> <span class="ActionScriptDefault_Text">DropShadowFilterPlugin</span> <span class="ActionScriptReserved">extends</span> <span class="ActionScriptDefault_Text">FilterPlugin</span> <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">API</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> 1.0; <span class="ActionScriptComment">//If the API/Framework for plugins changes in the future, this number helps determine compatibility
+</span>        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_propNames</span>:<span class="ActionScriptDefault_Text">Array</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptString">"distance"</span><span class="ActionScriptOperator">,</span><span class="ActionScriptString">"angle"</span><span class="ActionScriptOperator">,</span><span class="ActionScriptString">"color"</span><span class="ActionScriptOperator">,</span><span class="ActionScriptString">"alpha"</span><span class="ActionScriptOperator">,</span><span class="ActionScriptString">"blurX"</span><span class="ActionScriptOperator">,</span><span class="ActionScriptString">"blurY"</span><span class="ActionScriptOperator">,</span><span class="ActionScriptString">"strength"</span><span class="ActionScriptOperator">,</span><span class="ActionScriptString">"quality"</span><span class="ActionScriptOperator">,</span><span class="ActionScriptString">"inner"</span><span class="ActionScriptOperator">,</span><span class="ActionScriptString">"knockout"</span><span class="ActionScriptOperator">,</span><span class="ActionScriptString">"hideObject"</span><span class="ActionScriptBracket/Brace">]</span>;
+        
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">DropShadowFilterPlugin</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">super</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">propName</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">"dropShadowFilter"</span>;
+            <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">overwriteProps</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptString">"dropShadowFilter"</span><span class="ActionScriptBracket/Brace">]</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">onInitTween</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">target</span>:<span class="ActionScriptDefault_Text">Object</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptOperator">*</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">tween</span>:<span class="ActionScriptDefault_Text">TweenLite</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Boolean</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">_target</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">target</span>;
+            <span class="ActionScriptDefault_Text">_type</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">DropShadowFilter</span>;
+            <span class="ActionScriptDefault_Text">initFilter</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">DropShadowFilter</span><span class="ActionScriptBracket/Brace">(</span>0<span class="ActionScriptOperator">,</span> 45<span class="ActionScriptOperator">,</span> 0x000000<span class="ActionScriptOperator">,</span> 0<span class="ActionScriptOperator">,</span> 0<span class="ActionScriptOperator">,</span> 0<span class="ActionScriptOperator">,</span> 1<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">quality</span> <span class="ActionScriptOperator">||</span> 2<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">inner</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">knockout</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">hideObject</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">_propNames</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">true</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+    <span class="ActionScriptBracket/Brace">}</span>
+<span class="ActionScriptBracket/Brace">}</span></pre></body>
+</html>

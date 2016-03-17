@@ -1,0 +1,207 @@
+<!-- saved from url=(0014)about:internet -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>Quad.as</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../SourceStyles.css"/>
+</head>
+
+<body><pre><span class="ActionScriptComment">// =================================================================================================
+</span><span class="ActionScriptComment">//
+</span><span class="ActionScriptComment">//    Starling Framework
+</span><span class="ActionScriptComment">//    Copyright 2011-2014 Gamua. All Rights Reserved.
+</span><span class="ActionScriptComment">//
+</span><span class="ActionScriptComment">//    This program is free software. You can redistribute and/or modify it
+</span><span class="ActionScriptComment">//    in accordance with the terms of the accompanying license agreement.
+</span><span class="ActionScriptComment">//
+</span><span class="ActionScriptComment">// =================================================================================================
+</span>
+<span class="ActionScriptpackage">package</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display</span>
+<span class="ActionScriptBracket/Brace">{</span>
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">geom</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Matrix</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">geom</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Matrix3D</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">geom</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Point</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">geom</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Rectangle</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">geom</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Vector3D</span>;
+    
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">core</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">RenderSupport</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">utils</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">VertexData</span>;
+    
+    <span class="ActionScriptASDoc">/** A Quad represents a rectangle with a uniform color or a color gradient.
+     *  
+     *  &lt;p&gt;You can set one color per vertex. The colors will smoothly fade into each other over the area
+     *  of the quad. To display a simple linear color gradient, assign one color to vertices 0 and 1 and 
+     *  another color to vertices 2 and 3. &lt;/p&gt; 
+     *
+     *  &lt;p&gt;The indices of the vertices are arranged like this:&lt;/p&gt;
+     *  
+     *  &lt;pre&gt;
+     *  0 - 1
+     *  | / |
+     *  2 - 3
+     *  &lt;/pre&gt;
+     * 
+     *  @see Image
+     */</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptclass">class</span> <span class="ActionScriptDefault_Text">Quad</span> <span class="ActionScriptReserved">extends</span> <span class="ActionScriptDefault_Text">DisplayObject</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">mTinted</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+        
+        <span class="ActionScriptASDoc">/** The raw vertex data of the quad. */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">mVertexData</span>:<span class="ActionScriptDefault_Text">VertexData</span>;
+        
+        <span class="ActionScriptASDoc">/** Helper objects. */</span>
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">sHelperPoint</span>:<span class="ActionScriptDefault_Text">Point</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Point</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">sHelperPoint3D</span>:<span class="ActionScriptDefault_Text">Vector3D</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Vector3D</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">sHelperMatrix</span>:<span class="ActionScriptDefault_Text">Matrix</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Matrix</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">sHelperMatrix3D</span>:<span class="ActionScriptDefault_Text">Matrix3D</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Matrix3D</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        
+        <span class="ActionScriptASDoc">/** Creates a quad with a certain size and color. The last parameter controls if the 
+         *  alpha value should be premultiplied into the color values on rendering, which can
+         *  influence blending output. You can use the default value in most cases.  */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">Quad</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">width</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">height</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">color</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">=</span>0xffffff<span class="ActionScriptOperator">,</span>
+                             <span class="ActionScriptDefault_Text">premultipliedAlpha</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">true</span><span class="ActionScriptBracket/Brace">)</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">width</span> <span class="ActionScriptOperator">==</span> 0.0 <span class="ActionScriptOperator">||</span> <span class="ActionScriptDefault_Text">height</span> <span class="ActionScriptOperator">==</span> 0.0<span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptReserved">throw</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">ArgumentError</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"Invalid size: width and height must not be zero"</span><span class="ActionScriptBracket/Brace">)</span>;
+
+            <span class="ActionScriptDefault_Text">mTinted</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">color</span> <span class="ActionScriptOperator">!=</span> 0xffffff;
+            
+            <span class="ActionScriptDefault_Text">mVertexData</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">VertexData</span><span class="ActionScriptBracket/Brace">(</span>4<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">premultipliedAlpha</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">mVertexData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">setPosition</span><span class="ActionScriptBracket/Brace">(</span>0<span class="ActionScriptOperator">,</span> 0.0<span class="ActionScriptOperator">,</span> 0.0<span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">mVertexData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">setPosition</span><span class="ActionScriptBracket/Brace">(</span>1<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">,</span> 0.0<span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">mVertexData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">setPosition</span><span class="ActionScriptBracket/Brace">(</span>2<span class="ActionScriptOperator">,</span> 0.0<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">height</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">mVertexData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">setPosition</span><span class="ActionScriptBracket/Brace">(</span>3<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">height</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">mVertexData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">setUniformColor</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">color</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptDefault_Text">onVertexDataChanged</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Call this method after manually changing the contents of 'mVertexData'. */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">onVertexDataChanged</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptComment">// override in subclasses, if necessary
+</span>        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** @inheritDoc */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">override</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">getBounds</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">targetSpace</span>:<span class="ActionScriptDefault_Text">DisplayObject</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">resultRect</span>:<span class="ActionScriptDefault_Text">Rectangle</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Rectangle</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">resultRect</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptDefault_Text">resultRect</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Rectangle</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">targetSpace</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">this</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptComment">// optimization
+</span>            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">mVertexData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">getPosition</span><span class="ActionScriptBracket/Brace">(</span>3<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">sHelperPoint</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">resultRect</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">setTo</span><span class="ActionScriptBracket/Brace">(</span>0.0<span class="ActionScriptOperator">,</span> 0.0<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">sHelperPoint</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">sHelperPoint</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">else</span> <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">targetSpace</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptDefault_Text">parent</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptDefault_Text">rotation</span> <span class="ActionScriptOperator">==</span> 0.0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptComment">// optimization
+</span>            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">scaleX</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scaleX</span>;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">scaleY</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scaleY</span>;
+                <span class="ActionScriptDefault_Text">mVertexData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">getPosition</span><span class="ActionScriptBracket/Brace">(</span>3<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">sHelperPoint</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">resultRect</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">setTo</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">pivotX</span> <span class="ActionScriptOperator">*</span> <span class="ActionScriptDefault_Text">scaleX</span><span class="ActionScriptOperator">,</span>      <span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">pivotY</span> <span class="ActionScriptOperator">*</span> <span class="ActionScriptDefault_Text">scaleY</span><span class="ActionScriptOperator">,</span>
+                                 <span class="ActionScriptDefault_Text">sHelperPoint</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">*</span> <span class="ActionScriptDefault_Text">scaleX</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">sHelperPoint</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">*</span> <span class="ActionScriptDefault_Text">scaleY</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">scaleX</span> <span class="ActionScriptOperator">&lt;</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span> <span class="ActionScriptDefault_Text">resultRect</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span>  <span class="ActionScriptOperator">*=</span> -1; <span class="ActionScriptDefault_Text">resultRect</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">-=</span> <span class="ActionScriptDefault_Text">resultRect</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span>;  <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">scaleY</span> <span class="ActionScriptOperator">&lt;</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span> <span class="ActionScriptDefault_Text">resultRect</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span> <span class="ActionScriptOperator">*=</span> -1; <span class="ActionScriptDefault_Text">resultRect</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">-=</span> <span class="ActionScriptDefault_Text">resultRect</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span>; <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">else</span> <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">is3D</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptDefault_Text">stage</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">stage</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">getCameraPosition</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">targetSpace</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">sHelperPoint3D</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">getTransformationMatrix3D</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">targetSpace</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">sHelperMatrix3D</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">mVertexData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">getBoundsProjected</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">sHelperMatrix3D</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">sHelperPoint3D</span><span class="ActionScriptOperator">,</span> 0<span class="ActionScriptOperator">,</span> 4<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">resultRect</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">else</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">getTransformationMatrix</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">targetSpace</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">sHelperMatrix</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">mVertexData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">getBounds</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">sHelperMatrix</span><span class="ActionScriptOperator">,</span> 0<span class="ActionScriptOperator">,</span> 4<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">resultRect</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">resultRect</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Returns the color of a vertex at a certain index. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">getVertexColor</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">vertexID</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">uint</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">mVertexData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">getColor</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">vertexID</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Sets the color of a vertex at a certain index. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">setVertexColor</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">vertexID</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">color</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">mVertexData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">setColor</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">vertexID</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">color</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">onVertexDataChanged</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">color</span> <span class="ActionScriptOperator">!=</span> 0xffffff<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptDefault_Text">mTinted</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            <span class="ActionScriptReserved">else</span> <span class="ActionScriptDefault_Text">mTinted</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">mVertexData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">tinted</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Returns the alpha value of a vertex at a certain index. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">getVertexAlpha</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">vertexID</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">mVertexData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">getAlpha</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">vertexID</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Sets the alpha value of a vertex at a certain index. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">setVertexAlpha</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">vertexID</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">alpha</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">mVertexData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">setAlpha</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">vertexID</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">alpha</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">onVertexDataChanged</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">alpha</span> <span class="ActionScriptOperator">!=</span> 1.0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptDefault_Text">mTinted</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            <span class="ActionScriptReserved">else</span> <span class="ActionScriptDefault_Text">mTinted</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">mVertexData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">tinted</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Returns the color of the quad, or of vertex 0 if vertices have different colors. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">color</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">uint</span> 
+        <span class="ActionScriptBracket/Brace">{</span> 
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">mVertexData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">getColor</span><span class="ActionScriptBracket/Brace">(</span>0<span class="ActionScriptBracket/Brace">)</span>; 
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Sets the colors of all vertices to a certain value. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">color</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span> 
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">mVertexData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">setUniformColor</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">onVertexDataChanged</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span> <span class="ActionScriptOperator">!=</span> 0xffffff <span class="ActionScriptOperator">||</span> <span class="ActionScriptDefault_Text">alpha</span> <span class="ActionScriptOperator">!=</span> 1.0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptDefault_Text">mTinted</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            <span class="ActionScriptReserved">else</span> <span class="ActionScriptDefault_Text">mTinted</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">mVertexData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">tinted</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** @inheritDoc **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">override</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">alpha</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">alpha</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span>;
+            
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span> <span class="ActionScriptOperator">&lt;</span> 1.0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptDefault_Text">mTinted</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            <span class="ActionScriptReserved">else</span> <span class="ActionScriptDefault_Text">mTinted</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">mVertexData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">tinted</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Copies the raw vertex data to a VertexData instance. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">copyVertexDataTo</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">targetData</span>:<span class="ActionScriptDefault_Text">VertexData</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">targetVertexID</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">mVertexData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">copyTo</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">targetData</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">targetVertexID</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Transforms the vertex positions of the raw vertex data by a certain matrix and
+         *  copies the result to another VertexData instance. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">copyVertexDataTransformedTo</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">targetData</span>:<span class="ActionScriptDefault_Text">VertexData</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">targetVertexID</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptOperator">,</span>
+                                                    <span class="ActionScriptDefault_Text">matrix</span>:<span class="ActionScriptDefault_Text">Matrix</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">mVertexData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">copyTransformedTo</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">targetData</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">targetVertexID</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">matrix</span><span class="ActionScriptOperator">,</span> 0<span class="ActionScriptOperator">,</span> 4<span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** @inheritDoc */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">override</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">render</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">support</span>:<span class="ActionScriptDefault_Text">RenderSupport</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">parentAlpha</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">support</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">batchQuad</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">parentAlpha</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Returns true if the quad (or any of its vertices) is non-white or non-opaque. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">tinted</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Boolean</span> <span class="ActionScriptBracket/Brace">{</span> <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">mTinted</span>; <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Indicates if the rgb values are stored premultiplied with the alpha value; this can
+         *  affect the rendering. (Most developers don't have to care, though.) */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">premultipliedAlpha</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Boolean</span> <span class="ActionScriptBracket/Brace">{</span> <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">mVertexData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">premultipliedAlpha</span>; <span class="ActionScriptBracket/Brace">}</span>
+    <span class="ActionScriptBracket/Brace">}</span>
+<span class="ActionScriptBracket/Brace">}</span></pre></body>
+</html>

@@ -1,0 +1,130 @@
+<!-- saved from url=(0014)about:internet -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>FastEase.as</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../SourceStyles.css"/>
+</head>
+
+<body><pre><span class="ActionScriptASDoc">/**
+ * VERSION: 1.0
+ * DATE: 10/18/2009
+ * AS3
+ * UPDATES AND DOCUMENTATION AT: http://www.TweenMax.com
+ **/</span>
+<span class="ActionScriptpackage">package</span> <span class="ActionScriptDefault_Text">com</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">greensock</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">easing</span> <span class="ActionScriptBracket/Brace">{</span>
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">utils</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Dictionary</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">com</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">greensock</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">TweenLite</span>;
+<span class="ActionScriptASDoc">/**
+ * TweenMax (AS3 only) has built-in algorithms that speed up the processing of certain easing equations but in order
+ * to take advantage of those optimizations, you must activate the easing equations first (you only need to
+ * activate them ONCE in your swf). The following easing equations from the com.greensock.easing package are 
+ * eligible for activation:
+ * &lt;code&gt;
+ * &lt;ul&gt;
+ *         &lt;li&gt;Linear (easeIn, easeOut, easeInOut, and easeNone)&lt;/li&gt;
+ *         &lt;li&gt;Quad (easeIn, easeOut, and easeInOut)&lt;/li&gt;
+ *         &lt;li&gt;Cubic (easeIn, easeOut, and easeInOut)&lt;/li&gt;
+ *         &lt;li&gt;Quart (easeIn, easeOut, and easeInOut)&lt;/li&gt;
+ *         &lt;li&gt;Quint (easeIn, easeOut, and easeInOut)&lt;/li&gt;
+ *         &lt;li&gt;Strong (easeIn, easeOut, and easeInOut)&lt;/li&gt;
+ * &lt;/ul&gt;&lt;br /&gt;
+ * &lt;/code&gt;
+ * 
+ * &lt;b&gt;EXAMPLE&lt;/b&gt;&lt;br /&gt;&lt;br /&gt;
+ * 
+ * &lt;code&gt;
+ *         import com.greensock.easing.*;&lt;br /&gt;&lt;br /&gt;
+ *         
+ *         //activate the optimized ease classes&lt;br /&gt;
+ *         FastEase.activate([Strong, Linear, Quad]);&lt;br /&gt;&lt;br /&gt;
+ * 
+ *         //then tween as usual (you don't have to do anything special in your tweens)&lt;br /&gt;
+ *         TweenMax.to(mc, 2, {x:200, ease:Linear.easeNone});&lt;br /&gt;&lt;br /&gt;
+ * &lt;/code&gt;
+ * 
+ * Once activated, the easing calculations run about &lt;b&gt;35-80% faster!&lt;/b&gt; Keep in mind that the easing calculations are only one small part
+ * of the tweening engine, so you may only see a 2-15% improvement overall depending on the equation and quantity of simultaneous tweens.
+ * 
+ * Notes: &lt;br /&gt;
+ * &lt;ul&gt;
+ *         &lt;li&gt;TweenLite does &lt;b&gt;NOT&lt;/b&gt; have the internal algorithms in place to take advantage of optimized eases at this time (to conserve file size).&lt;/li&gt;
+ *         &lt;li&gt;Activating an ease multiple times doesn't hurt or help&lt;/li&gt;
+ * &lt;/ul&gt;
+ * 
+ * @param easeClasses An Array containing the easing classes to activate, like [Strong, Linear, Quad]. It will automatically activate the easeIn, easeOut, easeInOut, and (if available) easeNone easing equations for each class in the Array.
+ */</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptclass">class</span> <span class="ActionScriptDefault_Text">FastEase</span> <span class="ActionScriptBracket/Brace">{</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Normally you should use the &lt;code&gt;FastEase.activate()&lt;/code&gt; method to activate optimized eases, but if you
+         * want to activate an ease that is NOT in the com.greensock.easing package (for example 
+         * &lt;code&gt;fl.motion.easing.Quadratic&lt;/code&gt;), you can register individual easing equations with
+         * this method. For example:
+         * 
+         * &lt;code&gt;
+         *         import fl.motion.easing.Quadratic;&lt;br /&gt;
+         *         import com.greensock.easing.FastEase;&lt;br /&gt;&lt;br /&gt;
+         * 
+         *         FastEase.activateEase(Quadratic.easeIn, 1, 1);
+         * &lt;/code&gt;
+         * 
+         * @param ease The easing equation (function) to activate. For example, Quadratic.easeIn
+         * @param type The type of ease (in, out, or inOut) where easeIn is 1, easeOut is 2, and easeInOut is 3.
+         * @param power The magnitude or power of the ease. For example, Linear is 0, Quad is 1, Cubic is 2, Quart is 3 and Quint and Strong are 4.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">activateEase</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">ease</span>:<span class="ActionScriptDefault_Text">Function</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">type</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">power</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">TweenLite</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">fastEaseLookup</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">ease</span><span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">type</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">power</span><span class="ActionScriptBracket/Brace">]</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * TweenMax (AS3 only) has built-in algorithms that speed up the processing of certain easing equations but in order
+         * to take advantage of those optimizations, you must activate the easing equations first (you only need to
+         * activate them ONCE in your swf). The following easing equations from the com.greensock.easing package are 
+         * eligible for activation:
+         * &lt;code&gt;
+         * &lt;ul&gt;
+         *         &lt;li&gt;Linear (easeIn, easeOut, easeInOut, and easeNone)&lt;/li&gt;
+         *         &lt;li&gt;Quad (easeIn, easeOut, and easeInOut)&lt;/li&gt;
+         *         &lt;li&gt;Cubic (easeIn, easeOut, and easeInOut)&lt;/li&gt;
+         *         &lt;li&gt;Quart (easeIn, easeOut, and easeInOut)&lt;/li&gt;
+         *         &lt;li&gt;Quint (easeIn, easeOut, and easeInOut)&lt;/li&gt;
+         *         &lt;li&gt;Strong (easeIn, easeOut, and easeInOut)&lt;/li&gt;
+         * &lt;/ul&gt;&lt;br /&gt;
+         * &lt;/code&gt;
+         * 
+         * &lt;b&gt;EXAMPLE&lt;/b&gt;&lt;br /&gt;&lt;br /&gt;
+         * 
+         * &lt;code&gt;
+         *         import com.greensock.easing.*;&lt;br /&gt;&lt;br /&gt;
+         *         
+         *         FastEase.activate([Strong, Linear, Quad]);&lt;br /&gt;&lt;br /&gt;
+         * &lt;/code&gt;
+         * 
+         * Notes: &lt;br /&gt;
+         * &lt;ul&gt;
+         *         &lt;li&gt;TweenLite does &lt;b&gt;NOT&lt;/b&gt; have the internal algorithms in place to take advantage of optimized eases at this time (to conserve file size).&lt;/li&gt;
+         *         &lt;li&gt;Activating an ease multiple times doesn't hurt or help&lt;/li&gt;
+         * &lt;/ul&gt;
+         * 
+         * @param easeClasses An Array containing the easing classes to activate, like [Strong, Linear, Quad]. It will automatically activate the easeIn, easeOut, easeInOut, and (if available) easeNone easing equations for each class in the Array.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">activate</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">easeClasses</span>:<span class="ActionScriptDefault_Text">Array</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">i</span>:<span class="ActionScriptDefault_Text">int</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">easeClasses</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">easeClass</span>:<span class="ActionScriptDefault_Text">Object</span>;
+            <span class="ActionScriptReserved">while</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">i</span><span class="ActionScriptOperator">--</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">easeClass</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">easeClasses</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">i</span><span class="ActionScriptBracket/Brace">]</span>;
+                <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">easeClass</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">hasOwnProperty</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"power"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">activateEase</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">easeClass</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">easeIn</span><span class="ActionScriptOperator">,</span> 1<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">easeClass</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">power</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptDefault_Text">activateEase</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">easeClass</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">easeOut</span><span class="ActionScriptOperator">,</span> 2<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">easeClass</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">power</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptDefault_Text">activateEase</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">easeClass</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">easeInOut</span><span class="ActionScriptOperator">,</span> 3<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">easeClass</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">power</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">easeClass</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">hasOwnProperty</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"easeNone"</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                        <span class="ActionScriptDefault_Text">activateEase</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">easeClass</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">easeNone</span><span class="ActionScriptOperator">,</span> 1<span class="ActionScriptOperator">,</span> 0<span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+    <span class="ActionScriptBracket/Brace">}</span>
+<span class="ActionScriptBracket/Brace">}</span></pre></body>
+</html>

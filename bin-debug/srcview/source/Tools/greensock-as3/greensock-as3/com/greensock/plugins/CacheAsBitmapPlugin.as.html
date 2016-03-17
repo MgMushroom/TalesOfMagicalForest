@@ -1,0 +1,86 @@
+<!-- saved from url=(0014)about:internet -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>CacheAsBitmapPlugin.as</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../SourceStyles.css"/>
+</head>
+
+<body><pre><span class="ActionScriptASDoc">/**
+ * VERSION: 0.9
+ * DATE: 2010-06-29
+ * ACTIONSCRIPT VERSION: 3.0 
+ * UPDATES AND DOCUMENTATION AT: http://www.TweenMax.com
+ **/</span>
+<span class="ActionScriptpackage">package</span> <span class="ActionScriptDefault_Text">com</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">greensock</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">plugins</span> <span class="ActionScriptBracket/Brace">{</span>
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">com</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">greensock</span><span class="ActionScriptOperator">.</span><span class="ActionScriptOperator">*</span>;
+    
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">DisplayObject</span>;
+<span class="ActionScriptASDoc">/**
+ * Forces the &lt;code&gt;cacheAsBitmap&lt;/code&gt; property of a DisplayObject to be a certain value (&lt;code&gt;true&lt;/code&gt; or &lt;code&gt;false&lt;/code&gt;)
+ * during the tween and then sets it back to whatever it was before the tween was rendered for the first time. This &lt;i&gt;can&lt;/i&gt; improve 
+ * performance in certain situations, like when the DisplayObject &lt;strong&gt;NOT&lt;/strong&gt; tweening its rotation, scaleX, scaleY, or similar
+ * things with its &lt;code&gt;transform.matrix&lt;/code&gt;. See Adobe's docs for details about when it is appropriate to set &lt;code&gt;cacheAsBitmap&lt;/code&gt;
+ * to &lt;code&gt;true&lt;/code&gt;. Also beware that whenever a DisplayObject's &lt;code&gt;cacheAsBitmap&lt;/code&gt; is &lt;code&gt;true&lt;/code&gt;, it will ONLY be
+ * rendered on whole pixel values which can lead to animation that looks "choppy" at slow speeds.&lt;br /&gt;&lt;br /&gt; 
+ * 
+ * For example, if you want to set &lt;code&gt;cacheAsBitmap&lt;/code&gt; to &lt;code&gt;true&lt;/code&gt; while the tween is running, do:&lt;br /&gt;&lt;br /&gt;&lt;code&gt;
+ * 
+ * TweenLite.to(mc, 1, {x:100, cacheAsBitmap:true});&lt;br /&gt;&lt;br /&gt;&lt;/code&gt;
+ * 
+ * &lt;b&gt;USAGE:&lt;/b&gt;&lt;br /&gt;&lt;br /&gt;
+ * &lt;code&gt;
+ *         import com.greensock.TweenLite; &lt;br /&gt;
+ *         import com.greensock.plugins.TweenPlugin; &lt;br /&gt;
+ *         import com.greensock.plugins.CacheAsBitmapPlugin; &lt;br /&gt;
+ *         TweenPlugin.activate([CacheAsBitmapPlugin]); //activation is permanent in the SWF, so this line only needs to be run once.&lt;br /&gt;&lt;br /&gt;
+ * 
+ *         TweenLite.to(mc, 1, {x:100, cacheAsBitmap:true}); &lt;br /&gt;&lt;br /&gt;
+ * &lt;/code&gt;
+ * 
+ * &lt;b&gt;Copyright 2011, GreenSock. All rights reserved.&lt;/b&gt; This work is subject to the terms in &lt;a href="http://www.greensock.com/terms_of_use.html"&gt;http://www.greensock.com/terms_of_use.html&lt;/a&gt; or for corporate Club GreenSock members, the software agreement that was issued with the corporate membership.
+ * 
+ * @author Jack Doyle, jack@greensock.com
+ */</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptclass">class</span> <span class="ActionScriptDefault_Text">CacheAsBitmapPlugin</span> <span class="ActionScriptReserved">extends</span> <span class="ActionScriptDefault_Text">TweenPlugin</span> <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">API</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> 1.0; <span class="ActionScriptComment">//If the API/Framework for plugins changes in the future, this number helps determine compatibility
+</span>        
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_target</span>:<span class="ActionScriptDefault_Text">DisplayObject</span>;
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_tween</span>:<span class="ActionScriptDefault_Text">TweenLite</span>;
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_cacheAsBitmap</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_initVal</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+        
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">CacheAsBitmapPlugin</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">super</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">propName</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">"cacheAsBitmap"</span>;
+            <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">overwriteProps</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptString">"cacheAsBitmap"</span><span class="ActionScriptBracket/Brace">]</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">onInitTween</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">target</span>:<span class="ActionScriptDefault_Text">Object</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptOperator">*</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">tween</span>:<span class="ActionScriptDefault_Text">TweenLite</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Boolean</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">_target</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">target</span> <span class="ActionScriptReserved">as</span> <span class="ActionScriptDefault_Text">DisplayObject</span>;
+            <span class="ActionScriptDefault_Text">_tween</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">tween</span>;
+            <span class="ActionScriptDefault_Text">_initVal</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_target</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cacheAsBitmap</span>;
+            <span class="ActionScriptDefault_Text">_cacheAsBitmap</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">true</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">changeFactor</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">n</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_tween</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedDuration</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptDefault_Text">_tween</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedTime</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptDefault_Text">_tween</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedTime</span> <span class="ActionScriptOperator">==</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span> <span class="ActionScriptComment">//a changeFactor of 1 doesn't necessarily mean the tween is done - if the ease is Elastic.easeOut or Back.easeOut for example, they could hit 1 mid-tween. 
+</span>                <span class="ActionScriptDefault_Text">_target</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cacheAsBitmap</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_initVal</span>;
+            <span class="ActionScriptBracket/Brace">}</span> <span class="ActionScriptReserved">else</span> <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_target</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cacheAsBitmap</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptDefault_Text">_cacheAsBitmap</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">_target</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cacheAsBitmap</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_cacheAsBitmap</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptBracket/Brace">}</span>
+
+    <span class="ActionScriptBracket/Brace">}</span>
+<span class="ActionScriptBracket/Brace">}</span></pre></body>
+</html>

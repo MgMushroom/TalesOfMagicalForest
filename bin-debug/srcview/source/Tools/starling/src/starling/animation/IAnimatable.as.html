@@ -1,0 +1,40 @@
+<!-- saved from url=(0014)about:internet -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>IAnimatable.as</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../SourceStyles.css"/>
+</head>
+
+<body><pre><span class="ActionScriptComment">// =================================================================================================
+</span><span class="ActionScriptComment">//
+</span><span class="ActionScriptComment">//    Starling Framework
+</span><span class="ActionScriptComment">//    Copyright 2011-2014 Gamua. All Rights Reserved.
+</span><span class="ActionScriptComment">//
+</span><span class="ActionScriptComment">//    This program is free software. You can redistribute and/or modify it
+</span><span class="ActionScriptComment">//    in accordance with the terms of the accompanying license agreement.
+</span><span class="ActionScriptComment">//
+</span><span class="ActionScriptComment">// =================================================================================================
+</span>
+<span class="ActionScriptpackage">package</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">animation</span>
+<span class="ActionScriptBracket/Brace">{</span>
+    <span class="ActionScriptASDoc">/**  The IAnimatable interface describes objects that are animated depending on the passed time. 
+     *   Any object that implements this interface can be added to a juggler.
+     *   
+     *   &lt;p&gt;When an object should no longer be animated, it has to be removed from the juggler. 
+     *   To do this, you can manually remove it via the method &lt;code&gt;juggler.remove(object)&lt;/code&gt;,
+     *   or the object can request to be removed by dispatching a Starling event with the type
+     *   &lt;code&gt;Event.REMOVE_FROM_JUGGLER&lt;/code&gt;. The "Tween" class is an example of a class that
+     *   dispatches such an event; you don't have to remove tweens manually from the juggler.&lt;/p&gt; 
+     *   
+     *   @see Juggler
+     *   @see Tween
+     */</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptinterface">interface</span> <span class="ActionScriptDefault_Text">IAnimatable</span> 
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptASDoc">/** Advance the time by a number of seconds. @param time in seconds. */</span>
+        <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">advanceTime</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">time</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>;
+    <span class="ActionScriptBracket/Brace">}</span>
+<span class="ActionScriptBracket/Brace">}</span></pre></body>
+</html>

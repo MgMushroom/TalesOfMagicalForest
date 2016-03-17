@@ -1,0 +1,600 @@
+<!-- saved from url=(0014)about:internet -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>Texture.as</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../SourceStyles.css"/>
+</head>
+
+<body><pre><span class="ActionScriptComment">// =================================================================================================
+</span><span class="ActionScriptComment">//
+</span><span class="ActionScriptComment">//    Starling Framework
+</span><span class="ActionScriptComment">//    Copyright 2011-2014 Gamua. All Rights Reserved.
+</span><span class="ActionScriptComment">//
+</span><span class="ActionScriptComment">//    This program is free software. You can redistribute and/or modify it
+</span><span class="ActionScriptComment">//    in accordance with the terms of the accompanying license agreement.
+</span><span class="ActionScriptComment">//
+</span><span class="ActionScriptComment">// =================================================================================================
+</span>
+<span class="ActionScriptpackage">package</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">textures</span>
+<span class="ActionScriptBracket/Brace">{</span>
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Bitmap</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">BitmapData</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display3D</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Context3D</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display3D</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Context3DTextureFormat</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display3D</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">textures</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">TextureBase</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">geom</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Rectangle</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">media</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Camera</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">net</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">NetStream</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">system</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Capabilities</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">utils</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ByteArray</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">utils</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">getQualifiedClassName</span>;
+
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">core</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Starling</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">errors</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">AbstractClassError</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">errors</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">MissingContextError</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">errors</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">NotSupportedError</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">utils</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Color</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">utils</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">SystemUtil</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">utils</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">VertexData</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">utils</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">execute</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">utils</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">getNextPowerOfTwo</span>;
+
+    <span class="ActionScriptASDoc">/** &lt;p&gt;A texture stores the information that represents an image. It cannot be added to the
+     *  display list directly; instead it has to be mapped onto a display object. In Starling,
+     *  that display object is the class "Image".&lt;/p&gt;
+     *
+     *  &lt;strong&gt;Texture Formats&lt;/strong&gt;
+     *
+     *  &lt;p&gt;Since textures can be created from a "BitmapData" object, Starling supports any bitmap
+     *  format that is supported by Flash. And since you can render any Flash display object into
+     *  a BitmapData object, you can use this to display non-Starling content in Starling - e.g.
+     *  Shape objects.&lt;/p&gt;
+     *
+     *  &lt;p&gt;Starling also supports ATF textures (Adobe Texture Format), which is a container for
+     *  compressed texture formats that can be rendered very efficiently by the GPU. Refer to
+     *  the Flash documentation for more information about this format.&lt;/p&gt;
+     *
+     *  &lt;p&gt;Beginning with AIR 17, you can use Starling textures to show video content (if the
+     *  current platform supports that, see "SystemUtil.supportsVideoTexture").
+     *  The two factory methods "fromCamera" and "fromNetStream" allow you to make use of
+     *  this feature.&lt;/p&gt;
+     *
+     *  &lt;strong&gt;Mip Mapping&lt;/strong&gt;
+     *
+     *  &lt;p&gt;MipMaps are scaled down versions of a texture. When an image is displayed smaller than
+     *  its natural size, the GPU may display the mip maps instead of the original texture. This
+     *  reduces aliasing and accelerates rendering. It does, however, also need additional memory;
+     *  for that reason, you can choose if you want to create them or not.&lt;/p&gt;
+     *
+     *  &lt;strong&gt;Texture Frame&lt;/strong&gt;
+     *
+     *  &lt;p&gt;The frame property of a texture allows you let a texture appear inside the bounds of an
+     *  image, leaving a transparent space around the texture. The frame rectangle is specified in
+     *  the coordinate system of the texture (not the image):&lt;/p&gt;
+     *
+     *  &lt;listing&gt;
+     *  var frame:Rectangle = new Rectangle(-10, -10, 30, 30);
+     *  var texture:Texture = Texture.fromTexture(anotherTexture, null, frame);
+     *  var image:Image = new Image(texture);&lt;/listing&gt;
+     *
+     *  &lt;p&gt;This code would create an image with a size of 30x30, with the texture placed at
+     *  &lt;code&gt;x=10, y=10&lt;/code&gt; within that image (assuming that 'anotherTexture' has a width and
+     *  height of 10 pixels, it would appear in the middle of the image).&lt;/p&gt;
+     *
+     *  &lt;p&gt;The texture atlas makes use of this feature, as it allows to crop transparent edges
+     *  of a texture and making up for the changed size by specifying the original texture frame.
+     *  Tools like &lt;a href="http://www.texturepacker.com/"&gt;TexturePacker&lt;/a&gt; use this to
+     *  optimize the atlas.&lt;/p&gt;
+     *
+     *  &lt;strong&gt;Texture Coordinates&lt;/strong&gt;
+     *
+     *  &lt;p&gt;If, on the other hand, you want to show only a part of the texture in an image
+     *  (i.e. to crop the the texture), you can either create a subtexture (with the method
+     *  'Texture.fromTexture()' and specifying a rectangle for the region), or you can manipulate
+     *  the texture coordinates of the image object. The method 'image.setTexCoords' allows you
+     *  to do that.&lt;/p&gt;
+     *
+     *  &lt;strong&gt;Context Loss&lt;/strong&gt;
+     *
+     *  &lt;p&gt;When the current rendering context is lost (which can happen e.g. on Android and
+     *  Windows), all texture data is lost. If you have activated "Starling.handleLostContext",
+     *  however, Starling will try to restore the textures. To do that, it will keep the bitmap
+     *  and ATF data in memory - at the price of increased RAM consumption. To save memory,
+     *  however, you can restore a texture directly from its source (e.g. an embedded asset):&lt;/p&gt;
+     *
+     *  &lt;listing&gt;
+     *  var texture:Texture = Texture.fromBitmap(new EmbeddedBitmap());
+     *  texture.root.onRestore = function():void
+     *  {
+     *      texture.root.uploadFromBitmap(new EmbeddedBitmap());
+     *  };&lt;/listing&gt;
+     *
+     *  &lt;p&gt;The "onRestore"-method will be called when the context was lost and the texture has
+     *  been recreated (but is still empty). If you use the "AssetManager" class to manage
+     *  your textures, this will be done automatically.&lt;/p&gt;
+     *
+     *  @see starling.display.Image
+     *  @see starling.utils.AssetManager
+     *  @see starling.utils.SystemUtil
+     *  @see TextureAtlas
+     */</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptclass">class</span> <span class="ActionScriptDefault_Text">Texture</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptASDoc">/** @private */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">Texture</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Capabilities</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">isDebugger</span> <span class="ActionScriptOperator">&amp;&amp;</span>
+                <span class="ActionScriptDefault_Text">getQualifiedClassName</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptReserved">this</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptString">"starling.textures::Texture"</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">throw</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">AbstractClassError</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptASDoc">/** Disposes the underlying texture data. Note that not all textures need to be disposed:
+         *  SubTextures (created with 'Texture.fromTexture') just reference other textures and
+         *  and do not take up resources themselves; this is also true for textures from an
+         *  atlas. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">dispose</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptComment">// override in subclasses
+</span>        <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptASDoc">/** Creates a texture object from any of the supported data types, using the specified
+         *  options.
+         *
+         *  @param data     Either an embedded asset class, a Bitmap, BitmapData, or a ByteArray
+         *                  with ATF data.
+         *  @param options  Specifies options about the texture settings, e.g. scale factor.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">fromData</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">data</span>:<span class="ActionScriptDefault_Text">Object</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">options</span>:<span class="ActionScriptDefault_Text">TextureOptions</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Texture</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">texture</span>:<span class="ActionScriptDefault_Text">Texture</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">data</span> <span class="ActionScriptReserved">is</span> <span class="ActionScriptDefault_Text">Bitmap</span><span class="ActionScriptBracket/Brace">)</span>  <span class="ActionScriptDefault_Text">data</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">data</span> <span class="ActionScriptReserved">as</span> <span class="ActionScriptDefault_Text">Bitmap</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">bitmapData</span>;
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">options</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptDefault_Text">options</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">TextureOptions</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">data</span> <span class="ActionScriptReserved">is</span> <span class="ActionScriptDefault_Text">Class</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">texture</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">fromEmbeddedAsset</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">data</span> <span class="ActionScriptReserved">as</span> <span class="ActionScriptDefault_Text">Class</span><span class="ActionScriptOperator">,</span>
+                    <span class="ActionScriptDefault_Text">options</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">mipMapping</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">options</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">optimizeForRenderToTexture</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">options</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptOperator">,</span>
+                    <span class="ActionScriptDefault_Text">options</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">format</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">options</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">repeat</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">else</span> <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">data</span> <span class="ActionScriptReserved">is</span> <span class="ActionScriptDefault_Text">BitmapData</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">texture</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">fromBitmapData</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">data</span> <span class="ActionScriptReserved">as</span> <span class="ActionScriptDefault_Text">BitmapData</span><span class="ActionScriptOperator">,</span>
+                    <span class="ActionScriptDefault_Text">options</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">mipMapping</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">options</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">optimizeForRenderToTexture</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">options</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptOperator">,</span>
+                    <span class="ActionScriptDefault_Text">options</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">format</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">options</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">repeat</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">else</span> <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">data</span> <span class="ActionScriptReserved">is</span> <span class="ActionScriptDefault_Text">ByteArray</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">texture</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">fromAtfData</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">data</span> <span class="ActionScriptReserved">as</span> <span class="ActionScriptDefault_Text">ByteArray</span><span class="ActionScriptOperator">,</span>
+                    <span class="ActionScriptDefault_Text">options</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">options</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">mipMapping</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">options</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">onReady</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">options</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">repeat</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">else</span>
+                <span class="ActionScriptReserved">throw</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">ArgumentError</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"Unsupported 'data' type: "</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">getQualifiedClassName</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">data</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>;
+
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">texture</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptASDoc">/** Creates a texture object from an embedded asset class. Textures created with this
+         *  method will be restored directly from the asset class in case of a context loss,
+         *  which guarantees a very economic memory usage.
+         *
+         *  @param assetClass  must contain either a Bitmap or a ByteArray with ATF data.
+         *  @param mipMapping  for Bitmaps, indicates if mipMaps will be created;
+         *                     for ATF data, indicates if the contained mipMaps will be used.
+         *  @param optimizeForRenderToTexture  indicates if this texture will be used as
+         *                     render target
+         *  @param scale    the scale factor of the created texture.
+         *  @param format   the context3D texture format to use. Ignored for ATF data.
+         *  @param repeat   the repeat value of the texture. Only useful for power-of-two textures.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">fromEmbeddedAsset</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">assetClass</span>:<span class="ActionScriptDefault_Text">Class</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">mipMapping</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">true</span><span class="ActionScriptOperator">,</span>
+                                                 <span class="ActionScriptDefault_Text">optimizeForRenderToTexture</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptOperator">,</span>
+                                                 <span class="ActionScriptDefault_Text">scale</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>1<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">format</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"bgra"</span><span class="ActionScriptOperator">,</span>
+                                                 <span class="ActionScriptDefault_Text">repeat</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Texture</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">texture</span>:<span class="ActionScriptDefault_Text">Texture</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">asset</span>:<span class="ActionScriptDefault_Text">Object</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">assetClass</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">asset</span> <span class="ActionScriptReserved">is</span> <span class="ActionScriptDefault_Text">Bitmap</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">texture</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Texture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">fromBitmap</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">asset</span> <span class="ActionScriptReserved">as</span> <span class="ActionScriptDefault_Text">Bitmap</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">mipMapping</span><span class="ActionScriptOperator">,</span>
+                                             <span class="ActionScriptDefault_Text">optimizeForRenderToTexture</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">format</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">repeat</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">texture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">root</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">onRestore</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptfunction">function</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">texture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">root</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">uploadBitmap</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">assetClass</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptBracket/Brace">}</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">else</span> <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">asset</span> <span class="ActionScriptReserved">is</span> <span class="ActionScriptDefault_Text">ByteArray</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">texture</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Texture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">fromAtfData</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">asset</span> <span class="ActionScriptReserved">as</span> <span class="ActionScriptDefault_Text">ByteArray</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">mipMapping</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">repeat</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">texture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">root</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">onRestore</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptfunction">function</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+                <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">texture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">root</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">uploadAtfData</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">assetClass</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptBracket/Brace">}</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">else</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">throw</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">ArgumentError</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"Invalid asset type: "</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">getQualifiedClassName</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">asset</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+
+            <span class="ActionScriptDefault_Text">asset</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>; <span class="ActionScriptComment">// avoid that object stays in memory (through 'onRestore' functions)
+</span>            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">texture</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptASDoc">/** Creates a texture object from a bitmap.
+         *  Beware: you must not dispose the bitmap's data if Starling should handle a lost device
+         *  context alternatively, you can handle restoration yourself via "texture.root.onRestore".
+         *
+         *  @param bitmap   the texture will be created with the bitmap data of this object.
+         *  @param generateMipMaps  indicates if mipMaps will be created.
+         *  @param optimizeForRenderToTexture  indicates if this texture will be used as
+         *                  render target
+         *  @param scale    the scale factor of the created texture. This affects the reported
+         *                  width and height of the texture object.
+         *  @param format   the context3D texture format to use. Pass one of the packed or
+         *                  compressed formats to save memory (at the price of reduced image
+         *                  quality).
+         *  @param repeat   the repeat value of the texture. Only useful for power-of-two textures.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">fromBitmap</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">bitmap</span>:<span class="ActionScriptDefault_Text">Bitmap</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">generateMipMaps</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">true</span><span class="ActionScriptOperator">,</span>
+                                          <span class="ActionScriptDefault_Text">optimizeForRenderToTexture</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptOperator">,</span>
+                                          <span class="ActionScriptDefault_Text">scale</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>1<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">format</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"bgra"</span><span class="ActionScriptOperator">,</span>
+                                          <span class="ActionScriptDefault_Text">repeat</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Texture</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">fromBitmapData</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">bitmap</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">bitmapData</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">generateMipMaps</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">optimizeForRenderToTexture</span><span class="ActionScriptOperator">,</span>
+                                  <span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">format</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">repeat</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptASDoc">/** Creates a texture object from bitmap data.
+         *  Beware: you must not dispose 'data' if Starling should handle a lost device context;
+         *  alternatively, you can handle restoration yourself via "texture.root.onRestore".
+         *
+         *  @param data   the texture will be created with the bitmap data of this object.
+         *  @param generateMipMaps  indicates if mipMaps will be created.
+         *  @param optimizeForRenderToTexture  indicates if this texture will be used as
+         *                  render target
+         *  @param scale    the scale factor of the created texture. This affects the reported
+         *                  width and height of the texture object.
+         *  @param format   the context3D texture format to use. Pass one of the packed or
+         *                  compressed formats to save memory (at the price of reduced image
+         *                  quality).
+         *  @param repeat   the repeat value of the texture. Only useful for power-of-two textures.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">fromBitmapData</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">data</span>:<span class="ActionScriptDefault_Text">BitmapData</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">generateMipMaps</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">true</span><span class="ActionScriptOperator">,</span>
+                                              <span class="ActionScriptDefault_Text">optimizeForRenderToTexture</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptOperator">,</span>
+                                              <span class="ActionScriptDefault_Text">scale</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>1<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">format</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"bgra"</span><span class="ActionScriptOperator">,</span>
+                                              <span class="ActionScriptDefault_Text">repeat</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Texture</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">texture</span>:<span class="ActionScriptDefault_Text">Texture</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Texture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">empty</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">data</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span> <span class="ActionScriptOperator">/</span> <span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">data</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span> <span class="ActionScriptOperator">/</span> <span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">true</span><span class="ActionScriptOperator">,</span>
+                                                <span class="ActionScriptDefault_Text">generateMipMaps</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">optimizeForRenderToTexture</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptOperator">,</span>
+                                                <span class="ActionScriptDefault_Text">format</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">repeat</span><span class="ActionScriptBracket/Brace">)</span>;
+
+            <span class="ActionScriptDefault_Text">texture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">root</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">uploadBitmapData</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">data</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">texture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">root</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">onRestore</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptfunction">function</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">texture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">root</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">uploadBitmapData</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">data</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>;
+
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">texture</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptASDoc">/** Creates a texture from the compressed ATF format. If you don't want to use any embedded
+         *  mipmaps, you can disable them by setting "useMipMaps" to &lt;code&gt;false&lt;/code&gt;.
+         *  Beware: you must not dispose 'data' if Starling should handle a lost device context;
+         *  alternatively, you can handle restoration yourself via "texture.root.onRestore".
+         *
+         *  &lt;p&gt;If the 'async' parameter contains a callback function, the texture is decoded
+         *  asynchronously. It can only be used when the callback has been executed. This is the
+         *  expected function definition: &lt;code&gt;function(texture:Texture):void;&lt;/code&gt;&lt;/p&gt; */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">fromAtfData</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">data</span>:<span class="ActionScriptDefault_Text">ByteArray</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">scale</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>1<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">useMipMaps</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">true</span><span class="ActionScriptOperator">,</span>
+                                           <span class="ActionScriptDefault_Text">async</span>:<span class="ActionScriptDefault_Text">Function</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">repeat</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Texture</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">context</span>:<span class="ActionScriptDefault_Text">Context3D</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">context</span>;
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">context</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptReserved">throw</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">MissingContextError</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">atfData</span>:<span class="ActionScriptDefault_Text">AtfData</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">AtfData</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">data</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">nativeTexture</span>:<span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display3D</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">textures</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Texture</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">context</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">createTexture</span><span class="ActionScriptBracket/Brace">(</span>
+                <span class="ActionScriptDefault_Text">atfData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">atfData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">atfData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">format</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">false</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">concreteTexture</span>:<span class="ActionScriptDefault_Text">ConcreteTexture</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">ConcreteTexture</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">nativeTexture</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">atfData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">format</span><span class="ActionScriptOperator">,</span>
+                <span class="ActionScriptDefault_Text">atfData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">atfData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">useMipMaps</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptDefault_Text">atfData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">numTextures</span> <span class="ActionScriptOperator">&gt;</span> 1<span class="ActionScriptOperator">,</span>
+                <span class="ActionScriptReserved">false</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">false</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">repeat</span><span class="ActionScriptBracket/Brace">)</span>;
+
+            <span class="ActionScriptDefault_Text">concreteTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">uploadAtfData</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">data</span><span class="ActionScriptOperator">,</span> 0<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">async</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">concreteTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">onRestore</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptfunction">function</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">concreteTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">uploadAtfData</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">data</span><span class="ActionScriptOperator">,</span> 0<span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>;
+
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">concreteTexture</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptASDoc">/** Creates a video texture from a NetStream. Beware that the texture must not be used
+         *  before the 'onComplete' callback has been executed; until then, it will have a size
+         *  of zero pixels.
+         *
+         *  &lt;p&gt;Here is a minimal sample showing how to stream a video from a file:&lt;/p&gt;
+         *
+         *  &lt;listing&gt;
+         *  var nc:NetConnection = new NetConnection();
+         *  nc.connect(null);
+         *  
+         *  var file:File = File.applicationDirectory.resolvePath("bugs-bunny.m4v");
+         *  var ns:NetStream = new NetStream(nc);
+         *  ns.play(file.url);
+         *  
+         *  var texture:Texture = Texture.fromNetStream(ns, 1, function():void
+         *  {
+         *      addChild(new Image(texture));
+         *  });&lt;/listing&gt;
+         *
+         *  @param stream  the NetStream from which the video data is streamed. Beware that 'play'
+         *                 should be called outside the 'onComplete' callback, otherwise the
+         *                 texture will never be ready.
+         *  @param scale   the scale factor of the created texture. This affects the reported
+         *                 width and height of the texture object.
+         *  @param onComplete will be executed when the texture is ready. May contain a parameter
+         *                 of type 'Texture'.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">fromNetStream</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">stream</span>:<span class="ActionScriptDefault_Text">NetStream</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">scale</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>1<span class="ActionScriptOperator">,</span>
+                                             <span class="ActionScriptDefault_Text">onComplete</span>:<span class="ActionScriptDefault_Text">Function</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Texture</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptComment">// workaround for bug in NetStream class:
+</span>            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">stream</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">client</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptDefault_Text">stream</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptOperator">!</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"onMetaData"</span> <span class="ActionScriptReserved">in</span> <span class="ActionScriptDefault_Text">stream</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">stream</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">client</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">{</span> <span class="ActionScriptDefault_Text">onMetaData</span>: <span class="ActionScriptfunction">function</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">md</span>:<span class="ActionScriptDefault_Text">Object</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span> <span class="ActionScriptBracket/Brace">{</span><span class="ActionScriptBracket/Brace">}</span> <span class="ActionScriptBracket/Brace">}</span>;
+
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">fromVideoAttachment</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"NetStream"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">stream</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">onComplete</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptASDoc">/** Creates a video texture from a camera. Beware that the texture must not be used
+         *  before the 'onComplete' callback has been executed; until then, it will have a size
+         *  of zero pixels.
+         *
+         *  &lt;p&gt;Here is a minimal sample showing how to display a camera video:&lt;/p&gt;
+         *
+         *  &lt;listing&gt;
+         *  var camera:Camera = Camera.getCamera();
+         *  var texture:Texture = Texture.fromCamera(camera, 1, function():void
+         *  {
+         *      addChild(new Image(texture));
+         *  });&lt;/listing&gt;
+         *
+         *  @param camera  the camera from which the video data is streamed.
+         *  @param scale   the scale factor of the created texture. This affects the reported
+         *                 width and height of the texture object.
+         *  @param onComplete will be executed when the texture is ready. May contain a parameter
+         *                 of type 'Texture'.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">fromCamera</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">camera</span>:<span class="ActionScriptDefault_Text">Camera</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">scale</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>1<span class="ActionScriptOperator">,</span>
+                                          <span class="ActionScriptDefault_Text">onComplete</span>:<span class="ActionScriptDefault_Text">Function</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Texture</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">fromVideoAttachment</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"Camera"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">camera</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">onComplete</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">fromVideoAttachment</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">type</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">attachment</span>:<span class="ActionScriptDefault_Text">Object</span><span class="ActionScriptOperator">,</span>
+                                                    <span class="ActionScriptDefault_Text">scale</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">onComplete</span>:<span class="ActionScriptDefault_Text">Function</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Texture</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">TEXTURE_READY</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">"textureReady"</span>; <span class="ActionScriptComment">// for backwards compatibility
+</span>
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">SystemUtil</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">supportsVideoTexture</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptReserved">throw</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">NotSupportedError</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"Video Textures are not supported on this platform"</span><span class="ActionScriptBracket/Brace">)</span>;
+
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">context</span>:<span class="ActionScriptDefault_Text">Context3D</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">context</span>;
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">context</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptReserved">throw</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">MissingContextError</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">base</span>:<span class="ActionScriptDefault_Text">TextureBase</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">context</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptString">"createVideoTexture"</span><span class="ActionScriptBracket/Brace">]</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">base</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptString">"attach"</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">type</span><span class="ActionScriptBracket/Brace">]</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">attachment</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">base</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">addEventListener</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">TEXTURE_READY</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">event</span>:<span class="ActionScriptDefault_Text">Object</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">base</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">removeEventListener</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">TEXTURE_READY</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">arguments</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">callee</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">execute</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">onComplete</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">texture</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span><span class="ActionScriptBracket/Brace">)</span>;
+
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">texture</span>:<span class="ActionScriptDefault_Text">ConcreteVideoTexture</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">ConcreteVideoTexture</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">base</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">texture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">onRestore</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptfunction">function</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">texture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">root</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">attachVideo</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">type</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">attachment</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>;
+
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">texture</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptASDoc">/** Creates a texture with a certain size and color.
+         *
+         *  @param width   in points; number of pixels depends on scale parameter
+         *  @param height  in points; number of pixels depends on scale parameter
+         *  @param color   expected in ARGB format (include alpha!)
+         *  @param optimizeForRenderToTexture  indicates if this texture will be used as render target
+         *  @param scale   if you omit this parameter, 'Starling.contentScaleFactor' will be used.
+         *  @param format  the context3D texture format to use. Pass one of the packed or
+         *                 compressed formats to save memory.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">fromColor</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">width</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">height</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">color</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">=</span>0xffffffff<span class="ActionScriptOperator">,</span>
+                                         <span class="ActionScriptDefault_Text">optimizeForRenderToTexture</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptOperator">,</span>
+                                         <span class="ActionScriptDefault_Text">scale</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>-1<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">format</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"bgra"</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Texture</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">texture</span>:<span class="ActionScriptDefault_Text">Texture</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Texture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">empty</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">height</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">true</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">false</span><span class="ActionScriptOperator">,</span>
+                                                <span class="ActionScriptDefault_Text">optimizeForRenderToTexture</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">format</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">texture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">root</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">clear</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">color</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Color</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">getAlpha</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">color</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">/</span> 255.0<span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">texture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">root</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">onRestore</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptfunction">function</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">texture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">root</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">clear</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">color</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Color</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">getAlpha</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">color</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">/</span> 255.0<span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>;
+
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">texture</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptASDoc">/** Creates an empty texture of a certain size.
+         *  Beware that the texture can only be used after you either upload some color data
+         *  ("texture.root.upload...") or clear the texture ("texture.root.clear()").
+         *
+         *  @param width   in points; number of pixels depends on scale parameter
+         *  @param height  in points; number of pixels depends on scale parameter
+         *  @param premultipliedAlpha  the PMA format you will use the texture with. If you will
+         *                 use the texture for bitmap data, use "true"; for ATF data, use "false".
+         *  @param mipMapping  indicates if mipmaps should be used for this texture. When you upload
+         *                 bitmap data, this decides if mipmaps will be created; when you upload ATF
+         *                 data, this decides if mipmaps inside the ATF file will be displayed.
+         *  @param optimizeForRenderToTexture  indicates if this texture will be used as render target
+         *  @param scale   if you omit this parameter, 'Starling.contentScaleFactor' will be used.
+         *  @param format  the context3D texture format to use. Pass one of the packed or
+         *                 compressed formats to save memory (at the price of reduced image quality).
+         *  @param repeat  the repeat mode of the texture. Only useful for power-of-two textures.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">empty</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">width</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">height</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">premultipliedAlpha</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">true</span><span class="ActionScriptOperator">,</span>
+                                     <span class="ActionScriptDefault_Text">mipMapping</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">true</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">optimizeForRenderToTexture</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptOperator">,</span>
+                                     <span class="ActionScriptDefault_Text">scale</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>-1<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">format</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"bgra"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">repeat</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Texture</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">scale</span> <span class="ActionScriptOperator">&lt;=</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptDefault_Text">scale</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">contentScaleFactor</span>;
+
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">actualWidth</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">actualHeight</span>:<span class="ActionScriptDefault_Text">int</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">nativeTexture</span>:<span class="ActionScriptDefault_Text">TextureBase</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">context</span>:<span class="ActionScriptDefault_Text">Context3D</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">context</span>;
+
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">context</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptReserved">throw</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">MissingContextError</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">origWidth</span>:<span class="ActionScriptDefault_Text">Number</span>  <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">width</span>  <span class="ActionScriptOperator">*</span> <span class="ActionScriptDefault_Text">scale</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">origHeight</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">height</span> <span class="ActionScriptOperator">*</span> <span class="ActionScriptDefault_Text">scale</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">useRectTexture</span>:<span class="ActionScriptDefault_Text">Boolean</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">mipMapping</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">repeat</span> <span class="ActionScriptOperator">&amp;&amp;</span>
+                <span class="ActionScriptDefault_Text">Starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">current</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">profile</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptString">"baselineConstrained"</span> <span class="ActionScriptOperator">&amp;&amp;</span>
+                <span class="ActionScriptString">"createRectangleTexture"</span> <span class="ActionScriptReserved">in</span> <span class="ActionScriptDefault_Text">context</span> <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptDefault_Text">format</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">indexOf</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"compressed"</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">==</span> -1;
+
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">useRectTexture</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">actualWidth</span>  <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Math</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ceil</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">origWidth</span>  <span class="ActionScriptOperator">-</span> 0.000000001<span class="ActionScriptBracket/Brace">)</span>; <span class="ActionScriptComment">// avoid floating point errors
+</span>                <span class="ActionScriptDefault_Text">actualHeight</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Math</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ceil</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">origHeight</span> <span class="ActionScriptOperator">-</span> 0.000000001<span class="ActionScriptBracket/Brace">)</span>;
+
+                <span class="ActionScriptComment">// Rectangle Textures are supported beginning with AIR 3.8. By calling the new
+</span>                <span class="ActionScriptComment">// methods only through those lookups, we stay compatible with older SDKs.
+</span>                <span class="ActionScriptDefault_Text">nativeTexture</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">context</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptString">"createRectangleTexture"</span><span class="ActionScriptBracket/Brace">]</span><span class="ActionScriptBracket/Brace">(</span>
+                    <span class="ActionScriptDefault_Text">actualWidth</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">actualHeight</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">format</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">optimizeForRenderToTexture</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">else</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">actualWidth</span>  <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">getNextPowerOfTwo</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">origWidth</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">actualHeight</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">getNextPowerOfTwo</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">origHeight</span><span class="ActionScriptBracket/Brace">)</span>;
+
+                <span class="ActionScriptDefault_Text">nativeTexture</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">context</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">createTexture</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">actualWidth</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">actualHeight</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">format</span><span class="ActionScriptOperator">,</span>
+                                                      <span class="ActionScriptDefault_Text">optimizeForRenderToTexture</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">concreteTexture</span>:<span class="ActionScriptDefault_Text">ConcreteTexture</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">ConcreteTexture</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">nativeTexture</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">format</span><span class="ActionScriptOperator">,</span>
+                <span class="ActionScriptDefault_Text">actualWidth</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">actualHeight</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">mipMapping</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">premultipliedAlpha</span><span class="ActionScriptOperator">,</span>
+                <span class="ActionScriptDefault_Text">optimizeForRenderToTexture</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">repeat</span><span class="ActionScriptBracket/Brace">)</span>;
+
+            <span class="ActionScriptDefault_Text">concreteTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">onRestore</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">concreteTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">clear</span>;
+
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">actualWidth</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">origWidth</span> <span class="ActionScriptOperator">&lt;</span> 0.001 <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptDefault_Text">actualHeight</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">origHeight</span> <span class="ActionScriptOperator">&lt;</span> 0.001<span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">concreteTexture</span>;
+            <span class="ActionScriptReserved">else</span>
+                <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">SubTexture</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">concreteTexture</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Rectangle</span><span class="ActionScriptBracket/Brace">(</span>0<span class="ActionScriptOperator">,</span> 0<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">height</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">true</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptASDoc">/** Creates a texture that contains a region (in pixels) of another texture. The new
+         *  texture will reference the base texture; no data is duplicated.
+         *
+         *  @param texture  The texture you want to create a SubTexture from.
+         *  @param region   The region of the parent texture that the SubTexture will show
+         *                  (in points).
+         *  @param frame    If the texture was trimmed, the frame rectangle can be used to restore
+         *                  the trimmed area.
+         *  @param rotated  If true, the SubTexture will show the parent region rotated by
+         *                  90 degrees (CCW).
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">fromTexture</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">texture</span>:<span class="ActionScriptDefault_Text">Texture</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">region</span>:<span class="ActionScriptDefault_Text">Rectangle</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span>
+                                           <span class="ActionScriptDefault_Text">frame</span>:<span class="ActionScriptDefault_Text">Rectangle</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">rotated</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Texture</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">SubTexture</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">texture</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">region</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">false</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">frame</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">rotated</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptASDoc">/** Converts texture coordinates and vertex positions of raw vertex data into the format
+         *  required for rendering. While the texture coordinates of an image always use the
+         *  range &lt;code&gt;[0, 1]&lt;/code&gt;, the actual coordinates could be different: you
+         *  might be working with a SubTexture or a texture frame. This method
+         *  adjusts the texture and vertex coordinates accordingly.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">adjustVertexData</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">vertexData</span>:<span class="ActionScriptDefault_Text">VertexData</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">vertexID</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">count</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptComment">// override in subclass
+</span>        <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptASDoc">/** Converts texture coordinates into the format required for rendering. While the texture
+         *  coordinates of an image always use the range &lt;code&gt;[0, 1]&lt;/code&gt;, the actual
+         *  coordinates could be different: you might be working with a SubTexture. This method
+         *  adjusts the coordinates accordingly.
+         *
+         *  @param texCoords  a vector containing UV coordinates (optionally, among other data).
+         *                    U and V coordinates always have to come in pairs. The vector is
+         *                    modified in place.
+         *  @param startIndex the index of the first U coordinate in the vector.
+         *  @param stride     the distance (in vector elements) of consecutive UV pairs.
+         *  @param count      the number of UV pairs that should be adjusted, or "-1" for all of them.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">adjustTexCoords</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">texCoords</span>:<span class="ActionScriptDefault_Text">Vector</span><span class="ActionScriptBracket/Brace">.&lt;</span><span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">&gt;</span><span class="ActionScriptOperator">,</span>
+                                        <span class="ActionScriptDefault_Text">startIndex</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">stride</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">count</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptOperator">=</span>-1<span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptComment">// override in subclasses
+</span>        <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptComment">// properties
+</span>
+        <span class="ActionScriptASDoc">/** The texture frame if it has one (see class description), otherwise &lt;code&gt;null&lt;/code&gt;.
+         *  Only SubTextures can have a frame.
+         *
+         *  &lt;p&gt;CAUTION: not a copy, but the actual object! Do not modify!&lt;/p&gt; */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">frame</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Rectangle</span> <span class="ActionScriptBracket/Brace">{</span> <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">null</span>; <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptASDoc">/** Indicates if the texture should repeat like a wallpaper or stretch the outermost pixels.
+         *  Note: this only works in textures with sidelengths that are powers of two and
+         *  that are not loaded from a texture atlas (i.e. no subtextures). @default false */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">repeat</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Boolean</span> <span class="ActionScriptBracket/Brace">{</span> <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">false</span>; <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptASDoc">/** The width of the texture in points. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">width</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptBracket/Brace">{</span> <span class="ActionScriptReserved">return</span> 0; <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptASDoc">/** The height of the texture in points. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">height</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptBracket/Brace">{</span> <span class="ActionScriptReserved">return</span> 0; <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptASDoc">/** The width of the texture in pixels (without scale adjustment). */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">nativeWidth</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptBracket/Brace">{</span> <span class="ActionScriptReserved">return</span> 0; <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptASDoc">/** The height of the texture in pixels (without scale adjustment). */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">nativeHeight</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptBracket/Brace">{</span> <span class="ActionScriptReserved">return</span> 0; <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptASDoc">/** The scale factor, which influences width and height properties. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptBracket/Brace">{</span> <span class="ActionScriptReserved">return</span> 1.0; <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptASDoc">/** The Stage3D texture object the texture is based on. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">base</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">TextureBase</span> <span class="ActionScriptBracket/Brace">{</span> <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">null</span>; <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptASDoc">/** The concrete texture the texture is based on. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">root</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">ConcreteTexture</span> <span class="ActionScriptBracket/Brace">{</span> <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">null</span>; <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptASDoc">/** The &lt;code&gt;Context3DTextureFormat&lt;/code&gt; of the underlying texture data. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">format</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptBracket/Brace">{</span> <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">Context3DTextureFormat</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">BGRA</span>; <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptASDoc">/** Indicates if the texture contains mip maps. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">mipMapping</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Boolean</span> <span class="ActionScriptBracket/Brace">{</span> <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">false</span>; <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptASDoc">/** Indicates if the alpha values are premultiplied into the RGB values. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">premultipliedAlpha</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Boolean</span> <span class="ActionScriptBracket/Brace">{</span> <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">false</span>; <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptASDoc">/** Returns the maximum size constraint (for both width and height) for textures in the
+         *  current Context3D profile. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">maxSize</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">int</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">target</span>:<span class="ActionScriptDefault_Text">Starling</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">current</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">profile</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">target</span> <span class="ActionScriptOperator">?</span> <span class="ActionScriptDefault_Text">target</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">profile</span> : <span class="ActionScriptString">"baseline"</span>;
+
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">profile</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptString">"baseline"</span> <span class="ActionScriptOperator">||</span> <span class="ActionScriptDefault_Text">profile</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptString">"baselineConstrained"</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptReserved">return</span> 2048;
+            <span class="ActionScriptReserved">else</span>
+                <span class="ActionScriptReserved">return</span> 4096;
+        <span class="ActionScriptBracket/Brace">}</span>
+    <span class="ActionScriptBracket/Brace">}</span>
+<span class="ActionScriptBracket/Brace">}</span>
+</pre></body>
+</html>

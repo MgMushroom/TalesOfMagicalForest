@@ -1,0 +1,528 @@
+<!-- saved from url=(0014)about:internet -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>MotionPath.as</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../SourceStyles.css"/>
+</head>
+
+<body><pre><span class="ActionScriptASDoc">/**
+ * VERSION: 0.6
+ * DATE: 2011-08-19
+ * AS3
+ * UPDATES AND DOCS AT: http://www.greensock.com
+ **/</span>
+<span class="ActionScriptpackage">package</span> <span class="ActionScriptDefault_Text">com</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">greensock</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">motionPaths</span> <span class="ActionScriptBracket/Brace">{</span>
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Shape</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">events</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Event</span>;
+<span class="ActionScriptASDoc">/**
+ * A MotionPath defines a path along which a PathFollower can travel, making it relatively simple to do 
+ * things like tween an object in a circular path. A PathFollower's position along the path is described using
+ * its &lt;code&gt;progress&lt;/code&gt; property, a value between 0 and 1 where 0 is at the beginning of the path, 0.5 is in
+ * the middle, and 1 is at the very end of the path. So to tween a PathFollower along the path, you can simply
+ * tween its &lt;code&gt;progress&lt;/code&gt; property. To tween ALL of the followers on the path at once, you can
+ * tween the MotionPath's &lt;code&gt;progress&lt;/code&gt; property. PathFollowers automatically wrap so that if 
+ * the &lt;code&gt;progress&lt;/code&gt; value exceeds 1 or drops below 0, it shows up on the other end of the path.&lt;br /&gt;&lt;br /&gt;
+ *  
+ * Since MotionPath extends the Shape class, you can add an instance to the display list to see a line representation
+ * of the path drawn which can be helpful especially during the production phase. Use &lt;code&gt;lineStyle()&lt;/code&gt; 
+ * to adjust the color, thickness, and other attributes of the line that is drawn (or set the MotionPath's 
+ * &lt;code&gt;visible&lt;/code&gt; property to false or don't add it to the display list if you don't want to see the line 
+ * at all). You can also adjust all of its properties like &lt;code&gt;scaleX, scaleY, rotation, width, height, x,&lt;/code&gt; 
+ * and &lt;code&gt;y&lt;/code&gt; just like any DisplayObject. That means you can tween those values as well to achieve very 
+ * dynamic, complex effects with ease.&lt;br /&gt;&lt;br /&gt;
+ * 
+ * @example Example AS3 code:&lt;listing version="3.0"&gt;
+import com.greensock.~~;
+import com.greensock.plugins.~~;
+import com.greensock.motionPaths.~~;
+TweenPlugin.activate([CirclePath2DPlugin]); //only needed once in your swf, and only if you plan to use the circlePath2D tweening feature for convenience
+
+//create a circle motion path at coordinates x:150, y:150 with a radius of 100
+var circle:CirclePath2D = new CirclePath2D(150, 150, 100);
+
+//tween mc along the path from the bottom (90 degrees) to 315 degrees in the counter-clockwise direction and make an extra revolution
+TweenLite.to(mc, 3, {circlePath2D:{path:circle, startAngle:90, endAngle:315, autoRotate:true, direction:Direction.COUNTER_CLOCKWISE, extraRevolutions:1}});
+
+//tween the circle's rotation, scaleX, scaleY, x, and y properties:
+TweenLite.to(circle, 3, {rotation:180, scaleX:0.5, scaleY:2, x:250, y:200});
+
+//show the path visually by adding it to the display list (optional)
+this.addChild(circle);
+
+
+//--- Instead of using the plugin, you could manually manage followers and tween their "progress" property...
+ 
+//make the MovieClip "mc2" follow the circle and start at a position of 90 degrees (this returns a PathFollower instance)
+var follower:PathFollower = circle.addFollower(mc2, circle.angleToProgress(90));
+
+//tween the follower clockwise along the path to 315 degrees
+TweenLite.to(follower, 2, {progress:circle.followerTween(follower, 315, Direction.CLOCKWISE)});
+
+//tween the follower counter-clockwise to 200 degrees and add an extra revolution
+TweenLite.to(follower, 2, {progress:circle.followerTween(follower, 200, Direction.COUNTER_CLOCKWISE, 1)});
+&lt;/listing&gt;
+ * 
+ * &lt;b&gt;NOTES&lt;/b&gt;&lt;br /&gt;
+ * &lt;ul&gt;
+ *         &lt;li&gt;All followers are automatically updated when you alter the MotionPath that they're following.&lt;/li&gt;
+ *         &lt;li&gt;To tween all followers along the path at once, simply tween the MotionPath's &lt;code&gt;progress&lt;/code&gt; 
+ *             property which will provide better performance than tweening each follower independently.&lt;/li&gt;
+ * &lt;/ul&gt;
+ * 
+ * &lt;b&gt;Copyright 2011, GreenSock. All rights reserved.&lt;/b&gt; This work is subject to the terms in &lt;a href="http://www.greensock.com/terms_of_use.html"&gt;http://www.greensock.com/terms_of_use.html&lt;/a&gt; or for corporate Club GreenSock members, the software agreement that was issued with the corporate membership.
+ * 
+ * @author Jack Doyle, jack@greensock.com
+ */</span>    
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptclass">class</span> <span class="ActionScriptDefault_Text">MotionPath</span> <span class="ActionScriptReserved">extends</span> <span class="ActionScriptDefault_Text">Shape</span> <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">_RAD2DEG</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> 180 <span class="ActionScriptOperator">/</span> <span class="ActionScriptDefault_Text">Math</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">PI</span>;
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">_DEG2RAD</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">Math</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">PI</span> <span class="ActionScriptOperator">/</span> 180;
+        
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_redrawLine</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+        
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_thickness</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_color</span>:<span class="ActionScriptDefault_Text">uint</span>;
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_lineAlpha</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_pixelHinting</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_scaleMode</span>:<span class="ActionScriptDefault_Text">String</span>;
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_caps</span>:<span class="ActionScriptDefault_Text">String</span>;
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_joints</span>:<span class="ActionScriptDefault_Text">String</span>;
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_miterLimit</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_rootFollower</span>:<span class="ActionScriptDefault_Text">PathFollower</span>;
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_progress</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        <span class="ActionScriptASDoc">/** @private not re-interpolated between 0 and 1. **/</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_rawProgress</span>:<span class="ActionScriptDefault_Text">Number</span>;
+        
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">MotionPath</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">_progress</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_rawProgress</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptDefault_Text">lineStyle</span><span class="ActionScriptBracket/Brace">(</span>1<span class="ActionScriptOperator">,</span> 0x666666<span class="ActionScriptOperator">,</span> 1<span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">false</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptString">"none"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span> 3<span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">true</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">addEventListener</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Event</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ADDED_TO_STAGE</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">onAddedToStage</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">false</span><span class="ActionScriptOperator">,</span> 0<span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">true</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">onAddedToStage</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">event</span>:<span class="ActionScriptDefault_Text">Event</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">update</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Adds a follower to the path, optionally setting it to a particular progress position. If
+         * the target isn't a PathFollower instance already, one will be created for it. The target
+         * can be any object that has x and y properties.
+         * 
+         * @param target Any object that has x and y properties that you'd like to follow the path. Existing PathFollower instances are allowed.
+         * @param progress The progress position at which the target should be placed initially (0 by default)
+         * @param autoRotate When &lt;code&gt;autoRotate&lt;/code&gt; is &lt;code&gt;true&lt;/code&gt;, the target will automatically be rotated so that it is oriented to the angle of the path. To offset this value (like to always add 90 degrees for example), use the &lt;code&gt;rotationOffset&lt;/code&gt; property.
+         * @param rotationOffset When &lt;code&gt;autoRotate&lt;/code&gt; is &lt;code&gt;true&lt;/code&gt;, this value will always be added to the resulting &lt;code&gt;rotation&lt;/code&gt; of the target.
+         * @return A PathFollower instance associated with the target (you can tween this PathFollower's &lt;code&gt;progress&lt;/code&gt; property to move it along the path).
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">addFollower</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">target</span>:<span class="ActionScriptOperator">*</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">progress</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">autoRotate</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">rotationOffset</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">PathFollower</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">f</span>:<span class="ActionScriptDefault_Text">PathFollower</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">getFollower</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">target</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">f</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">f</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">PathFollower</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">target</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">autoRotate</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">autoRotate</span>;
+            <span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">rotationOffset</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">rotationOffset</span>;
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">path</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">this</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_rootFollower</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">_rootFollower</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedPrev</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">f</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedNext</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_rootFollower</span>;
+                <span class="ActionScriptDefault_Text">_rootFollower</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">f</span>;
+                <span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">path</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">this</span>;
+                <span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">progress</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">progress</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">f</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Removes the target as a follower. The target can be a PathFollower instance or the target associated
+         * with one of the PathFollower instances.
+         * 
+         * @param target the target or PathFollower instance to remove.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">removeFollower</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">target</span>:<span class="ActionScriptOperator">*</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">f</span>:<span class="ActionScriptDefault_Text">PathFollower</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">getFollower</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">target</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">f</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">return</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedNext</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedNext</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedPrev</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedPrev</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedPrev</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedPrev</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedNext</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedNext</span>;
+            <span class="ActionScriptBracket/Brace">}</span> <span class="ActionScriptReserved">else</span> <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_rootFollower</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptDefault_Text">f</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">_rootFollower</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedNext</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedNext</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedPrev</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+            <span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">path</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Removes all followers. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">removeAllFollowers</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">f</span>:<span class="ActionScriptDefault_Text">PathFollower</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_rootFollower</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">next</span>:<span class="ActionScriptDefault_Text">PathFollower</span>;
+            <span class="ActionScriptReserved">while</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">f</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">next</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedNext</span>;
+                <span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedNext</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedPrev</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+                <span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">path</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+                <span class="ActionScriptDefault_Text">f</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">next</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptDefault_Text">_rootFollower</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Distributes objects evenly along the MotionPath. You can optionally define minimum and maximum 
+         * &lt;code&gt;progress&lt;/code&gt; values between which the objects will be distributed. For example, if you want them 
+         * distributed from the very beginning of the path to the middle, you would do:&lt;br /&gt;&lt;br /&gt;&lt;code&gt;
+         * 
+         * path.distribute([mc1, mc2, mc3], 0, 0.5);&lt;br /&gt;&lt;br /&gt;&lt;/code&gt;
+         * 
+         * As it loops through the &lt;code&gt;targets&lt;/code&gt; array, if a target is found for which a PathFollower
+         * doesn't exist, one will automatically be created and added to the path. The &lt;code&gt;targets&lt;/code&gt; 
+         * array can be populated with PathFollowers or DisplayObjects or Points or pretty much any object. 
+         * 
+         * @param targets An array of targets (PathFollowers, DisplayObjects, Points, or pretty much any object) that should be distributed evenly along the MotionPath. As it loops through the &lt;code&gt;targets&lt;/code&gt; array, if a target is found for which a PathFollower doesn't exist, one will automatically be created and added to the path.
+         * @param min The minimum &lt;code&gt;progress&lt;/code&gt; value at which the targets will begin being distributed. This value will always be between 0 and 1. For example, if the targets should be distributed from the midpoint of the path through the end, the &lt;code&gt;min&lt;/code&gt; parameter would be 0.5 and the &lt;code&gt;max&lt;/code&gt; parameter would be 1.
+         * @param max The maximum &lt;code&gt;progress&lt;/code&gt; value where the targets will end distribution. This value will always be between 0 and 1. For example, if the targets should be distributed from the midpoint of the path through the end, the &lt;code&gt;min&lt;/code&gt; parameter would be 0.5 and the &lt;code&gt;max&lt;/code&gt; parameter would be 1.
+         * @param autoRotate When &lt;code&gt;autoRotate&lt;/code&gt; is &lt;code&gt;true&lt;/code&gt;, the target will automatically be rotated so that it is oriented to the angle of the path. To offset this value (like to always add 90 degrees for example), use the &lt;code&gt;rotationOffset&lt;/code&gt; property.
+         * @param rotationOffset When &lt;code&gt;autoRotate&lt;/code&gt; is &lt;code&gt;true&lt;/code&gt;, this value will always be added to the resulting &lt;code&gt;rotation&lt;/code&gt; of the target. For example, to always add 90 degrees to the autoRotation, &lt;code&gt;rotationOffset&lt;/code&gt; would be 90.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">distribute</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">targets</span>:<span class="ActionScriptDefault_Text">Array</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">min</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">max</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>1<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">autoRotate</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">rotationOffset</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">targets</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">targets</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">followers</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptDefault_Text">min</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_normalize</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">min</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">max</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_normalize</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">max</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">f</span>:<span class="ActionScriptDefault_Text">PathFollower</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">i</span>:<span class="ActionScriptDefault_Text">int</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">targets</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">space</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">i</span> <span class="ActionScriptOperator">&gt;</span> 1<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">?</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">max</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">min</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">/</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">i</span> <span class="ActionScriptOperator">-</span> 1<span class="ActionScriptBracket/Brace">)</span> : 1;
+            <span class="ActionScriptReserved">while</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptOperator">--</span><span class="ActionScriptDefault_Text">i</span> <span class="ActionScriptOperator">&gt;</span> -1<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">f</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">getFollower</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">targets</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">i</span><span class="ActionScriptBracket/Brace">]</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">f</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">f</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">addFollower</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">targets</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">i</span><span class="ActionScriptBracket/Brace">]</span><span class="ActionScriptOperator">,</span> 0<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">autoRotate</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">rotationOffset</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedProgress</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedRawProgress</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">min</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">space</span> <span class="ActionScriptOperator">*</span> <span class="ActionScriptDefault_Text">i</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">renderObjectAt</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">target</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedProgress</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">autoRotate</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">rotationOffset</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">_normalize</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">num</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">num</span> <span class="ActionScriptOperator">&gt;</span> 1<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">num</span> <span class="ActionScriptOperator">-=</span> <span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">num</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span> <span class="ActionScriptReserved">else</span> <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">num</span> <span class="ActionScriptOperator">&lt;</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">num</span> <span class="ActionScriptOperator">-=</span> <span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">num</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">-</span> 1;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">num</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Returns the PathFollower instance associated with a particular target or null if none exists.
+         * 
+         * @param target The target whose PathFollower instance you want returned.
+         * @return PathFollower instance
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">getFollower</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">target</span>:<span class="ActionScriptDefault_Text">Object</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">PathFollower</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">target</span> <span class="ActionScriptReserved">is</span> <span class="ActionScriptDefault_Text">PathFollower</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">target</span> <span class="ActionScriptReserved">as</span> <span class="ActionScriptDefault_Text">PathFollower</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">f</span>:<span class="ActionScriptDefault_Text">PathFollower</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_rootFollower</span>;
+            <span class="ActionScriptReserved">while</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">f</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">target</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptDefault_Text">target</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">f</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptDefault_Text">f</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedNext</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">null</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** 
+         * Forces the MotionPath to re-render itself and all of its followers.
+         * 
+         * @param event An optional Event that is accepted just to make it easier for use as an event handler (to have it update automatically on every frame, for example, you could add an ENTER_FRAME listener and point it to this method).  **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">update</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">event</span>:<span class="ActionScriptDefault_Text">Event</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span> <span class="ActionScriptBracket/Brace">{</span>
+            
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Positions any object with x and y properties on the path at a specific progress position. 
+         * For example, to position &lt;code&gt;mc&lt;/code&gt; in the middle of the path, you would do:&lt;br /&gt;&lt;br /&gt;&lt;code&gt;
+         * 
+         * myPath.renderObjectAt(mc, 0.5);&lt;/code&gt;&lt;br /&gt;&lt;br /&gt;
+         * 
+         * Some paths have methods to translate other meaningful information into a progress value, like
+         * for a &lt;code&gt;CirclePath2D&lt;/code&gt; you can get the progress associated with the 90-degree position with the
+         * &lt;code&gt;angleToPosition()&lt;/code&gt; method like this:&lt;br /&gt;&lt;br /&gt;&lt;code&gt;
+         * 
+         * myCircle.renderObjectAt(mc, myCircle.angleToProgress(90));
+         * 
+         * &lt;/code&gt;&lt;br /&gt;
+         * 
+         * @param target The target object to position
+         * @param progress The progress value (typically between 0 and 1 where 0 is the beginning of the path, 0.5 is in the middle, and 1 is at the end)
+         * @param autoRotate When &lt;code&gt;autoRotate&lt;/code&gt; is &lt;code&gt;true&lt;/code&gt;, the target will automatically be rotated so that it is oriented to the angle of the path. To offset this value (like to always add 90 degrees for example), use the &lt;code&gt;rotationOffset&lt;/code&gt; property.
+         * @param rotationOffset When &lt;code&gt;autoRotate&lt;/code&gt; is &lt;code&gt;true&lt;/code&gt;, this value will always be added to the resulting &lt;code&gt;rotation&lt;/code&gt; of the target.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">renderObjectAt</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">target</span>:<span class="ActionScriptDefault_Text">Object</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">progress</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">autoRotate</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">rotationOffset</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span> <span class="ActionScriptBracket/Brace">{</span>
+            
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Sets the line style for the path which you will only see if you add the path to the display list
+         * with something like addChild() and make sure the visible property is true. For example, to make
+         * a CirclePath2D visible with a red line red that's 3 pixels thick, you could do: &lt;br /&gt;&lt;br /&gt;&lt;code&gt;
+         * 
+         * var myCircle:CirclePath2D = new CirclePath2D(150, 150, 100); &lt;br /&gt;
+         * myCircle.lineStyle(3, 0xFF0000);&lt;br /&gt;
+         * addChild(myCircle);&lt;br /&gt;
+         * 
+         * &lt;/code&gt;
+         * 
+         * @param thickness line thickness
+         * @param color line color
+         * @param alpha line alpha
+         * @param pixelHinting pixel hinting
+         * @param scaleMode scale mode
+         * @param caps caps
+         * @param joints joints
+         * @param miterLimit miter limit
+         * @param skipRedraw if true, the redraw will be skipped.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">lineStyle</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">thickness</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>1<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">color</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptOperator">=</span>0x666666<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">alpha</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>1<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">pixelHinting</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">scaleMode</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">"none"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">caps</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">joints</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">miterLimit</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>3<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">skipRedraw</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">_thickness</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">thickness</span>;
+            <span class="ActionScriptDefault_Text">_color</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">color</span>;
+            <span class="ActionScriptDefault_Text">_lineAlpha</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">alpha</span>;
+            <span class="ActionScriptDefault_Text">_pixelHinting</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">pixelHinting</span>;
+            <span class="ActionScriptDefault_Text">_scaleMode</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">scaleMode</span>;
+            <span class="ActionScriptDefault_Text">_caps</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">caps</span>;
+            <span class="ActionScriptDefault_Text">_joints</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">joints</span>;
+            <span class="ActionScriptDefault_Text">_miterLimit</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">miterLimit</span>;
+            <span class="ActionScriptDefault_Text">_redrawLine</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">skipRedraw</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">update</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** @inheritDoc **/</span>
+        <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">rotation</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">rotation</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">rotation</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">rotation</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span>;
+            <span class="ActionScriptDefault_Text">update</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** @inheritDoc **/</span>
+        <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">scaleX</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scaleX</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">scaleX</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scaleX</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span>;
+            <span class="ActionScriptDefault_Text">update</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** @inheritDoc **/</span>
+        <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">scaleY</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scaleY</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">scaleY</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scaleY</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span>;
+            <span class="ActionScriptDefault_Text">update</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** @inheritDoc **/</span>
+        <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">x</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">x</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span>;
+            <span class="ActionScriptDefault_Text">update</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** @inheritDoc **/</span>
+        <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">y</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">y</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span>;
+            <span class="ActionScriptDefault_Text">update</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** @inheritDoc **/</span>
+        <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">width</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">width</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span>;
+            <span class="ActionScriptDefault_Text">update</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** @inheritDoc **/</span>
+        <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">height</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">height</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span>;
+            <span class="ActionScriptDefault_Text">update</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** @inheritDoc **/</span>
+        <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">visible</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Boolean</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">visible</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptReserved">override</span> <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">visible</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">super</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">visible</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span>;
+            <span class="ActionScriptDefault_Text">_redrawLine</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            <span class="ActionScriptDefault_Text">update</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** 
+         * Identical to &lt;code&gt;progress&lt;/code&gt; except that the value is not re-interpolated between 0 and 1. 
+         * For example, if you set the motion path's &lt;code&gt;rawProgress&lt;/code&gt; to 2.1, &lt;code&gt;progress&lt;/code&gt; 
+         * would be 0.1 (the corresponding value between 0 and 1), essentially wrapping it. If &lt;code&gt;rawProgress&lt;/code&gt; 
+         * is set to -3.4, &lt;code&gt;progress&lt;/code&gt; would be 0.6. Setting &lt;code&gt;progress&lt;/code&gt; affects &lt;code&gt;rawProgress&lt;/code&gt;
+         * and vice versa. For example:&lt;br /&gt;&lt;br /&gt;&lt;code&gt;
+         * 
+         * myPath.progress = 2.1;&lt;br /&gt;
+         * trace(myPath.progress); //traces "0.1"&lt;br /&gt;
+         * trace(myPath.rawProgress); //traces "2.1"&lt;br /&gt;&lt;br /&gt;&lt;/code&gt;
+         * 
+         * Either property can be used to move all followers along the path. Unlike a PathFollower's 
+         * &lt;code&gt;progress&lt;/code&gt; or &lt;code&gt;rawProgress&lt;/code&gt;, this value is not absolute for motion paths - it simply 
+         * facilitates relative movement of followers together along the path in a way that performs better than 
+         * tweening each follower independently (plus it's easier). If your goal is to tween all followers around 
+         * a CirclePath2D twice completely, for example, you could just add 2 to the &lt;code&gt;progress&lt;/code&gt; or 
+         * &lt;code&gt;rawProgress&lt;/code&gt; value or use a relative value in the tween, like: &lt;br /&gt;&lt;br /&gt;&lt;code&gt;
+         * 
+         * TweenLite.to(myCircle, 5, {rawProgress:"2"}); //or myCircle.rawProgress + 2
+         * 
+         * &lt;/code&gt;
+         * @see #progress
+         **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">rawProgress</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_rawProgress</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">rawProgress</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">progress</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** 
+         * A value between 0 and 1 that can be used to move all followers along the path. &lt;code&gt;progress&lt;/code&gt;
+         * is identical to &lt;code&gt;rawProgress&lt;/code&gt; except that the &lt;code&gt;rawProgress&lt;/code&gt; is not re-interpolated 
+         * between 0 and 1. For example, if you set the motion path's &lt;code&gt;rawProgress&lt;/code&gt; to 2.1, &lt;code&gt;progress&lt;/code&gt; 
+         * would be 0.1 (the corresponding value between 0 and 1), essentially wrapping it. If &lt;code&gt;rawProgress&lt;/code&gt; 
+         * is set to -3.4, &lt;code&gt;progress&lt;/code&gt; would be 0.6. You may set &lt;code&gt;progress&lt;/code&gt; to any value but it will
+         * be re-interpolated to its corresponding value between 0 and 1 very much like a DisplayObject's "rotation" 
+         * property in Flash where setting it to 270 works fine but when you trace() the rotation value it will report 
+         * as -90 instead because rotation is always interpolated to be between 180 and -180. Setting &lt;code&gt;progress&lt;/code&gt; 
+         * affects &lt;code&gt;rawProgress&lt;/code&gt; too. For example:&lt;br /&gt;&lt;br /&gt;&lt;code&gt;
+         * 
+         * myPath.progress = 2.1;&lt;br /&gt;
+         * trace(myPath.progress); //traces "0.1"&lt;br /&gt;
+         * trace(myPath.rawProgress); //traces "2.1"&lt;br /&gt;&lt;br /&gt;&lt;/code&gt;
+         * 
+         * Either property can be used to move all followers along the path. Unlike a PathFollower's 
+         * &lt;code&gt;progress&lt;/code&gt; or &lt;code&gt;rawProgress&lt;/code&gt;, this value is not absolute for motion paths - it simply 
+         * facilitates movement of followers together along the path in a way that performs better than 
+         * tweening each follower independently (plus it's easier). If your goal is to tween all followers around 
+         * a CirclePath2D twice completely, you could just add 2 to the &lt;code&gt;progress&lt;/code&gt; or 
+         * &lt;code&gt;rawProgress&lt;/code&gt; value or use a relative value in the tween, like: &lt;br /&gt;&lt;br /&gt;&lt;code&gt;
+         * 
+         * TweenLite.to(myCircle, 5, {progress:"2"}); //or myCircle.progress + 2&lt;br /&gt;&lt;br /&gt;&lt;/code&gt;
+         * 
+         * Also note that if you set &lt;code&gt;progress&lt;/code&gt; to any value &lt;i&gt;outside&lt;/i&gt; of the 0-1 range, 
+         * &lt;code&gt;rawProgress&lt;/code&gt; will be set to that exact value. If &lt;code&gt;progress&lt;/code&gt; is
+         * set to a value &lt;i&gt;within&lt;/i&gt; the typical 0-1 range, it will only affect the decimal value of 
+         * &lt;code&gt;rawProgress&lt;/code&gt;. For example, if &lt;code&gt;rawProgress&lt;/code&gt; is 3.4 and then you 
+         * set &lt;code&gt;progress&lt;/code&gt; to 0.1, &lt;code&gt;rawProgress&lt;/code&gt; will end up at 3.1 (notice
+         * the "3" integer was kept). But if &lt;code&gt;progress&lt;/code&gt; was instead set to 5.1, since
+         * it exceeds the 0-1 range, &lt;code&gt;rawProgress&lt;/code&gt; would become 5.1. This behavior was 
+         * adopted in order to deal most effectively with wrapping situations. For example, if 
+         * &lt;code&gt;rawProgress&lt;/code&gt; was tweened to 3.4 and then later you wanted to fine-tune
+         * where things were positioned by tweening &lt;code&gt;progress&lt;/code&gt; to 0.8, it still may be
+         * important to be able to determine how many loops/wraps occurred, so &lt;code&gt;rawProgress&lt;/code&gt;
+         * should be 3.8, not reset to 0.8. Feel free to use &lt;code&gt;rawProgress&lt;/code&gt; exclusively if you 
+         * prefer to avoid any of the re-interpolation that occurs with &lt;code&gt;progress&lt;/code&gt;.
+         * 
+         * @see #rawProgress
+         **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">progress</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_progress</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">progress</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span> <span class="ActionScriptOperator">&gt;</span> 1<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">_rawProgress</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span>;
+                <span class="ActionScriptDefault_Text">value</span> <span class="ActionScriptOperator">-=</span> <span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span> <span class="ActionScriptOperator">==</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">value</span> <span class="ActionScriptOperator">=</span> 1;
+                <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptBracket/Brace">}</span> <span class="ActionScriptReserved">else</span> <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span> <span class="ActionScriptOperator">&lt;</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">_rawProgress</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span>;
+                <span class="ActionScriptDefault_Text">value</span> <span class="ActionScriptOperator">-=</span> <span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">-</span> 1;
+            <span class="ActionScriptBracket/Brace">}</span> <span class="ActionScriptReserved">else</span> <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">_rawProgress</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">_rawProgress</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">value</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">dif</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span> <span class="ActionScriptOperator">-</span> <span class="ActionScriptDefault_Text">_progress</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">f</span>:<span class="ActionScriptDefault_Text">PathFollower</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_rootFollower</span>;
+            <span class="ActionScriptReserved">while</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">f</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedProgress</span> <span class="ActionScriptOperator">+=</span> <span class="ActionScriptDefault_Text">dif</span>;
+                <span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedRawProgress</span> <span class="ActionScriptOperator">+=</span> <span class="ActionScriptDefault_Text">dif</span>;
+                
+                <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedProgress</span> <span class="ActionScriptOperator">&gt;</span> 1<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedProgress</span> <span class="ActionScriptOperator">-=</span> <span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedProgress</span><span class="ActionScriptBracket/Brace">)</span>;
+                    <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedProgress</span> <span class="ActionScriptOperator">==</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                        <span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedProgress</span> <span class="ActionScriptOperator">=</span> 1;
+                    <span class="ActionScriptBracket/Brace">}</span>
+                <span class="ActionScriptBracket/Brace">}</span> <span class="ActionScriptReserved">else</span> <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedProgress</span> <span class="ActionScriptOperator">&lt;</span> 0<span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedProgress</span> <span class="ActionScriptOperator">-=</span> <span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedProgress</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">-</span> 1;
+                <span class="ActionScriptBracket/Brace">}</span>
+                
+                <span class="ActionScriptDefault_Text">f</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedNext</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptDefault_Text">_progress</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span>;
+            <span class="ActionScriptDefault_Text">update</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Returns an array of all PathFollower instances associated with this path **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">followers</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Array</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">a</span>:<span class="ActionScriptDefault_Text">Array</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptBracket/Brace">]</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">cnt</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">f</span>:<span class="ActionScriptDefault_Text">PathFollower</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_rootFollower</span>;
+            <span class="ActionScriptReserved">while</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">f</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">a</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">cnt</span><span class="ActionScriptOperator">++</span><span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">f</span>;
+                <span class="ActionScriptDefault_Text">f</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedNext</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">a</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Returns an array of all target instances associated with the PathFollowers of this path **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">targets</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Array</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">a</span>:<span class="ActionScriptDefault_Text">Array</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptBracket/Brace">]</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">cnt</span>:<span class="ActionScriptDefault_Text">uint</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">f</span>:<span class="ActionScriptDefault_Text">PathFollower</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">_rootFollower</span>;
+            <span class="ActionScriptReserved">while</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">f</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">a</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">cnt</span><span class="ActionScriptOperator">++</span><span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">target</span>;
+                <span class="ActionScriptDefault_Text">f</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">f</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cachedNext</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">a</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+
+    <span class="ActionScriptBracket/Brace">}</span>
+<span class="ActionScriptBracket/Brace">}</span></pre></body>
+</html>

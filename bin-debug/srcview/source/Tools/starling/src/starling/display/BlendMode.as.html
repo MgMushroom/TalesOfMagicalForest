@@ -1,0 +1,132 @@
+<!-- saved from url=(0014)about:internet -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>BlendMode.as</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../SourceStyles.css"/>
+</head>
+
+<body><pre><span class="ActionScriptComment">// =================================================================================================
+</span><span class="ActionScriptComment">//
+</span><span class="ActionScriptComment">//    Starling Framework
+</span><span class="ActionScriptComment">//    Copyright 2011-2014 Gamua. All Rights Reserved.
+</span><span class="ActionScriptComment">//
+</span><span class="ActionScriptComment">//    This program is free software. You can redistribute and/or modify it
+</span><span class="ActionScriptComment">//    in accordance with the terms of the accompanying license agreement.
+</span><span class="ActionScriptComment">//
+</span><span class="ActionScriptComment">// =================================================================================================
+</span>
+<span class="ActionScriptpackage">package</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display</span>
+<span class="ActionScriptBracket/Brace">{</span>
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display3D</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Context3DBlendFactor</span>;
+    
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">errors</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">AbstractClassError</span>;
+    
+    <span class="ActionScriptASDoc">/** A class that provides constant values for visual blend mode effects. 
+     *   
+     *  &lt;p&gt;A blend mode is always defined by two 'Context3DBlendFactor' values. A blend factor 
+     *  represents a particular four-value vector that is multiplied with the source or destination
+     *  color in the blending formula. The blending formula is:&lt;/p&gt;
+     * 
+     *  &lt;pre&gt;result = source × sourceFactor + destination × destinationFactor&lt;/pre&gt;
+     * 
+     *  &lt;p&gt;In the formula, the source color is the output color of the pixel shader program. The 
+     *  destination color is the color that currently exists in the color buffer, as set by 
+     *  previous clear and draw operations.&lt;/p&gt;
+     *  
+     *  &lt;p&gt;Beware that blending factors produce different output depending on the texture type.
+     *  Textures may contain 'premultiplied alpha' (pma), which means that their RGB values were 
+     *  multiplied with their alpha value (to save processing time). Textures based on 'BitmapData'
+     *  objects have premultiplied alpha values, while ATF textures haven't. For this reason, 
+     *  a blending mode may have different factors depending on the pma value.&lt;/p&gt;
+     *  
+     *  @see flash.display3D.Context3DBlendFactor
+     */</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptclass">class</span> <span class="ActionScriptDefault_Text">BlendMode</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">sBlendFactors</span>:<span class="ActionScriptDefault_Text">Array</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">[</span>
+            <span class="ActionScriptComment">// no premultiplied alpha
+</span>            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptString">"none"</span>     : <span class="ActionScriptBracket/Brace">[</span> <span class="ActionScriptDefault_Text">Context3DBlendFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ONE</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Context3DBlendFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ZERO</span> <span class="ActionScriptBracket/Brace">]</span><span class="ActionScriptOperator">,</span>
+                <span class="ActionScriptString">"normal"</span>   : <span class="ActionScriptBracket/Brace">[</span> <span class="ActionScriptDefault_Text">Context3DBlendFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">SOURCE_ALPHA</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Context3DBlendFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ONE_MINUS_SOURCE_ALPHA</span> <span class="ActionScriptBracket/Brace">]</span><span class="ActionScriptOperator">,</span>
+                <span class="ActionScriptString">"add"</span>      : <span class="ActionScriptBracket/Brace">[</span> <span class="ActionScriptDefault_Text">Context3DBlendFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">SOURCE_ALPHA</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Context3DBlendFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">DESTINATION_ALPHA</span> <span class="ActionScriptBracket/Brace">]</span><span class="ActionScriptOperator">,</span>
+                <span class="ActionScriptString">"multiply"</span> : <span class="ActionScriptBracket/Brace">[</span> <span class="ActionScriptDefault_Text">Context3DBlendFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">DESTINATION_COLOR</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Context3DBlendFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ONE_MINUS_SOURCE_ALPHA</span> <span class="ActionScriptBracket/Brace">]</span><span class="ActionScriptOperator">,</span>
+                <span class="ActionScriptString">"screen"</span>   : <span class="ActionScriptBracket/Brace">[</span> <span class="ActionScriptDefault_Text">Context3DBlendFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">SOURCE_ALPHA</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Context3DBlendFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ONE</span> <span class="ActionScriptBracket/Brace">]</span><span class="ActionScriptOperator">,</span>
+                <span class="ActionScriptString">"erase"</span>    : <span class="ActionScriptBracket/Brace">[</span> <span class="ActionScriptDefault_Text">Context3DBlendFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ZERO</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Context3DBlendFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ONE_MINUS_SOURCE_ALPHA</span> <span class="ActionScriptBracket/Brace">]</span><span class="ActionScriptOperator">,</span>
+                <span class="ActionScriptString">"mask"</span>     : <span class="ActionScriptBracket/Brace">[</span> <span class="ActionScriptDefault_Text">Context3DBlendFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ZERO</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Context3DBlendFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">SOURCE_ALPHA</span> <span class="ActionScriptBracket/Brace">]</span><span class="ActionScriptOperator">,</span>
+                <span class="ActionScriptString">"below"</span>    : <span class="ActionScriptBracket/Brace">[</span> <span class="ActionScriptDefault_Text">Context3DBlendFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ONE_MINUS_DESTINATION_ALPHA</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Context3DBlendFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">DESTINATION_ALPHA</span> <span class="ActionScriptBracket/Brace">]</span>
+            <span class="ActionScriptBracket/Brace">}</span><span class="ActionScriptOperator">,</span>
+            <span class="ActionScriptComment">// premultiplied alpha
+</span>            <span class="ActionScriptBracket/Brace">{</span> 
+                <span class="ActionScriptString">"none"</span>     : <span class="ActionScriptBracket/Brace">[</span> <span class="ActionScriptDefault_Text">Context3DBlendFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ONE</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Context3DBlendFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ZERO</span> <span class="ActionScriptBracket/Brace">]</span><span class="ActionScriptOperator">,</span>
+                <span class="ActionScriptString">"normal"</span>   : <span class="ActionScriptBracket/Brace">[</span> <span class="ActionScriptDefault_Text">Context3DBlendFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ONE</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Context3DBlendFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ONE_MINUS_SOURCE_ALPHA</span> <span class="ActionScriptBracket/Brace">]</span><span class="ActionScriptOperator">,</span>
+                <span class="ActionScriptString">"add"</span>      : <span class="ActionScriptBracket/Brace">[</span> <span class="ActionScriptDefault_Text">Context3DBlendFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ONE</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Context3DBlendFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ONE</span> <span class="ActionScriptBracket/Brace">]</span><span class="ActionScriptOperator">,</span>
+                <span class="ActionScriptString">"multiply"</span> : <span class="ActionScriptBracket/Brace">[</span> <span class="ActionScriptDefault_Text">Context3DBlendFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">DESTINATION_COLOR</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Context3DBlendFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ONE_MINUS_SOURCE_ALPHA</span> <span class="ActionScriptBracket/Brace">]</span><span class="ActionScriptOperator">,</span>
+                <span class="ActionScriptString">"screen"</span>   : <span class="ActionScriptBracket/Brace">[</span> <span class="ActionScriptDefault_Text">Context3DBlendFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ONE</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Context3DBlendFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ONE_MINUS_SOURCE_COLOR</span> <span class="ActionScriptBracket/Brace">]</span><span class="ActionScriptOperator">,</span>
+                <span class="ActionScriptString">"erase"</span>    : <span class="ActionScriptBracket/Brace">[</span> <span class="ActionScriptDefault_Text">Context3DBlendFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ZERO</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Context3DBlendFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ONE_MINUS_SOURCE_ALPHA</span> <span class="ActionScriptBracket/Brace">]</span><span class="ActionScriptOperator">,</span>
+                <span class="ActionScriptString">"mask"</span>     : <span class="ActionScriptBracket/Brace">[</span> <span class="ActionScriptDefault_Text">Context3DBlendFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ZERO</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Context3DBlendFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">SOURCE_ALPHA</span> <span class="ActionScriptBracket/Brace">]</span><span class="ActionScriptOperator">,</span>
+                <span class="ActionScriptString">"below"</span>    : <span class="ActionScriptBracket/Brace">[</span> <span class="ActionScriptDefault_Text">Context3DBlendFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">ONE_MINUS_DESTINATION_ALPHA</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">Context3DBlendFactor</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">DESTINATION_ALPHA</span> <span class="ActionScriptBracket/Brace">]</span>
+            <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptBracket/Brace">]</span>;
+        
+        <span class="ActionScriptComment">// predifined modes
+</span>        
+        <span class="ActionScriptASDoc">/** @private */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">BlendMode</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span> <span class="ActionScriptReserved">throw</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">AbstractClassError</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>; <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Inherits the blend mode from this display object's parent. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">AUTO</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">"auto"</span>;
+
+        <span class="ActionScriptASDoc">/** Deactivates blending, i.e. disabling any transparency. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">NONE</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">"none"</span>;
+        
+        <span class="ActionScriptASDoc">/** The display object appears in front of the background. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">NORMAL</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">"normal"</span>;
+        
+        <span class="ActionScriptASDoc">/** Adds the values of the colors of the display object to the colors of its background. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">ADD</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">"add"</span>;
+        
+        <span class="ActionScriptASDoc">/** Multiplies the values of the display object colors with the the background color. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">MULTIPLY</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">"multiply"</span>;
+        
+        <span class="ActionScriptASDoc">/** Multiplies the complement (inverse) of the display object color with the complement of 
+          * the background color, resulting in a bleaching effect. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">SCREEN</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">"screen"</span>;
+        
+        <span class="ActionScriptASDoc">/** Erases the background when drawn on a RenderTexture. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">ERASE</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">"erase"</span>;
+
+        <span class="ActionScriptASDoc">/** When used on a RenderTexture, the drawn object will act as a mask for the current
+         *  content, i.e. the source alpha overwrites the destination alpha. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">MASK</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">"mask"</span>;
+
+        <span class="ActionScriptASDoc">/** Draws under/below existing objects; useful especially on RenderTextures. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">BELOW</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptString">"below"</span>;
+
+        <span class="ActionScriptComment">// accessing modes
+</span>        
+        <span class="ActionScriptASDoc">/** Returns the blend factors that correspond with a certain mode and premultiplied alpha
+         *  value. Throws an ArgumentError if the mode does not exist. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">getBlendFactors</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">mode</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">premultipliedAlpha</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">true</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Array</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">modes</span>:<span class="ActionScriptDefault_Text">Object</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">sBlendFactors</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">premultipliedAlpha</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>;
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">mode</span> <span class="ActionScriptReserved">in</span> <span class="ActionScriptDefault_Text">modes</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">modes</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">mode</span><span class="ActionScriptBracket/Brace">]</span>;
+            <span class="ActionScriptReserved">else</span> <span class="ActionScriptReserved">throw</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">ArgumentError</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"Invalid blend mode"</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Registeres a blending mode under a certain name and for a certain premultiplied alpha
+         *  (pma) value. If the mode for the other pma value was not yet registered, the factors are
+         *  used for both pma settings. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">register</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">name</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">sourceFactor</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">destFactor</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">,</span>
+                                        <span class="ActionScriptDefault_Text">premultipliedAlpha</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">true</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">modes</span>:<span class="ActionScriptDefault_Text">Object</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">sBlendFactors</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">premultipliedAlpha</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>;
+            <span class="ActionScriptDefault_Text">modes</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">name</span><span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">sourceFactor</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">destFactor</span><span class="ActionScriptBracket/Brace">]</span>;
+            
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">otherModes</span>:<span class="ActionScriptDefault_Text">Object</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">sBlendFactors</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptOperator">!</span><span class="ActionScriptDefault_Text">premultipliedAlpha</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">]</span>;
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptOperator">!</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">name</span> <span class="ActionScriptReserved">in</span> <span class="ActionScriptDefault_Text">otherModes</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptDefault_Text">otherModes</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">name</span><span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">sourceFactor</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">destFactor</span><span class="ActionScriptBracket/Brace">]</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+    <span class="ActionScriptBracket/Brace">}</span>
+<span class="ActionScriptBracket/Brace">}</span></pre></body>
+</html>

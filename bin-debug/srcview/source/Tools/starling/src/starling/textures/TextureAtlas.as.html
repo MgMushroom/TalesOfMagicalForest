@@ -1,0 +1,231 @@
+<!-- saved from url=(0014)about:internet -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>TextureAtlas.as</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../SourceStyles.css"/>
+</head>
+
+<body><pre><span class="ActionScriptComment">// =================================================================================================
+</span><span class="ActionScriptComment">//
+</span><span class="ActionScriptComment">//    Starling Framework
+</span><span class="ActionScriptComment">//    Copyright 2011-2014 Gamua. All Rights Reserved.
+</span><span class="ActionScriptComment">//
+</span><span class="ActionScriptComment">//    This program is free software. You can redistribute and/or modify it
+</span><span class="ActionScriptComment">//    in accordance with the terms of the accompanying license agreement.
+</span><span class="ActionScriptComment">//
+</span><span class="ActionScriptComment">// =================================================================================================
+</span>
+<span class="ActionScriptpackage">package</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">textures</span>
+<span class="ActionScriptBracket/Brace">{</span>
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">geom</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Rectangle</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">utils</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Dictionary</span>;
+    
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">utils</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">cleanMasterString</span>;
+
+    <span class="ActionScriptASDoc">/** A texture atlas is a collection of many smaller textures in one big image. This class
+     *  is used to access textures from such an atlas.
+     *  
+     *  &lt;p&gt;Using a texture atlas for your textures solves two problems:&lt;/p&gt;
+     *  
+     *  &lt;ul&gt;
+     *    &lt;li&gt;Whenever you switch between textures, the batching of image objects is disrupted.&lt;/li&gt;
+     *    &lt;li&gt;Any Stage3D texture has to have side lengths that are powers of two. Starling hides 
+     *        this limitation from you, but at the cost of additional graphics memory.&lt;/li&gt;
+     *  &lt;/ul&gt;
+     *  
+     *  &lt;p&gt;By using a texture atlas, you avoid both texture switches and the power-of-two 
+     *  limitation. All textures are within one big "super-texture", and Starling takes care that 
+     *  the correct part of this texture is displayed.&lt;/p&gt;
+     *  
+     *  &lt;p&gt;There are several ways to create a texture atlas. One is to use the atlas generator 
+     *  script that is bundled with Starling's sibling, the &lt;a href="http://www.sparrow-framework.org"&gt;
+     *  Sparrow framework&lt;/a&gt;. It was only tested in Mac OS X, though. A great multi-platform 
+     *  alternative is the commercial tool &lt;a href="http://www.texturepacker.com"&gt;
+     *  Texture Packer&lt;/a&gt;.&lt;/p&gt;
+     *  
+     *  &lt;p&gt;Whatever tool you use, Starling expects the following file format:&lt;/p&gt;
+     * 
+     *  &lt;listing&gt;
+     *     &amp;lt;TextureAtlas imagePath='atlas.png'&amp;gt;
+     *       &amp;lt;SubTexture name='texture_1' x='0'  y='0' width='50' height='50'/&amp;gt;
+     *       &amp;lt;SubTexture name='texture_2' x='50' y='0' width='20' height='30'/&amp;gt; 
+     *     &amp;lt;/TextureAtlas&amp;gt;
+     *  &lt;/listing&gt;
+     *  
+     *  &lt;strong&gt;Texture Frame&lt;/strong&gt;
+     *
+     *  &lt;p&gt;If your images have transparent areas at their edges, you can make use of the 
+     *  &lt;code&gt;frame&lt;/code&gt; property of the Texture class. Trim the texture by removing the 
+     *  transparent edges and specify the original texture size like this:&lt;/p&gt;
+     * 
+     *  &lt;listing&gt;
+     *     &amp;lt;SubTexture name='trimmed' x='0' y='0' height='10' width='10'
+     *         frameX='-10' frameY='-10' frameWidth='30' frameHeight='30'/&amp;gt;
+     *  &lt;/listing&gt;
+     *
+     *  &lt;strong&gt;Texture Rotation&lt;/strong&gt;
+     *
+     *  &lt;p&gt;Some atlas generators can optionally rotate individual textures to optimize the texture
+     *  distribution. This is supported via the boolean attribute "rotated". If it is set to
+     *  &lt;code&gt;true&lt;/code&gt; for a certain subtexture, this means that the texture on the atlas
+     *  has been rotated by 90 degrees, clockwise. Starling will undo that rotation by rotating
+     *  it counter-clockwise.&lt;/p&gt;
+     *
+     *  &lt;p&gt;In this case, the positional coordinates (&lt;code&gt;x, y, width, height&lt;/code&gt;)
+     *  are expected to point at the subtexture as it is present on the atlas (in its rotated
+     *  form), while the "frame" properties must describe the texture in its upright form.&lt;/p&gt;
+     *
+     */</span>
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptclass">class</span> <span class="ActionScriptDefault_Text">TextureAtlas</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">mAtlasTexture</span>:<span class="ActionScriptDefault_Text">Texture</span>;
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">mSubTextures</span>:<span class="ActionScriptDefault_Text">Dictionary</span>;
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">mSubTextureNames</span>:<span class="ActionScriptDefault_Text">Vector</span><span class="ActionScriptBracket/Brace">.&lt;</span><span class="ActionScriptDefault_Text">String</span><span class="ActionScriptBracket/Brace">&gt;</span>;
+        
+        <span class="ActionScriptASDoc">/** helper objects */</span>
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">sNames</span>:<span class="ActionScriptDefault_Text">Vector</span><span class="ActionScriptBracket/Brace">.&lt;</span><span class="ActionScriptDefault_Text">String</span><span class="ActionScriptBracket/Brace">&gt;</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptBracket/Brace">&lt;</span><span class="ActionScriptDefault_Text">String</span><span class="ActionScriptBracket/Brace">&gt;</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata"></span><span class="ActionScriptBracket/Brace"></span>;
+        
+        <span class="ActionScriptASDoc">/** Create a texture atlas from a texture by parsing the regions from an XML file. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">TextureAtlas</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">texture</span>:<span class="ActionScriptDefault_Text">Texture</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">atlasXml</span>:<span class="ActionScriptDefault_Text">XML</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">mSubTextures</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Dictionary</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">mAtlasTexture</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">texture</span>;
+            
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">atlasXml</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">parseAtlasXml</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">atlasXml</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Disposes the atlas texture. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">dispose</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">mAtlasTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">dispose</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** This function is called by the constructor and will parse an XML in Starling's 
+         *  default atlas file format. Override this method to create custom parsing logic
+         *  (e.g. to support a different file format). */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">parseAtlasXml</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">atlasXml</span>:<span class="ActionScriptDefault_Text">XML</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">scale</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">mAtlasTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">scale</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">region</span>:<span class="ActionScriptDefault_Text">Rectangle</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Rectangle</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">frame</span>:<span class="ActionScriptDefault_Text">Rectangle</span>  <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Rectangle</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            
+            <span class="ActionScriptReserved">for each</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">subTexture</span>:<span class="ActionScriptDefault_Text">XML</span> <span class="ActionScriptReserved">in</span> <span class="ActionScriptDefault_Text">atlasXml</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">SubTexture</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">name</span>:<span class="ActionScriptDefault_Text">String</span>        <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">cleanMasterString</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">subTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptOperator">@</span><span class="ActionScriptDefault_Text">name</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">x</span>:<span class="ActionScriptDefault_Text">Number</span>           <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">parseFloat</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">subTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptOperator">@</span><span class="ActionScriptDefault_Text">x</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">/</span> <span class="ActionScriptDefault_Text">scale</span>;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">y</span>:<span class="ActionScriptDefault_Text">Number</span>           <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">parseFloat</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">subTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptOperator">@</span><span class="ActionScriptDefault_Text">y</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">/</span> <span class="ActionScriptDefault_Text">scale</span>;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">width</span>:<span class="ActionScriptDefault_Text">Number</span>       <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">parseFloat</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">subTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptOperator">@</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptBracket/Brace">)</span>  <span class="ActionScriptOperator">/</span> <span class="ActionScriptDefault_Text">scale</span>;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">height</span>:<span class="ActionScriptDefault_Text">Number</span>      <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">parseFloat</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">subTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptOperator">@</span><span class="ActionScriptDefault_Text">height</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">/</span> <span class="ActionScriptDefault_Text">scale</span>;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">frameX</span>:<span class="ActionScriptDefault_Text">Number</span>      <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">parseFloat</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">subTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptOperator">@</span><span class="ActionScriptDefault_Text">frameX</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">/</span> <span class="ActionScriptDefault_Text">scale</span>;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">frameY</span>:<span class="ActionScriptDefault_Text">Number</span>      <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">parseFloat</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">subTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptOperator">@</span><span class="ActionScriptDefault_Text">frameY</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">/</span> <span class="ActionScriptDefault_Text">scale</span>;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">frameWidth</span>:<span class="ActionScriptDefault_Text">Number</span>  <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">parseFloat</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">subTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptOperator">@</span><span class="ActionScriptDefault_Text">frameWidth</span><span class="ActionScriptBracket/Brace">)</span>  <span class="ActionScriptOperator">/</span> <span class="ActionScriptDefault_Text">scale</span>;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">frameHeight</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">parseFloat</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">subTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptOperator">@</span><span class="ActionScriptDefault_Text">frameHeight</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">/</span> <span class="ActionScriptDefault_Text">scale</span>;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">rotated</span>:<span class="ActionScriptDefault_Text">Boolean</span>    <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">parseBool</span><span class="ActionScriptBracket/Brace">(</span> <span class="ActionScriptDefault_Text">subTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptOperator">@</span><span class="ActionScriptDefault_Text">rotated</span><span class="ActionScriptBracket/Brace">)</span>;
+
+                <span class="ActionScriptDefault_Text">region</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">setTo</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">x</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">y</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">height</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">frame</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">setTo</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">frameX</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">frameY</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">frameWidth</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">frameHeight</span><span class="ActionScriptBracket/Brace">)</span>;
+
+                <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">frameWidth</span> <span class="ActionScriptOperator">&gt;</span> 0 <span class="ActionScriptOperator">&amp;&amp;</span> <span class="ActionScriptDefault_Text">frameHeight</span> <span class="ActionScriptOperator">&gt;</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">addRegion</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">name</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">region</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">frame</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">rotated</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptReserved">else</span>
+                    <span class="ActionScriptDefault_Text">addRegion</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">name</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">region</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span>  <span class="ActionScriptDefault_Text">rotated</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Retrieves a SubTexture by name. Returns &lt;code&gt;null&lt;/code&gt; if it is not found. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">getTexture</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">name</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Texture</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">mSubTextures</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">name</span><span class="ActionScriptBracket/Brace">]</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Returns all textures that start with a certain string, sorted alphabetically
+         *  (especially useful for "MovieClip"). */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">getTextures</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">prefix</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">""</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">result</span>:<span class="ActionScriptDefault_Text">Vector</span><span class="ActionScriptBracket/Brace">.&lt;</span><span class="ActionScriptDefault_Text">Texture</span><span class="ActionScriptBracket/Brace">&gt;</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Vector</span><span class="ActionScriptBracket/Brace">.&lt;</span><span class="ActionScriptDefault_Text">Texture</span><span class="ActionScriptBracket/Brace">&gt;</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">result</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptDefault_Text">result</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptBracket/Brace">&lt;</span><span class="ActionScriptDefault_Text">Texture</span><span class="ActionScriptBracket/Brace">&gt;</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata"></span><span class="ActionScriptBracket/Brace"></span>;
+            
+            <span class="ActionScriptReserved">for each</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">name</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptReserved">in</span> <span class="ActionScriptDefault_Text">getNames</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">prefix</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">sNames</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span> 
+                <span class="ActionScriptDefault_Text">result</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">result</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span><span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">getTexture</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">name</span><span class="ActionScriptBracket/Brace">)</span>; <span class="ActionScriptComment">// avoid 'push'
+</span>
+            <span class="ActionScriptDefault_Text">sNames</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span> <span class="ActionScriptOperator">=</span> 0;
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">result</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Returns all texture names that start with a certain string, sorted alphabetically. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">getNames</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">prefix</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">=</span><span class="ActionScriptString">""</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">result</span>:<span class="ActionScriptDefault_Text">Vector</span><span class="ActionScriptBracket/Brace">.&lt;</span><span class="ActionScriptDefault_Text">String</span><span class="ActionScriptBracket/Brace">&gt;</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Vector</span><span class="ActionScriptBracket/Brace">.&lt;</span><span class="ActionScriptDefault_Text">String</span><span class="ActionScriptBracket/Brace">&gt;</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">name</span>:<span class="ActionScriptDefault_Text">String</span>;
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">result</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptDefault_Text">result</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptBracket/Brace">&lt;</span><span class="ActionScriptDefault_Text">String</span><span class="ActionScriptBracket/Brace">&gt;</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata"></span><span class="ActionScriptBracket/Brace"></span>;
+            
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">mSubTextureNames</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptComment">// optimization: store sorted list of texture names
+</span>                <span class="ActionScriptDefault_Text">mSubTextureNames</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptBracket/Brace">&lt;</span><span class="ActionScriptDefault_Text">String</span><span class="ActionScriptBracket/Brace">&gt;</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptMetadata"></span><span class="ActionScriptBracket/Brace"></span>;
+                <span class="ActionScriptReserved">for</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">name</span> <span class="ActionScriptReserved">in</span> <span class="ActionScriptDefault_Text">mSubTextures</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptDefault_Text">mSubTextureNames</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">mSubTextureNames</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span><span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">name</span>;
+                <span class="ActionScriptDefault_Text">mSubTextureNames</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">sort</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Array</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">CASEINSENSITIVE</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+
+            <span class="ActionScriptReserved">for each</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">name</span> <span class="ActionScriptReserved">in</span> <span class="ActionScriptDefault_Text">mSubTextureNames</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">name</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">indexOf</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">prefix</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">==</span> 0<span class="ActionScriptBracket/Brace">)</span>
+                    <span class="ActionScriptDefault_Text">result</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">result</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">length</span><span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">name</span>;
+            
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">result</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Returns the region rectangle associated with a specific name, or &lt;code&gt;null&lt;/code&gt;
+         *  if no region with that name has been registered. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">getRegion</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">name</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Rectangle</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">subTexture</span>:<span class="ActionScriptDefault_Text">SubTexture</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">mSubTextures</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">name</span><span class="ActionScriptBracket/Brace">]</span>;
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">subTexture</span> <span class="ActionScriptOperator">?</span> <span class="ActionScriptDefault_Text">subTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">region</span> : <span class="ActionScriptReserved">null</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Returns the frame rectangle of a specific region, or &lt;code&gt;null&lt;/code&gt; if that region 
+         *  has no frame. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">getFrame</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">name</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Rectangle</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">subTexture</span>:<span class="ActionScriptDefault_Text">SubTexture</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">mSubTextures</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">name</span><span class="ActionScriptBracket/Brace">]</span>;
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">subTexture</span> <span class="ActionScriptOperator">?</span> <span class="ActionScriptDefault_Text">subTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">frame</span> : <span class="ActionScriptReserved">null</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** If true, the specified region in the atlas is rotated by 90 degrees (clockwise). The
+         *  SubTexture is thus rotated counter-clockwise to cancel out that transformation. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">getRotation</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">name</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Boolean</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">subTexture</span>:<span class="ActionScriptDefault_Text">SubTexture</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">mSubTextures</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">name</span><span class="ActionScriptBracket/Brace">]</span>;
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">subTexture</span> <span class="ActionScriptOperator">?</span> <span class="ActionScriptDefault_Text">subTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">rotated</span> : <span class="ActionScriptReserved">false</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+
+        <span class="ActionScriptASDoc">/** Adds a named region for a SubTexture (described by rectangle with coordinates in
+         *  points) with an optional frame. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">addRegion</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">name</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">region</span>:<span class="ActionScriptDefault_Text">Rectangle</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">frame</span>:<span class="ActionScriptDefault_Text">Rectangle</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptOperator">,</span>
+                                  <span class="ActionScriptDefault_Text">rotated</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">false</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">mSubTextures</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">name</span><span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">SubTexture</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">mAtlasTexture</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">region</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">false</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">frame</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">rotated</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">mSubTextureNames</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Removes a region with a certain name. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">removeRegion</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">name</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">subTexture</span>:<span class="ActionScriptDefault_Text">SubTexture</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">mSubTextures</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">name</span><span class="ActionScriptBracket/Brace">]</span>;
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">subTexture</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptDefault_Text">subTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">dispose</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">delete</span> <span class="ActionScriptDefault_Text">mSubTextures</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">name</span><span class="ActionScriptBracket/Brace">]</span>;
+            <span class="ActionScriptDefault_Text">mSubTextureNames</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">null</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** The base texture that makes up the atlas. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">texture</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Texture</span> <span class="ActionScriptBracket/Brace">{</span> <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">mAtlasTexture</span>; <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptComment">// utility methods
+</span>
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">parseBool</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Boolean</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">toLowerCase</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptString">"true"</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+    <span class="ActionScriptBracket/Brace">}</span>
+<span class="ActionScriptBracket/Brace">}</span></pre></body>
+</html>

@@ -1,0 +1,401 @@
+<!-- saved from url=(0014)about:internet -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>VideoLoaderVars.as</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../../SourceStyles.css"/>
+</head>
+
+<body><pre><span class="ActionScriptASDoc">/**
+ * VERSION: 1.24
+ * DATE: 2011-11-03
+ * AS3
+ * UPDATES AND DOCS AT: http://www.greensock.com/loadermax/
+ **/</span>
+<span class="ActionScriptpackage">package</span> <span class="ActionScriptDefault_Text">com</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">greensock</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">loading</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">data</span> <span class="ActionScriptBracket/Brace">{</span>
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">DisplayObject</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">DisplayObjectContainer</span>;
+<span class="ActionScriptASDoc">/**
+ * Can be used instead of a generic Object to define the &lt;code&gt;vars&lt;/code&gt; parameter of a VideoLoader's constructor. &lt;br /&gt;&lt;br /&gt;    
+ * 
+ * There are 2 primary benefits of using a VideoLoaderVars instance to define your VideoLoader variables:
+ *  &lt;ol&gt;
+ *        &lt;li&gt; In most code editors, code hinting will be activated which helps remind you which special properties are available in VideoLoader&lt;/li&gt;
+ *        &lt;li&gt; It enables strict data typing for improved debugging (ensuring, for example, that you don't define a Boolean value for &lt;code&gt;onComplete&lt;/code&gt; where a Function is expected).&lt;/li&gt;
+ *  &lt;/ol&gt;&lt;br /&gt;
+ * 
+ * The down side, of course, is that the code is more verbose and the VideoLoaderVars class adds slightly more kb to your swf.
+ *
+ * &lt;b&gt;USAGE:&lt;/b&gt;&lt;br /&gt;&lt;br /&gt;
+ * Note that each method returns the VideoLoaderVars instance, so you can reduce the lines of code by method chaining (see example below).&lt;br /&gt;&lt;br /&gt;
+ *    
+ * &lt;b&gt;Without VideoLoaderVars:&lt;/b&gt;&lt;br /&gt;&lt;code&gt;
+ * new VideoLoader("video.flv", {name:"video", estimatedBytes:111500, container:this, width:200, height:100, onComplete:completeHandler, onProgress:progressHandler})&lt;/code&gt;&lt;br /&gt;&lt;br /&gt;
+ * 
+ * &lt;b&gt;With VideoLoaderVars&lt;/b&gt;&lt;br /&gt;&lt;code&gt;
+ * new VideoLoader("video.flv", new VideoLoaderVars().name("video").estimatedBytes(111500).container(this).width(200).height(100).onComplete(completeHandler).onProgress(progressHandler))&lt;/code&gt;&lt;br /&gt;&lt;br /&gt;
+ * 
+ * &lt;b&gt;NOTES:&lt;/b&gt;&lt;br /&gt;
+ * &lt;ul&gt;
+ *    &lt;li&gt; To get the generic vars object that VideoLoaderVars builds internally, simply access its "vars" property.
+ *          In fact, if you want maximum backwards compatibility, you can tack ".vars" onto the end of your chain like this:&lt;br /&gt;&lt;code&gt;
+ *          new VideoLoader("video.flv", new VideoLoaderVars().name("video").estimatedBytes(111500).vars);&lt;/code&gt;&lt;/li&gt;
+ *    &lt;li&gt; Using VideoLoaderVars is completely optional. If you prefer the shorter synatax with the generic Object, feel
+ *          free to use it. The purpose of this class is simply to enable code hinting and to allow for strict data typing.&lt;/li&gt;
+ * &lt;/ul&gt;
+ * 
+ * &lt;b&gt;Copyright 2011, GreenSock. All rights reserved.&lt;/b&gt; This work is subject to the terms in &lt;a href="http://www.greensock.com/terms_of_use.html"&gt;http://www.greensock.com/terms_of_use.html&lt;/a&gt; or for corporate Club GreenSock members, the software agreement that was issued with the corporate membership.
+ * 
+ * @author Jack Doyle, jack@greensock.com
+ */</span>     
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptclass">class</span> <span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptReserved">const</span> <span class="ActionScriptDefault_Text">version</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> 1.23;
+        
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">_vars</span>:<span class="ActionScriptDefault_Text">Object</span>;
+        
+        <span class="ActionScriptASDoc">/**
+         * Constructor 
+         * @param vars A generic Object containing properties that you'd like to add to this VideoLoaderVars instance.
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">VideoLoaderVars</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">vars</span>:<span class="ActionScriptDefault_Text">Object</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">_vars</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptBracket/Brace">{</span><span class="ActionScriptBracket/Brace">}</span>;
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">vars</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">for</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">p</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptReserved">in</span> <span class="ActionScriptDefault_Text">vars</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                    <span class="ActionScriptDefault_Text">_vars</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">p</span><span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">vars</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">p</span><span class="ActionScriptBracket/Brace">]</span>;
+                <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">property</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptOperator">*</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">delete</span> <span class="ActionScriptDefault_Text">_vars</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">property</span><span class="ActionScriptBracket/Brace">]</span>; <span class="ActionScriptComment">//in case it was previously set
+</span>            <span class="ActionScriptBracket/Brace">}</span> <span class="ActionScriptReserved">else</span> <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">_vars</span><span class="ActionScriptBracket/Brace">[</span><span class="ActionScriptDefault_Text">property</span><span class="ActionScriptBracket/Brace">]</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">this</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/**
+         * Adds a dynamic property to the vars object containing any value you want. This can be useful 
+         * in situations where you need to associate certain data with a particular loader. Just make sure
+         * that the property name is a valid variable name (starts with a letter or underscore, no special characters, etc.)
+         * and that it doesn't use a reserved property name like "name" or "onComplete", etc. 
+         * 
+         * For example, to set an "index" property to 5, do:
+         * 
+         * &lt;code&gt;prop("index", 5);&lt;/code&gt;
+         * 
+         * @param property Property name
+         * @param value Value
+         */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">prop</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">property</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptOperator">*</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">property</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        
+<span class="ActionScriptComment">//---- LOADERCORE PROPERTIES -----------------------------------------------------------------
+</span>        
+        <span class="ActionScriptASDoc">/** When &lt;code&gt;autoDispose&lt;/code&gt; is &lt;code&gt;true&lt;/code&gt;, the loader will be disposed immediately after it completes (it calls the &lt;code&gt;dispose()&lt;/code&gt; method internally after dispatching its &lt;code&gt;COMPLETE&lt;/code&gt; event). This will remove any listeners that were defined in the vars object (like onComplete, onProgress, onError, onInit). Once a loader is disposed, it can no longer be found with &lt;code&gt;LoaderMax.getLoader()&lt;/code&gt; or &lt;code&gt;LoaderMax.getContent()&lt;/code&gt; - it is essentially destroyed but its content is not unloaded (you must call &lt;code&gt;unload()&lt;/code&gt; or &lt;code&gt;dispose(true)&lt;/code&gt; to unload its content). The default &lt;code&gt;autoDispose&lt;/code&gt; value is &lt;code&gt;false&lt;/code&gt;.**/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">autoDispose</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"autoDispose"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** A name that is used to identify the loader instance. This name can be fed to the &lt;code&gt;LoaderMax.getLoader()&lt;/code&gt; or &lt;code&gt;LoaderMax.getContent()&lt;/code&gt; methods or traced at any time. Each loader's name should be unique. If you don't define one, a unique name will be created automatically, like "loader21". **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">name</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"name"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** A handler function for &lt;code&gt;LoaderEvent.CANCEL&lt;/code&gt; events which are dispatched when loading is aborted due to either a failure or because another loader was prioritized or &lt;code&gt;cancel()&lt;/code&gt; was manually called. Make sure your onCancel function accepts a single parameter of type &lt;code&gt;LoaderEvent&lt;/code&gt; (&lt;code&gt;com.greensock.events.LoaderEvent&lt;/code&gt;). **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">onCancel</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Function</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"onCancel"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** A handler function for &lt;code&gt;LoaderEvent.COMPLETE&lt;/code&gt; events which are dispatched when the loader has finished loading successfully. Make sure your onComplete function accepts a single parameter of type &lt;code&gt;LoaderEvent&lt;/code&gt; (&lt;code&gt;com.greensock.events.LoaderEvent&lt;/code&gt;). **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">onComplete</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Function</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"onComplete"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** A handler function for &lt;code&gt;LoaderEvent.ERROR&lt;/code&gt; events which are dispatched whenever the loader experiences an error (typically an IO_ERROR or SECURITY_ERROR). An error doesn't necessarily mean the loader failed, however - to listen for when a loader fails, use the &lt;code&gt;onFail&lt;/code&gt; special property. Make sure your onError function accepts a single parameter of type &lt;code&gt;LoaderEvent&lt;/code&gt; (&lt;code&gt;com.greensock.events.LoaderEvent&lt;/code&gt;). **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">onError</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Function</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"onError"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** A handler function for &lt;code&gt;LoaderEvent.FAIL&lt;/code&gt; events which are dispatched whenever the loader fails and its &lt;code&gt;status&lt;/code&gt; changes to &lt;code&gt;LoaderStatus.FAILED&lt;/code&gt;. Make sure your onFail function accepts a single parameter of type &lt;code&gt;LoaderEvent&lt;/code&gt; (&lt;code&gt;com.greensock.events.LoaderEvent&lt;/code&gt;). **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">onFail</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Function</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"onFail"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** A handler function for &lt;code&gt;LoaderEvent.HTTP_STATUS&lt;/code&gt; events. Make sure your onHTTPStatus function accepts a single parameter of type &lt;code&gt;LoaderEvent&lt;/code&gt; (&lt;code&gt;com.greensock.events.LoaderEvent&lt;/code&gt;). You can determine the httpStatus code using the LoaderEvent's &lt;code&gt;target.httpStatus&lt;/code&gt; (LoaderItems keep track of their &lt;code&gt;httpStatus&lt;/code&gt; when possible, although certain environments prevent Flash from getting httpStatus information).**/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">onHTTPStatus</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Function</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"onHTTPStatus"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** A handler function for &lt;code&gt;LoaderEvent.INIT&lt;/code&gt; events which will be called when the video's metaData has been received and the video is placed into the &lt;code&gt;ContentDisplay&lt;/code&gt;. Make sure your onInit function accepts a single parameter of type &lt;code&gt;LoaderEvent&lt;/code&gt; (com.greensock.events.LoaderEvent). **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">onInit</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Function</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"onInit"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** A handler function for &lt;code&gt;LoaderEvent.IO_ERROR&lt;/code&gt; events which will also call the onError handler, so you can use that as more of a catch-all whereas &lt;code&gt;onIOError&lt;/code&gt; is specifically for LoaderEvent.IO_ERROR events. Make sure your onIOError function accepts a single parameter of type &lt;code&gt;LoaderEvent&lt;/code&gt; (&lt;code&gt;com.greensock.events.LoaderEvent&lt;/code&gt;). **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">onIOError</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Function</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"onIOError"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** A handler function for &lt;code&gt;LoaderEvent.OPEN&lt;/code&gt; events which are dispatched when the loader begins loading. Make sure your onOpen function accepts a single parameter of type &lt;code&gt;LoaderEvent&lt;/code&gt; (&lt;code&gt;com.greensock.events.LoaderEvent&lt;/code&gt;).**/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">onOpen</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Function</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"onOpen"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** A handler function for &lt;code&gt;LoaderEvent.PROGRESS&lt;/code&gt; events which are dispatched whenever the &lt;code&gt;bytesLoaded&lt;/code&gt; changes. Make sure your onProgress function accepts a single parameter of type &lt;code&gt;LoaderEvent&lt;/code&gt; (&lt;code&gt;com.greensock.events.LoaderEvent&lt;/code&gt;). You can use the LoaderEvent's &lt;code&gt;target.progress&lt;/code&gt; to get the loader's progress value or use its &lt;code&gt;target.bytesLoaded&lt;/code&gt; and &lt;code&gt;target.bytesTotal&lt;/code&gt;.**/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">onProgress</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Function</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"onProgress"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** LoaderMax supports &lt;i&gt;subloading&lt;/i&gt;, where an object can be factored into a parent's loading progress. If you want LoaderMax to require this loader as part of its parent SWFLoader's progress, you must set the &lt;code&gt;requireWithRoot&lt;/code&gt; property to your swf's &lt;code&gt;root&lt;/code&gt;. For example, &lt;code&gt;vars.requireWithRoot = this.root;&lt;/code&gt;. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">requireWithRoot</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">DisplayObject</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"requireWithRoot"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        
+<span class="ActionScriptComment">//---- LOADERITEM PROPERTIES -------------------------------------------------------------    
+</span>        
+        <span class="ActionScriptASDoc">/** If you define an &lt;code&gt;alternateURL&lt;/code&gt;, the loader will initially try to load from its original &lt;code&gt;url&lt;/code&gt; and if it fails, it will automatically (and permanently) change the loader's &lt;code&gt;url&lt;/code&gt; to the &lt;code&gt;alternateURL&lt;/code&gt; and try again. Think of it as a fallback or backup &lt;code&gt;url&lt;/code&gt;. It is perfectly acceptable to use the same &lt;code&gt;alternateURL&lt;/code&gt; for multiple loaders (maybe a default image for various ImageLoaders for example). **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">alternateURL</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"alternateURL"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Initially, the loader's &lt;code&gt;bytesTotal&lt;/code&gt; is set to the &lt;code&gt;estimatedBytes&lt;/code&gt; value (or &lt;code&gt;LoaderMax.defaultEstimatedBytes&lt;/code&gt; if one isn't defined). Then, when the loader begins loading and it can accurately determine the bytesTotal, it will do so. Setting &lt;code&gt;estimatedBytes&lt;/code&gt; is optional, but the more accurate the value, the more accurate your loaders' overall progress will be initially. If the loader is inserted into a LoaderMax instance (for queue management), its &lt;code&gt;auditSize&lt;/code&gt; feature can attempt to automatically determine the &lt;code&gt;bytesTotal&lt;/code&gt; at runtime (there is a slight performance penalty for this, however - see LoaderMax's documentation for details). **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">estimatedBytes</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"estimatedBytes"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** If &lt;code&gt;true&lt;/code&gt;, a "gsCacheBusterID" parameter will be appended to the url with a random set of numbers to prevent caching (don't worry, this info is ignored when you &lt;code&gt;LoaderMax.getLoader()&lt;/code&gt; or &lt;code&gt;LoaderMax.getContent()&lt;/code&gt; by &lt;code&gt;url&lt;/code&gt; or when you're running locally). **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">noCache</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"noCache"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Normally, the URL will be parsed and any variables in the query string (like "?name=test&amp;amp;state=il&amp;amp;gender=m") will be placed into a URLVariables object which is added to the URLRequest. This avoids a few bugs in Flash, but if you need to keep the entire URL intact (no parsing into URLVariables), set &lt;code&gt;allowMalformedURL:true&lt;/code&gt;. For example, if your URL has duplicate variables in the query string like &lt;code&gt;http://www.greensock.com/?c=S&amp;amp;c=SE&amp;amp;c=SW&lt;/code&gt;, it is technically considered a malformed URL and a URLVariables object can't properly contain all the duplicates, so in this case you'd want to set &lt;code&gt;allowMalformedURL&lt;/code&gt; to &lt;code&gt;true&lt;/code&gt;. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">allowMalformedURL</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"allowMalformedURL"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        
+<span class="ActionScriptComment">//---- DISPLAYOBJECTLOADER PROPERTIES ------------------------------------------------------------
+</span>        
+        <span class="ActionScriptASDoc">/** Sets the &lt;code&gt;ContentDisplay&lt;/code&gt;'s &lt;code&gt;alpha&lt;/code&gt; property. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">alpha</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"alpha"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Controls the alpha of the rectangle that is drawn when a &lt;code&gt;width&lt;/code&gt; and &lt;code&gt;height&lt;/code&gt; are defined. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">bgAlpha</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"bgAlpha"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** When a &lt;code&gt;width&lt;/code&gt; and &lt;code&gt;height&lt;/code&gt; are defined, a rectangle will be drawn inside the &lt;code&gt;ContentDisplay&lt;/code&gt; Sprite immediately in order to ease the development process. It is transparent by default, but you may define a &lt;code&gt;bgColor&lt;/code&gt; if you prefer. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">bgColor</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">uint</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"bgColor"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Sets the &lt;code&gt;ContentDisplay&lt;/code&gt;'s &lt;code&gt;blendMode&lt;/code&gt; property. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">blendMode</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"blendMode"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** If &lt;code&gt;true&lt;/code&gt;, the registration point will be placed in the center of the ContentDisplay which can be useful if, for example, you want to animate its scale and have it grow/shrink from its center. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">centerRegistration</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"centerRegistration"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** A DisplayObjectContainer into which the &lt;code&gt;ContentDisplay&lt;/code&gt; Sprite should be added immediately. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">container</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">DisplayObjectContainer</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"container"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** When a &lt;code&gt;width&lt;/code&gt; and &lt;code&gt;height&lt;/code&gt; are defined, setting &lt;code&gt;crop&lt;/code&gt; to &lt;code&gt;true&lt;/code&gt; will cause the image to be cropped within that area (by applying a &lt;code&gt;scrollRect&lt;/code&gt; for maximum performance). This is typically useful when the &lt;code&gt;scaleMode&lt;/code&gt; is &lt;code&gt;"proportionalOutside"&lt;/code&gt; or &lt;code&gt;"none"&lt;/code&gt; so that any parts of the image that exceed the dimensions defined by &lt;code&gt;width&lt;/code&gt; and &lt;code&gt;height&lt;/code&gt; are visually chopped off. Use the &lt;code&gt;hAlign&lt;/code&gt; and &lt;code&gt;vAlign&lt;/code&gt; special properties to control the vertical and horizontal alignment within the cropped area. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">crop</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"crop"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** 
+         * When a &lt;code&gt;width&lt;/code&gt; and &lt;code&gt;height&lt;/code&gt; is defined, the &lt;code&gt;hAlign&lt;/code&gt; determines how the image is horizontally aligned within that area. The following values are recognized (you may use the &lt;code&gt;com.greensock.layout.AlignMode&lt;/code&gt; constants if you prefer):
+         * &lt;ul&gt;
+         *         &lt;li&gt;&lt;code&gt;"center"&lt;/code&gt; (the default) - The image will be centered horizontally in the area&lt;/li&gt;
+         *         &lt;li&gt;&lt;code&gt;"left"&lt;/code&gt; - The image will be aligned with the left side of the area&lt;/li&gt;
+         *         &lt;li&gt;&lt;code&gt;"right"&lt;/code&gt; - The image will be aligned with the right side of the area&lt;/li&gt;
+         * &lt;/ul&gt;
+         **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">hAlign</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"hAlign"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Sets the &lt;code&gt;ContentDisplay&lt;/code&gt;'s &lt;code&gt;height&lt;/code&gt; property (applied before rotation, scaleX, and scaleY). **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">height</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"height"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** A handler function for &lt;code&gt;LoaderEvent.SECURITY_ERROR&lt;/code&gt; events which onError handles as well, so you can use that as more of a catch-all whereas onSecurityError is specifically for SECURITY_ERROR events. Make sure your onSecurityError function accepts a single parameter of type &lt;code&gt;LoaderEvent&lt;/code&gt; (&lt;code&gt;com.greensock.events.LoaderEvent&lt;/code&gt;). **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">onSecurityError</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Function</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"onSecurityError"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Sets the &lt;code&gt;ContentDisplay&lt;/code&gt;'s &lt;code&gt;rotation&lt;/code&gt; property. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">rotation</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"rotation"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Sets the &lt;code&gt;ContentDisplay&lt;/code&gt;'s &lt;code&gt;rotationX&lt;/code&gt; property. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">rotationX</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"rotationX"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Sets the &lt;code&gt;ContentDisplay&lt;/code&gt;'s &lt;code&gt;rotationY&lt;/code&gt; property. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">rotationY</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"rotationY"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Sets the &lt;code&gt;ContentDisplay&lt;/code&gt;'s &lt;code&gt;rotationZ&lt;/code&gt; property. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">rotationZ</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"rotationZ"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** 
+         * When a &lt;code&gt;width&lt;/code&gt; and &lt;code&gt;height&lt;/code&gt; are defined, the &lt;code&gt;scaleMode&lt;/code&gt; controls how the loaded image will be scaled to fit the area. The following values are recognized (you may use the &lt;code&gt;com.greensock.layout.ScaleMode&lt;/code&gt; constants if you prefer):
+         * &lt;ul&gt;
+         *      &lt;li&gt;&lt;code&gt;"stretch"&lt;/code&gt; (the default) - The image will fill the width/height exactly. &lt;/li&gt;
+         *      &lt;li&gt;&lt;code&gt;"proportionalInside"&lt;/code&gt; - The image will be scaled proportionally to fit inside the area defined by the width/height&lt;/li&gt;
+         *      &lt;li&gt;&lt;code&gt;"proportionalOutside"&lt;/code&gt; - The image will be scaled proportionally to completely fill the area, allowing portions of it to exceed the bounds defined by the width/height. &lt;/li&gt;
+         *      &lt;li&gt;&lt;code&gt;"widthOnly"&lt;/code&gt; - Only the width of the image will be adjusted to fit.&lt;/li&gt;
+         *      &lt;li&gt;&lt;code&gt;"heightOnly"&lt;/code&gt; - Only the height of the image will be adjusted to fit.&lt;/li&gt;
+         *      &lt;li&gt;&lt;code&gt;"none"&lt;/code&gt; - No scaling of the image will occur. &lt;/li&gt;
+         * &lt;/ul&gt; 
+         **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">scaleMode</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"scaleMode"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Sets the &lt;code&gt;ContentDisplay&lt;/code&gt;'s &lt;code&gt;scaleX&lt;/code&gt; property. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">scaleX</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"scaleX"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Sets the &lt;code&gt;ContentDisplay&lt;/code&gt;'s &lt;code&gt;scaleY&lt;/code&gt; property. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">scaleY</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"scaleY"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** 
+         * When a &lt;code&gt;width&lt;/code&gt; and &lt;code&gt;height&lt;/code&gt; is defined, the &lt;code&gt;vAlign&lt;/code&gt; determines how the image is vertically aligned within that area. The following values are recognized (you may use the &lt;code&gt;com.greensock.layout.AlignMode&lt;/code&gt; constants if you prefer):
+         * &lt;ul&gt;
+         *         &lt;li&gt;&lt;code&gt;"center"&lt;/code&gt; (the default) - The image will be centered vertically in the area&lt;/li&gt;
+         *         &lt;li&gt;&lt;code&gt;"top"&lt;/code&gt; - The image will be aligned with the top of the area&lt;/li&gt;
+         *         &lt;li&gt;&lt;code&gt;"bottom"&lt;/code&gt; - The image will be aligned with the bottom of the area&lt;/li&gt;
+         * &lt;/ul&gt; 
+         **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">vAlign</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"vAlign"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Sets the &lt;code&gt;ContentDisplay&lt;/code&gt;'s &lt;code&gt;visible&lt;/code&gt; property. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">visible</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"visible"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Sets the &lt;code&gt;ContentDisplay&lt;/code&gt;'s &lt;code&gt;width&lt;/code&gt; property (applied before rotation, scaleX, and scaleY). **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">width</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"width"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Sets the &lt;code&gt;ContentDisplay&lt;/code&gt;'s &lt;code&gt;x&lt;/code&gt; property (for positioning on the stage). **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">x</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"x"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Sets the &lt;code&gt;ContentDisplay&lt;/code&gt;'s &lt;code&gt;y&lt;/code&gt; property (for positioning on the stage). **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">y</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"y"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Sets the &lt;code&gt;ContentDisplay&lt;/code&gt;'s &lt;code&gt;z&lt;/code&gt; property (for positioning on the stage). **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">z</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"z"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        
+<span class="ActionScriptComment">//---- VIDEOLOADER PROPERTIES ------------------------------------------------------------
+</span>        
+        
+        <span class="ActionScriptASDoc">/** If the buffer becomes empty during playback and &lt;code&gt;autoAdjustBuffer&lt;/code&gt; is &lt;code&gt;true&lt;/code&gt; (the default), it will automatically attempt to adjust the NetStream's &lt;code&gt;bufferTime&lt;/code&gt; based on the rate at which the video has been loading, estimating what it needs to be in order to play the rest of the video without emptying the buffer again. This can prevent the annoying problem of video playback start/stopping/starting/stopping on a system tht doesn't have enough bandwidth to adequately buffer the video. You may also set the &lt;code&gt;bufferTime&lt;/code&gt; in the constructor's &lt;code&gt;vars&lt;/code&gt; parameter to set the initial value. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">autoAdjustBuffer</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"autoAdjustBuffer"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** If &lt;code&gt;true&lt;/code&gt;, the NetStream will only be attached to the Video object (the &lt;code&gt;rawContent&lt;/code&gt;) when it is in the display list (on the stage). This conserves memory but it can cause a very brief rendering delay when the content is initially added to the stage (often imperceptible). Also, if you add it to the stage when the &lt;code&gt;videoTime&lt;/code&gt; is &lt;i&gt;after&lt;/i&gt; its last encoded keyframe, it will render at that last keyframe. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">autoDetachNetStream</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"autoDetachNetStream"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** By default, the video will begin playing as soon as it has been adequately buffered, but to prevent it from playing initially, set &lt;code&gt;autoPlay&lt;/code&gt; to &lt;code&gt;false&lt;/code&gt;. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">autoPlay</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"autoPlay"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** When &lt;code&gt;true&lt;/code&gt;, the loader will report its progress only in terms of the video's buffer which can be very convenient if, for example, you want to display loading progress for the video's buffer or tuck it into a LoaderMax with other loaders and allow the LoaderMax to dispatch its &lt;code&gt;COMPLETE&lt;/code&gt; event when the buffer is full instead of waiting for the whole file to download. When &lt;code&gt;bufferMode&lt;/code&gt; is &lt;code&gt;true&lt;/code&gt;, the VideoLoader will dispatch its &lt;code&gt;COMPLETE&lt;/code&gt; event when the buffer is full as opposed to waiting for the entire video to load. You can toggle the &lt;code&gt;bufferMode&lt;/code&gt; anytime. Please read the full &lt;code&gt;bufferMode&lt;/code&gt; property ASDoc description below for details about how it affects things like &lt;code&gt;bytesTotal&lt;/code&gt;.**/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">bufferMode</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"bufferMode"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** The amount of time (in seconds) that should be buffered before the video can begin playing (set &lt;code&gt;autoPlay&lt;/code&gt; to &lt;code&gt;false&lt;/code&gt; to pause the video initially).**/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">bufferTime</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"bufferTime"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** If &lt;code&gt;true&lt;/code&gt;, the VideoLoader will check for a crossdomain.xml file on the remote host (only useful when loading videos from other domains - see Adobe's docs for details about NetStream's &lt;code&gt;checkPolicyFile&lt;/code&gt; property). **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">checkPolicyFile</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"checkPolicyFile"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Indicates the type of filter applied to decoded video as part of post-processing. The default value is 0, which lets the video compressor apply a deblocking filter as needed. See Adobe's &lt;code&gt;flash.media.Video&lt;/code&gt; class docs for details. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">deblocking</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"deblocking"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Estimated duration of the video in seconds. VideoLoader will only use this value until it receives the necessary metaData from the video in order to accurately determine the video's duration. You do not need to specify an &lt;code&gt;estimatedDuration&lt;/code&gt;, but doing so can help make the playProgress and some other values more accurate (until the metaData has loaded). It can also make the &lt;code&gt;progress/bytesLoaded/bytesTotal&lt;/code&gt; more accurate when a &lt;code&gt;estimatedDuration&lt;/code&gt; is defined, particularly in &lt;code&gt;bufferMode&lt;/code&gt;.**/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">estimatedDuration</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"estimatedDuration"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Number of times that the video should repeat. To repeat indefinitely, use -1. Default is 0. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">repeat</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"repeat"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** When &lt;code&gt;smoothing&lt;/code&gt; is &lt;code&gt;true&lt;/code&gt; (the default), smoothing will be enabled for the video which typically leads to better scaling results. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">smoothing</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"smoothing"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** A value between 0 and 1 indicating the volume at which the video should play (default is 1).**/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">volume</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">VideoLoaderVars</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_set</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"volume"</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        
+<span class="ActionScriptComment">//---- GETTERS / SETTERS -----------------------------------------------------------------
+</span>        
+        <span class="ActionScriptASDoc">/** The generic Object populated by all of the method calls in the VideoLoaderVars instance. This is the raw data that gets passed to the loader. **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">vars</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Object</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">_vars</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** @private **/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">isGSVars</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Boolean</span> <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">true</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+    <span class="ActionScriptBracket/Brace">}</span>
+<span class="ActionScriptBracket/Brace">}</span></pre></body>
+</html>

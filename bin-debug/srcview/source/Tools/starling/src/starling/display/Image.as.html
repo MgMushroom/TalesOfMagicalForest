@@ -1,0 +1,197 @@
+<!-- saved from url=(0014)about:internet -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>Image.as</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../SourceStyles.css"/>
+</head>
+
+<body><pre><span class="ActionScriptComment">// =================================================================================================
+</span><span class="ActionScriptComment">//
+</span><span class="ActionScriptComment">//    Starling Framework
+</span><span class="ActionScriptComment">//    Copyright 2011-2014 Gamua. All Rights Reserved.
+</span><span class="ActionScriptComment">//
+</span><span class="ActionScriptComment">//    This program is free software. You can redistribute and/or modify it
+</span><span class="ActionScriptComment">//    in accordance with the terms of the accompanying license agreement.
+</span><span class="ActionScriptComment">//
+</span><span class="ActionScriptComment">// =================================================================================================
+</span>
+<span class="ActionScriptpackage">package</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display</span>
+<span class="ActionScriptBracket/Brace">{</span>
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">display</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Bitmap</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">geom</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Matrix</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">geom</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Point</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">flash</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">geom</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Rectangle</span>;
+    
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">core</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">RenderSupport</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">textures</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">Texture</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">textures</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">TextureSmoothing</span>;
+    <span class="ActionScriptReserved">import</span> <span class="ActionScriptDefault_Text">starling</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">utils</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">VertexData</span>;
+    
+    <span class="ActionScriptASDoc">/** An Image is a quad with a texture mapped onto it.
+     *  
+     *  &lt;p&gt;The Image class is the Starling equivalent of Flash's Bitmap class. Instead of 
+     *  BitmapData, Starling uses textures to represent the pixels of an image. To display a 
+     *  texture, you have to map it onto a quad - and that's what the Image class is for.&lt;/p&gt;
+     *  
+     *  &lt;p&gt;As "Image" inherits from "Quad", you can give it a color. For each pixel, the resulting  
+     *  color will be the result of the multiplication of the color of the texture with the color of 
+     *  the quad. That way, you can easily tint textures with a certain color. Furthermore, images 
+     *  allow the manipulation of texture coordinates. That way, you can move a texture inside an 
+     *  image without changing any vertex coordinates of the quad. You can also use this feature
+     *  as a very efficient way to create a rectangular mask.&lt;/p&gt; 
+     *  
+     *  @see starling.textures.Texture
+     *  @see Quad
+     */</span> 
+    <span class="ActionScriptReserved">public</span> <span class="ActionScriptclass">class</span> <span class="ActionScriptDefault_Text">Image</span> <span class="ActionScriptReserved">extends</span> <span class="ActionScriptDefault_Text">Quad</span>
+    <span class="ActionScriptBracket/Brace">{</span>
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">mTexture</span>:<span class="ActionScriptDefault_Text">Texture</span>;
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">mSmoothing</span>:<span class="ActionScriptDefault_Text">String</span>;
+        
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">mVertexDataCache</span>:<span class="ActionScriptDefault_Text">VertexData</span>;
+        <span class="ActionScriptReserved">private</span> <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">mVertexDataCacheInvalid</span>:<span class="ActionScriptDefault_Text">Boolean</span>;
+        
+        <span class="ActionScriptASDoc">/** Creates a quad with a texture mapped onto it. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">Image</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">texture</span>:<span class="ActionScriptDefault_Text">Texture</span><span class="ActionScriptBracket/Brace">)</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">texture</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">frame</span>:<span class="ActionScriptDefault_Text">Rectangle</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">texture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">frame</span>;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">width</span>:<span class="ActionScriptDefault_Text">Number</span>  <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">frame</span> <span class="ActionScriptOperator">?</span> <span class="ActionScriptDefault_Text">frame</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span>  : <span class="ActionScriptDefault_Text">texture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span>;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">height</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">frame</span> <span class="ActionScriptOperator">?</span> <span class="ActionScriptDefault_Text">frame</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span> : <span class="ActionScriptDefault_Text">texture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span>;
+                <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">pma</span>:<span class="ActionScriptDefault_Text">Boolean</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">texture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">premultipliedAlpha</span>;
+                
+                <span class="ActionScriptReserved">super</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">height</span><span class="ActionScriptOperator">,</span> 0xffffff<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">pma</span><span class="ActionScriptBracket/Brace">)</span>;
+                
+                <span class="ActionScriptDefault_Text">mVertexData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">setTexCoords</span><span class="ActionScriptBracket/Brace">(</span>0<span class="ActionScriptOperator">,</span> 0.0<span class="ActionScriptOperator">,</span> 0.0<span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">mVertexData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">setTexCoords</span><span class="ActionScriptBracket/Brace">(</span>1<span class="ActionScriptOperator">,</span> 1.0<span class="ActionScriptOperator">,</span> 0.0<span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">mVertexData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">setTexCoords</span><span class="ActionScriptBracket/Brace">(</span>2<span class="ActionScriptOperator">,</span> 0.0<span class="ActionScriptOperator">,</span> 1.0<span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">mVertexData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">setTexCoords</span><span class="ActionScriptBracket/Brace">(</span>3<span class="ActionScriptOperator">,</span> 1.0<span class="ActionScriptOperator">,</span> 1.0<span class="ActionScriptBracket/Brace">)</span>;
+                
+                <span class="ActionScriptDefault_Text">mTexture</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">texture</span>;
+                <span class="ActionScriptDefault_Text">mSmoothing</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">TextureSmoothing</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">BILINEAR</span>;
+                <span class="ActionScriptDefault_Text">mVertexDataCache</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">VertexData</span><span class="ActionScriptBracket/Brace">(</span>4<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">pma</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">mVertexDataCacheInvalid</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">else</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">throw</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">ArgumentError</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"Texture cannot be null"</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Creates an Image with a texture that is created from a bitmap object. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">static</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">fromBitmap</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">bitmap</span>:<span class="ActionScriptDefault_Text">Bitmap</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">generateMipMaps</span>:<span class="ActionScriptDefault_Text">Boolean</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">true</span><span class="ActionScriptOperator">,</span> 
+                                          <span class="ActionScriptDefault_Text">scale</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">=</span>1<span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Image</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Image</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">Texture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">fromBitmap</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">bitmap</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">generateMipMaps</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">false</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">scale</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** @inheritDoc */</span>
+        <span class="ActionScriptReserved">protected</span> <span class="ActionScriptReserved">override</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">onVertexDataChanged</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">mVertexDataCacheInvalid</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">true</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Readjusts the dimensions of the image according to its current texture. Call this method 
+         *  to synchronize image and texture size after assigning a texture with a different size.*/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">readjustSize</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">frame</span>:<span class="ActionScriptDefault_Text">Rectangle</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">texture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">frame</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">width</span>:<span class="ActionScriptDefault_Text">Number</span>  <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">frame</span> <span class="ActionScriptOperator">?</span> <span class="ActionScriptDefault_Text">frame</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span>  : <span class="ActionScriptDefault_Text">texture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">width</span>;
+            <span class="ActionScriptvar">var</span> <span class="ActionScriptDefault_Text">height</span>:<span class="ActionScriptDefault_Text">Number</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">frame</span> <span class="ActionScriptOperator">?</span> <span class="ActionScriptDefault_Text">frame</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span> : <span class="ActionScriptDefault_Text">texture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">height</span>;
+            
+            <span class="ActionScriptDefault_Text">mVertexData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">setPosition</span><span class="ActionScriptBracket/Brace">(</span>0<span class="ActionScriptOperator">,</span> 0.0<span class="ActionScriptOperator">,</span> 0.0<span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">mVertexData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">setPosition</span><span class="ActionScriptBracket/Brace">(</span>1<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">,</span> 0.0<span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">mVertexData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">setPosition</span><span class="ActionScriptBracket/Brace">(</span>2<span class="ActionScriptOperator">,</span> 0.0<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">height</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">mVertexData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">setPosition</span><span class="ActionScriptBracket/Brace">(</span>3<span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">width</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">height</span><span class="ActionScriptBracket/Brace">)</span>; 
+            
+            <span class="ActionScriptDefault_Text">onVertexDataChanged</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Sets the texture coordinates of a vertex. Coordinates are in the range [0, 1]. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">setTexCoords</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">vertexID</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">coords</span>:<span class="ActionScriptDefault_Text">Point</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">mVertexData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">setTexCoords</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">vertexID</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">coords</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">x</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">coords</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">y</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">onVertexDataChanged</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Sets the texture coordinates of a vertex. Coordinates are in the range [0, 1]. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">setTexCoordsTo</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">vertexID</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">u</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">v</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">mVertexData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">setTexCoords</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">vertexID</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">u</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">v</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">onVertexDataChanged</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Gets the texture coordinates of a vertex. Coordinates are in the range [0, 1]. 
+         *  If you pass a 'resultPoint', the result will be stored in this point instead of 
+         *  creating a new object.*/</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">getTexCoords</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">vertexID</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">resultPoint</span>:<span class="ActionScriptDefault_Text">Point</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Point</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">resultPoint</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span> <span class="ActionScriptDefault_Text">resultPoint</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">Point</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptDefault_Text">mVertexData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">getTexCoords</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">vertexID</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">resultPoint</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">resultPoint</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Copies the raw vertex data to a VertexData instance.
+         *  The texture coordinates are already in the format required for rendering. */</span> 
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">override</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">copyVertexDataTo</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">targetData</span>:<span class="ActionScriptDefault_Text">VertexData</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">targetVertexID</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">copyVertexDataTransformedTo</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">targetData</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">targetVertexID</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** Transforms the vertex positions of the raw vertex data by a certain matrix
+         *  and copies the result to another VertexData instance.
+         *  The texture coordinates are already in the format required for rendering. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">override</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">copyVertexDataTransformedTo</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">targetData</span>:<span class="ActionScriptDefault_Text">VertexData</span><span class="ActionScriptOperator">,</span>
+                                                             <span class="ActionScriptDefault_Text">targetVertexID</span>:<span class="ActionScriptDefault_Text">int</span><span class="ActionScriptOperator">=</span>0<span class="ActionScriptOperator">,</span>
+                                                             <span class="ActionScriptDefault_Text">matrix</span>:<span class="ActionScriptDefault_Text">Matrix</span><span class="ActionScriptOperator">=</span><span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">mVertexDataCacheInvalid</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">mVertexDataCacheInvalid</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptReserved">false</span>;
+                <span class="ActionScriptDefault_Text">mVertexData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">copyTo</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">mVertexDataCache</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">mTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">adjustVertexData</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">mVertexDataCache</span><span class="ActionScriptOperator">,</span> 0<span class="ActionScriptOperator">,</span> 4<span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            
+            <span class="ActionScriptDefault_Text">mVertexDataCache</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">copyTransformedTo</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">targetData</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">targetVertexID</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">matrix</span><span class="ActionScriptOperator">,</span> 0<span class="ActionScriptOperator">,</span> 4<span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** The texture that is displayed on the quad. */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">texture</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">Texture</span> <span class="ActionScriptBracket/Brace">{</span> <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">mTexture</span>; <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">texture</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">Texture</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span> 
+        <span class="ActionScriptBracket/Brace">{</span> 
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span> <span class="ActionScriptOperator">==</span> <span class="ActionScriptReserved">null</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptReserved">throw</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">ArgumentError</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"Texture cannot be null"</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+            <span class="ActionScriptReserved">else</span> <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span> <span class="ActionScriptOperator">!=</span> <span class="ActionScriptDefault_Text">mTexture</span><span class="ActionScriptBracket/Brace">)</span>
+            <span class="ActionScriptBracket/Brace">{</span>
+                <span class="ActionScriptDefault_Text">mTexture</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span>;
+                <span class="ActionScriptDefault_Text">mVertexData</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">setPremultipliedAlpha</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">mTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">premultipliedAlpha</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">mVertexDataCache</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">setPremultipliedAlpha</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">mTexture</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">premultipliedAlpha</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptReserved">false</span><span class="ActionScriptBracket/Brace">)</span>;
+                <span class="ActionScriptDefault_Text">onVertexDataChanged</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>;
+            <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** The smoothing filter that is used for the texture. 
+        *   @default bilinear
+        *   @see starling.textures.TextureSmoothing */</span> 
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">get</span> <span class="ActionScriptDefault_Text">smoothing</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptDefault_Text">String</span> <span class="ActionScriptBracket/Brace">{</span> <span class="ActionScriptReserved">return</span> <span class="ActionScriptDefault_Text">mSmoothing</span>; <span class="ActionScriptBracket/Brace">}</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptReserved">set</span> <span class="ActionScriptDefault_Text">smoothing</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span>:<span class="ActionScriptDefault_Text">String</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span> 
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptReserved">if</span> <span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">TextureSmoothing</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">isValid</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span><span class="ActionScriptBracket/Brace">)</span>
+                <span class="ActionScriptDefault_Text">mSmoothing</span> <span class="ActionScriptOperator">=</span> <span class="ActionScriptDefault_Text">value</span>;
+            <span class="ActionScriptReserved">else</span>
+                <span class="ActionScriptReserved">throw</span> <span class="ActionScriptReserved">new</span> <span class="ActionScriptDefault_Text">ArgumentError</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptString">"Invalid smoothing mode: "</span> <span class="ActionScriptOperator">+</span> <span class="ActionScriptDefault_Text">value</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+        
+        <span class="ActionScriptASDoc">/** @inheritDoc */</span>
+        <span class="ActionScriptReserved">public</span> <span class="ActionScriptReserved">override</span> <span class="ActionScriptfunction">function</span> <span class="ActionScriptDefault_Text">render</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptDefault_Text">support</span>:<span class="ActionScriptDefault_Text">RenderSupport</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">parentAlpha</span>:<span class="ActionScriptDefault_Text">Number</span><span class="ActionScriptBracket/Brace">)</span>:<span class="ActionScriptReserved">void</span>
+        <span class="ActionScriptBracket/Brace">{</span>
+            <span class="ActionScriptDefault_Text">support</span><span class="ActionScriptOperator">.</span><span class="ActionScriptDefault_Text">batchQuad</span><span class="ActionScriptBracket/Brace">(</span><span class="ActionScriptReserved">this</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">parentAlpha</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">mTexture</span><span class="ActionScriptOperator">,</span> <span class="ActionScriptDefault_Text">mSmoothing</span><span class="ActionScriptBracket/Brace">)</span>;
+        <span class="ActionScriptBracket/Brace">}</span>
+    <span class="ActionScriptBracket/Brace">}</span>
+<span class="ActionScriptBracket/Brace">}</span></pre></body>
+</html>

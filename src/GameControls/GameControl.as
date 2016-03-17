@@ -49,7 +49,7 @@ package GameControls
 		{
 			heroArt = new Image(Assets.getTexture("MagicHeroR"));
 			heroArt.x = 25;
-			heroArt.y = 445;
+			heroArt.y = 510;
 			this.addChild(heroArt);
 			trace("heroArt brougth");
 			

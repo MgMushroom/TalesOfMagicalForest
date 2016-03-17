@@ -15,7 +15,7 @@ package assets
 	
 	public class Assets extends Sprite
 	{
-		//importing graphics
+	//WelcomeScreen assets------------------------------
 		[Embed(source="/../Media/Pics/bgWelcome.png")]
 		public static const BgWelcome:Class;
 		[Embed(source="/../Media/Pics/welcomeLogo.png")]
@@ -26,36 +26,35 @@ package assets
 		public static const BgStart:Class;
 		[Embed(source="/../Media/Pics/welcomeAbout.png")]
 		public static const BgAbout:Class;
-		
-		[Embed(source="/../Media/Pics/MgMushroomL.gif")] 
-		public static const MagicHeroL:Class;
-
-		[Embed(source="/../Media/Pics/MgMushroomR.gif")] 
-		public static const MagicHeroR:Class;
-		
-		[Embed(source="/../Media/Pics/MgMushroomLAttack.gif")] 
-		public static const MagicHeroLAttack:Class;
-		
-		[Embed(source="/../Media/Pics/MgMushroomRAttack.gif")] 
-		public static const MagicHeroRAttack:Class;
-		
 		[Embed(source="/../Media/Pics/leaves.png")]
 		public static const Leaves:Class;
-		
 		[Embed(source="/../Media/Pics/cloud1.gif")]
 		public static const Cloud1:Class;
-		
 		[Embed(source="/../Media/Pics/cloud2.png")]
 		public static const Cloud2:Class;
-		
-		[Embed(source="/../Media/Pics/bg_intro.png")] 
-		public static const BgIntro:Class;
-
 		[Embed(source="/../Media/Pics/logo.png")] 
 		public static const BrandLogo:Class;
-		
+	//GameControl assets--------------------------------
+		[Embed(source="/../Media/Pics/MgMushroomL.gif")] 
+		public static const MagicHeroL:Class;
+		[Embed(source="/../Media/Pics/MgMushroomR.gif")] 
+		public static const MagicHeroR:Class;
+		[Embed(source="/../Media/Pics/MgMushroomLAttack.gif")] 
+		public static const MagicHeroLAttack:Class;
+		[Embed(source="/../Media/Pics/MgMushroomRAttack.gif")] 
+		public static const MagicHeroRAttack:Class;
+	//enemy: Worm assets
+	
+	//InGame assets-------------------------------------
 		[Embed(source="/../Media/Pics/bgInGame.png")] 
 		public static const InGameBG:Class;
+	//introScreen assets--------------------------------
+		[Embed(source="/../Media/Pics/bg_intro.png")] 
+		public static const BgIntro:Class;
+	//--------------------------------------------------
+		
+		
+	
 		
 		//making dictionary from embed graphics
 		private static var gameTextures:Dictionary = new Dictionary();

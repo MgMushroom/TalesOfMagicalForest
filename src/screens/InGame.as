@@ -7,8 +7,6 @@ package screens
 	
 	import GameControls.GameControl;
 	
-	//import assets.Map1;
-	
 	import assets.Assets;
 	
 	import objects.Hero;
@@ -31,9 +29,9 @@ package screens
 		
 		//InGame images
 		private var ingameBG:Image;
-		//
-		//InGame movieclips
-		//private var ingameBGS:MovieClip = new Map1() as MovieClip;
+		
+	
+		
 
 		public function InGame() 
 		{
@@ -88,11 +86,5 @@ package screens
 			this.visible = false;
 			
 		}
-	
-
-		
-		
-
 	}
-
 }
