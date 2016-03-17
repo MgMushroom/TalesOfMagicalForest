@@ -26,9 +26,7 @@ package assets
 		public static const BgStart:Class;
 		[Embed(source="/../Media/Pics/welcomeAbout.png")]
 		public static const BgAbout:Class;
-
-
-
+		
 		[Embed(source="/../Media/Pics/MgMushroomL.gif")] 
 		public static const MagicHeroL:Class;
 
@@ -56,7 +54,7 @@ package assets
 		[Embed(source="/../Media/Pics/logo.png")] 
 		public static const BrandLogo:Class;
 		
-		[Embed(source="/../Media/Pics/night.png")] 
+		[Embed(source="/../Media/Pics/bgInGame.png")] 
 		public static const InGameBG:Class;
 		
 		//making dictionary from embed graphics
