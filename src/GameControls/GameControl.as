@@ -17,72 +17,93 @@ package GameControls
 	import starling.events.EnterFrameEvent;
 	import starling.events.Event;
 	import starling.events.KeyboardEvent;
-	
+	import starling.events.Touch;
+	import starling.events.TouchEvent;
+	import starling.text.TextField
 	public class GameControl extends Sprite 
 	{
 	//Image variables
 		private var heroArt:Image;
 		private var heroArtL:Image;
 		private var heroArtR:Image;
+	
+		private var mouseArea:Image;
 	//Boolean variables
+		
+		private var wDown:Boolean;
 		private var aDown:Boolean;
 		private var dDown:Boolean;
 		private var spaceDown:Boolean;
+		
 		private var heroAttackL:Boolean;
 		private var heroAttackR:Boolean;
-		public var grav:int = 0;
-	//heroSpeed
-		private var speedHero:Number;
+		
+		private var speedHero:int = 6;
+		private var jump:int = 13;
+		private var gravity:Number = 0;
+		private var minionSpeed:Number = 1;
+		private var counter:Boolean = true;
+		private var gravitySmooth:Boolean;
+		private var jumpCounter:Boolean;
+		private var ingameBG:Image;
+		
+	//Mouse detection
+		private var touch:Touch;
+		private var touchX:Number;
+		private var touchY:Number;
+	
 	//Sound variables
 		private var soundAmoutControl:int;
-		
+		private var textF:TextField = new TextField(300,300,"");
 		
 	//Get texture for hero and handle player controls
 		public function GameControl() 
 		{	
-			this.addEventListener(Event.ENTER_FRAME, checkKeysAndParams);
+			
+			MouseArea();
+			drawWorld();
 			bringHeroArt();
+			
+			
+			this.addEventListener(Event.ENTER_FRAME, checkKeysAndParams);
+			this.addEventListener(TouchEvent.TOUCH, onTouch);
 		
+		}
+		
+		private function MouseArea():void
+		{
+			mouseArea = new Image(Assets.getTexture("MouseDetection"));
+			this.addChild(mouseArea);
+		}
+		
+		private function text():void
+		{
+			
+			textF.border = true;
+			this.addChild(textF);
+			
+			var text:String = String(touchX);
+			textF.text = text;
 		}
 		
 		private function bringHeroArt():void
 		{
 			heroArt = new Image(Assets.getTexture("MagicHeroR"));
-			heroArt.x = 25;
+			heroArt.x = 400;
 			heroArt.y = 510;
 			this.addChild(heroArt);
 			trace("heroArt brougth");
 			
 		}
 		
-		private function attack():void
+		private function drawWorld():void
 		{
-			var startTime=getTimer();
 			
-			stage.addEventListener(Event.ENTER_FRAME, timeDelay);
 			
-			function timeDelay(event:Event):void
-			{
-				
-				var timePassed=getTimer();
-				if (timePassed-startTime >= 100) 
-				{
-					stage.removeEventListener(Event.ENTER_FRAME, timeDelay);
-					
-					if(heroArt.texture == Assets.getTexture("MagicHeroLAttack"))
-					{
-					heroArt.texture = Assets.getTexture("MagicHeroL");
-					
-					}
-				
-					if(heroArt.texture == Assets.getTexture("MagicHeroRAttack"))
-					{
-					heroArt.texture = Assets.getTexture("MagicHeroR");
-				
-					}
-				}
-			}
-		}			
+			ingameBG = new Image(Assets.getTexture("InGameBG"));
+			this.addChild(ingameBG);
+			
+		}
 		
 		private function attackSound1():void
 		{
@@ -100,80 +121,54 @@ package GameControls
 
 			{
 			
-			//hero movement speed
-			speedHero = 7;
-			
 			//stage.addEventListener(Event.ENTER_FRAME, checkStuff);
 			stage.addEventListener(starling.events.KeyboardEvent.KEY_DOWN, keysDown);
 			stage.addEventListener(starling.events.KeyboardEvent.KEY_UP, keysUp);
-		
-			//heroArt.gravity();
 			
+			text();
+			if (ingameBG.x < -stage.stageWidth){ingameBG.x = 0;}
 			
+			heroArt.x += gravity;
+			if (touchX > heroArt.x + heroArt.width * 0.5)
+			{
+			heroArt.texture = Assets.getTexture("MagicHeroR");
+			}
+			
+			if (touchX < heroArt.x + heroArt.width * 0.5)
+			{
+				heroArt.texture = Assets.getTexture("MagicHeroL");
+			}
 			
 			if(spaceDown)
 			{
-				if(soundAmoutControl < 1)
+				if (touchX > heroArt.x + heroArt.width * 0.5)
 				{
-				
-					if(heroArt.texture == Assets.getTexture("MagicHeroL"))
-					{
-						heroArt.texture = Assets.getTexture("MagicHeroLAttack");
+					heroArt.texture = Assets.getTexture("MagicHeroR");
 					
-						aDown = false;
-						dDown = false;
-					
-							attack();
-					
-					
-						if(soundAmoutControl < 1)
-						{
-							attackSound1();
-							soundAmoutControl++;
-						}
-					}
+					ingameBG.x -= speedHero;
+					if(speedHero > 7){speedHero = 7;}
 				}
 				
-				if(soundAmoutControl < 1)
+				if (touchX < heroArt.x + heroArt.width * 0.5)
 				{
-				
-					if(heroArt.texture == Assets.getTexture("MagicHeroR"))
-					{
-						heroArt.texture = Assets.getTexture("MagicHeroRAttack");
-					
-						aDown = false;
-						dDown = false;
-					
-						attack();
-					
-						if(soundAmoutControl < 1)
-						{
-							attackSound1();
-							soundAmoutControl++;
-						}
-					}
-				}
+					heroArt.texture = Assets.getTexture("MagicHeroL");
+					ingameBG.x += speedHero;
+					if(speedHero > 7){speedHero = 7;}
+				}		
 			}
 			
 			if (aDown)
-			{
-				
-				heroArt.texture = Assets.getTexture("MagicHeroL");
-				heroArt.x -= speedHero; //move left
-				//heroArtR.scaleX = -1; // face to the left
+				{
 				
 				}
 			if (dDown)	
 				{
-				
-				
-				heroArt.texture = Assets.getTexture("MagicHeroR");
-				heroArt.x += speedHero;	//move right
-				//heroArtL.scaleX = 1; // face to the right
-				
-				//heroArt.x -= heroArt.width;
+						
 				}	
 			}
+		
+	
+	
 		
 		public function keysDown(e:KeyboardEvent):void 
 			{
@@ -205,7 +200,7 @@ package GameControls
 				
 				if (e.keyCode == 32)
 				{
-					soundAmoutControl = 0;
+					
 					spaceDown = false;
 				}
 				
@@ -219,11 +214,11 @@ package GameControls
 					dDown = false;
 				}
 			}
-			/*public function gravity():void
-			{
-				this.y += grav;
-				grav ++;
-			}*/
+		private function onTouch(event:TouchEvent):void
+		{
+			touch = event.getTouch(stage);
+			touchX = touch.globalX;
+			touchY = touch.globalY;
+		}		
 	}
-
 }

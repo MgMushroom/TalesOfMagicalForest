@@ -35,6 +35,8 @@ package assets
 		[Embed(source="/../Media/Pics/logo.png")] 
 		public static const BrandLogo:Class;
 	//GameControl assets--------------------------------
+		[Embed(source="/../Media/Pics/MouseArea.gif")] 
+		public static const MouseDetection:Class;
 		[Embed(source="/../Media/Pics/MgMushroomL.gif")] 
 		public static const MagicHeroL:Class;
 		[Embed(source="/../Media/Pics/MgMushroomR.gif")] 

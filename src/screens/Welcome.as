@@ -69,12 +69,12 @@ package screens
 			
 			
 			cloud1 = new Image(Assets.getTexture("Cloud1"));
-			this.addChild(cloud1);
+			//this.addChild(cloud1);
 			cloud1.y = 60;
 			cloud1.x = 50;
 			
 			cloud2 = new Image(Assets.getTexture("Cloud2"));
-			this.addChild(cloud2);
+			//this.addChild(cloud2);
 			cloud2.y = 30;
 			cloud2.x = -700
 			
@@ -83,7 +83,7 @@ package screens
 			this.addChild(char);
 			
 			border = new Image(Assets.getTexture("Leaves"));
-			this.addChild(border);
+			//this.addChild(border);
 			
 			logo = new Image (Assets.getTexture("BgLogo"));
 			this.addChild(logo);
